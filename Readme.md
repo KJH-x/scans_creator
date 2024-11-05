@@ -61,6 +61,8 @@ This project is a **video snapshot and metadata scanner** that captures snapshot
 
 The output will be a composite image arranged in a 4x4 grid, displaying snapshots and video metadata with a custom logo.
 
+![img](./scans/example/000000.scan.Dune.Part.Two.2024.2160p.BluRay.DoVi.x265.10bit.Atmos.TrueHD7.1-WiKi.mkv.png)
+
 ## Notes
 
 - **Grid Layout**: Adjust the grid layout in the `create_scan_image` function by modifying the grid tuple `(4, 4)` for different rows and columns.
