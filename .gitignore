@@ -1,0 +1,8 @@
+logo/*.ai
+fonts/*.otf
+fonts/*.ttf
+scans/*.png
+model
+.abandoned
+scan_maker_dev.py
+__pycache__
