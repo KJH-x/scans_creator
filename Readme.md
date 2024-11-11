@@ -11,8 +11,8 @@ This project is a **video snapshot and metadata scanner** that captures snapshot
 
 ## Requirements
 
-- **Python 3.8+**
-- **FFmpeg** (for extracting frames from the video)
+- **Python 3.12+**
+- **FFmpeg** (for extracting frames from the video, type 'ffmpeg -version` in terminal to check)
 - **Pillow** (PIL library for image manipulation)
 
 ## Setup
