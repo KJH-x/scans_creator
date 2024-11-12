@@ -4,5 +4,5 @@ fonts/*.ttf
 scans/*.png
 model
 .abandoned
-scan_maker_dev.py
+*.dev.py
 __pycache__
