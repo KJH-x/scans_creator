@@ -11,7 +11,10 @@ This project is a **video snapshot and metadata scanner** that captures snapshot
 
 ## Requirements
 
-- **Python 3.12+**
+- **Python 3.10+**
+
+> No python 3.8 supports. You can manully remove incompatible codes (type annotations) to run in python 3.8 (tested), but this repo will not offer directly.
+
 - **FFmpeg** (for extracting frames from the video, type 'ffmpeg -version` in terminal to check)
 - **Pillow** (PIL library for image manipulation)
 
