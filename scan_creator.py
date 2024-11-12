@@ -13,6 +13,7 @@ from PIL.ImageDraw import ImageDraw as ImageDrawType
 from PIL.ImageFont import FreeTypeFont
 
 from VideoInfo import VideoInfo
+from ConfigManager import ConfigManager, ConfigFileManager
 
 
 def ffprobe_get_info(filename: str) -> Dict[Any, Any] | None:
@@ -505,27 +506,37 @@ if __name__ == '__main__':
     # chcp 65001
 
     file_path = input("File Path :")
-    # 推荐 serif
-    font_file = "fonts/..."
-    # 推荐 sans
-    font_file_2 = "fonts/..."
-    logo_file = "logo/logo.png"
+    
+    # Path to the config file
+    config_file: str = "config.json"
+
+    # Initialize ConfigFileManager
+    file_manager: ConfigFileManager = ConfigFileManager(config_file)
+
+    # Initialize ConfigManager
+    config_manager: ConfigManager = ConfigManager(config_file, file_manager)
+    
+    # Access configuration data
+    font_file: str = config_manager.get("font_file")
+    font_file_2: str = config_manager.get("font_file_2")
+    logo_file: str = config_manager.get("logo_file")
+    resize: bool = config_manager.get("resize", True)
+    grid_size: tuple = tuple(config_manager.get("grid_size", [4, 4]))
+    
     for _ in [file_path, font_file, font_file_2, logo_file]:
         if not os.path.exists(_):
             print(f"file {_} no found")
             exit(1)
-
-    resize = True
 
     try:
         video_info = get_video_info(file_path)
         print(video_info)
         if video_info:
             snapshot_times = calculate_snapshot_times(
-                video_info, snapshot_count=16)
+                video_info, snapshot_count=grid_size[0] * grid_size[1])
             snapshots = take_snapshots(video_info, snapshot_times, 800, 450)
 
-            scan = create_scan_image(snapshots, (4, 4), snapshot_times,
+            scan = create_scan_image(snapshots, grid_size, snapshot_times,
                                      video_info, font_file, font_file_2, logo_file)
             if resize:
                 scan = scan.resize((1600, 1125), Resampling.LANCZOS)
