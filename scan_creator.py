@@ -218,7 +218,7 @@ def calculate_snapshot_times(video_info: VideoInfo, snapshot_count=4, skip_secon
     return snapshot_times
 
 
-def take_snapshots(video_info: VideoInfo, snapshot_times, target_width=0, target_height=0, scale_method="fit") -> list[ImageType]:
+def take_snapshots(video_info: VideoInfo, snapshot_times, target_width=0, target_height=0, scale_method="fit") -> List[ImageType]:
     """
     Capture snapshots from a video at specified times, scaling each snapshot to the desired target dimensions.
 
@@ -529,7 +529,7 @@ if __name__ == '__main__':
                                      video_info, font_file, font_file_2, logo_file)
             if resize:
                 scan = scan.resize((1600, 1125), Resampling.LANCZOS)
-            scan.save(f"scans/{datetime.now().strftime("%H%M%S")}.scan.{video_info.file_name}.png")
+            scan.save(f"scans/{datetime.now().strftime('%H%M%S')}.scan.{video_info.file_name}.png")
 
         else:
             print("Failed to retrieve video information.")

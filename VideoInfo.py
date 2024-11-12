@@ -3,7 +3,7 @@ from typing import Dict, List
 
 
 class VideoInfo:
-    def __init__(self, file_info: Dict[str, str | int], video_info: Dict, audio_info: Dict, subtitle_info: Dict):
+    def __init__(self, file_info: Dict[str, str | int], video_info: Dict[str, str | float | int], audio_info: Dict[str, str], subtitle_info: Dict[str, str]) -> None:
         # File information
         self.file_name: str = _ if isinstance(_ := file_info.get("name"), str) else ""
         self.file_path: str = _ if isinstance(_ := file_info.get("path"), str) else ""
