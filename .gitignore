@@ -2,6 +2,7 @@ logo/*.ai
 fonts/*.otf
 fonts/*.ttf
 scans/*.png
+config.json
 model
 .abandoned
 *.dev.py
