@@ -232,7 +232,7 @@ def calculate_snapshot_times(video_info: VideoInfo, avoid_leading: bool = True, 
     snapshot_interval = math.floor((end_time - start_time) / interval_count)
     snapshot_times: List[int] = [start_time + i *
                                  snapshot_interval for i in range(int(avoid_leading), interval_count+int(not avoid_ending))]
-    print(duration, snapshot_times)
+    # print(duration, snapshot_times)
 
     return snapshot_times
 
