@@ -12,8 +12,8 @@ from PIL.Image import Resampling
 from PIL.ImageDraw import ImageDraw as ImageDrawType
 from PIL.ImageFont import FreeTypeFont
 
+from ConfigManager import ConfigManager
 from VideoInfo import VideoInfo
-from ConfigManager import ConfigManager, ConfigFileManager
 
 
 def ffprobe_get_info(filename: str) -> Dict[Any, Any] | None:
@@ -195,26 +195,44 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
     return VideoInfo(file_info, video_info, audio_info, subtitle_info)
 
 
-def calculate_snapshot_times(video_info: VideoInfo, snapshot_count=4, skip_seconds_from_head=0, discard_seconds_from_end=0) -> List[int]:
+def calculate_snapshot_times(video_info: VideoInfo, avoid_leading: bool = True, avoid_ending: bool = True, snapshot_count=4, skip_seconds_from_head=0, discard_seconds_from_end=1) -> List[int]:
     """
-    Calculate evenly spaced snapshot times for a video based on its duration and specified parameters.
+    Calculate evenly spaced snapshot times for a video based on its duration, taking into account the specified parameters for skipping time at the beginning, 
+    avoiding snapshots at the beginning and/or end, and the total number of snapshots to capture.
+
+    The function adjusts the snapshot times to ensure that the desired number of snapshots are spaced as evenly as possible, 
+    while allowing for some flexibility in the starting and ending points of the video.
 
     Args:
-        video_info (VideoInfo): An object containing metadata about the video, including its total duration in seconds.
+        video_info (VideoInfo): An object containing metadata about the video, including its total duration in seconds. 
+                                 It must have a `duration` attribute representing the video length in seconds.
         snapshot_count (int, optional): The number of snapshots to capture. Defaults to 4.
+        avoid_leading (bool, optional): Whether to skip the first snapshot (leading snapshot). Defaults to True.
+        avoid_ending (bool, optional): Whether to skip the last snapshot (ending snapshot). Defaults to True.
         skip_seconds_from_head (int, optional): The number of seconds to skip from the beginning of the video before taking the first snapshot. Defaults to 0.
         discard_seconds_from_end (int, optional): The number of seconds to disregard from the end of the video when calculating snapshot intervals. Defaults to 0.
 
     Returns:
         List[int]: A list of integers representing the times (in seconds) at which to capture each snapshot, spaced evenly throughout the adjusted video duration.
+
+    Calculation Details:
+        - The function adjusts the video duration by the `skip_seconds_from_head` and `discard_seconds_from_end` parameters.
+        - The adjusted duration is divided into intervals, with snapshot times being evenly spaced within that range.
+        - The behavior of snapshot timing is influenced by the `avoid_leading` and `avoid_ending` flags:
+            - `avoid_leading=True` skips the first snapshot.
+            - `avoid_ending=True` skips the last snapshot.
+            - When both are `True`, no snapshot will be taken at the beginning or end.
+            - The function ensures that the total number of snapshots (`snapshot_count`) is respected, accounting for the leading and ending exclusions.
     """
 
     duration = video_info.duration
     start_time = skip_seconds_from_head
     end_time = duration - discard_seconds_from_end
-    snapshot_interval = math.floor((end_time - start_time) / snapshot_count)
+    interval_count = (snapshot_count - 1 + int(avoid_leading) + int(avoid_ending))
+    snapshot_interval = math.floor((end_time - start_time) / interval_count)
     snapshot_times: List[int] = [start_time + i *
-                                 snapshot_interval for i in range(snapshot_count)]
+                                 snapshot_interval for i in range(int(avoid_leading), interval_count+int(not avoid_ending))]
+    print(duration, snapshot_times)
 
     return snapshot_times
 
@@ -365,8 +383,14 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
         raise ValueError(
             f"Image count ({len(images)}) does not match the grid count ({total_images}).")
 
-    canvas_width = col * 800
-    canvas_height = (row + 1) * 450
+    # The width is directly associated with drawing information,
+    # should not be variable before the info grid become flexible.
+    canvas_width = 3200
+
+    scan_width, scan_height = images[0].size
+    image_width = canvas_width // col
+    image_height = math.floor(scan_height / scan_width * image_width)
+    canvas_height = image_height * row + 450
 
     scan_image = Image.new("RGB", (canvas_width, canvas_height), "white")
     draw = ImageDraw.Draw(scan_image)
@@ -445,26 +469,22 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
     y_offset = 450
     for idx, image in enumerate(images):
 
-        grid_x = (idx % col) * 800
-        grid_y = (idx // col) * 450 + y_offset
+        grid_x = (idx % col) * image_width
+        grid_y = (idx // col) * image_height + y_offset
 
-        image_resized = image.resize((800, 450), Resampling.LANCZOS)
-
+        image_resized = image.resize((image_width, image_height), Resampling.LANCZOS)
         scan_image.paste(image_resized, (grid_x, grid_y))
 
         snapshot_time = str(timedelta(seconds=snapshottimes[idx]))
-
         text_bbox = draw.textbbox((0, 0), snapshot_time, font=font_2)
         text_width = text_bbox[2] - text_bbox[0]
         text_height = text_bbox[3] - text_bbox[1]
-        timestamp_x = grid_x + (800 - text_width) // 2
-
+        timestamp_x = grid_x + (image_width - text_width) // 2
         timestamp_y = grid_y - (text_height // 2) + 10
 
         background = Image.new(
             "RGBA", (text_width, text_height), (0, 0, 0, int(255 * 0.6)))
         scan_image.paste(background, (timestamp_x, timestamp_y+14), background)
-
         draw.text((timestamp_x, timestamp_y), snapshot_time,
                   fill=(255, 255, 255, int(255 * 0.6)), font=font_2)
 
@@ -504,45 +524,44 @@ if __name__ == '__main__':
     """
 
     # chcp 65001
+    try:
+        config_file: str = "config.json"
+        config: ConfigManager = ConfigManager(config_file)
 
-    file_path = input("File Path :")
-    
-    # Path to the config file
-    config_file: str = "config.json"
+        font_file: str = config.font_file
+        font_file_2: str = config.font_file_2
+        logo_file: str = config.logo_file
+        resize_scale: int = config.resize_scale
+        avoid_leading: bool = config.avoid_leading
+        avoid_ending: bool = config.avoid_ending
+        grid_shape: tuple = config.grid_size
 
-    # Initialize ConfigFileManager
-    file_manager: ConfigFileManager = ConfigFileManager(config_file)
+        file_path: str = input("File Path :")
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"input file: {file_path} no found")
 
-    # Initialize ConfigManager
-    config_manager: ConfigManager = ConfigManager(config_file, file_manager)
-    
-    # Access configuration data
-    font_file: str = config_manager.get("font_file")
-    font_file_2: str = config_manager.get("font_file_2")
-    logo_file: str = config_manager.get("logo_file")
-    resize: bool = config_manager.get("resize", True)
-    grid_size: tuple = tuple(config_manager.get("grid_size", [4, 4]))
-    
-    for _ in [file_path, font_file, font_file_2, logo_file]:
-        if not os.path.exists(_):
-            print(f"file {_} no found")
-            exit(1)
+    except (FileNotFoundError, ValueError) as e:
+        print(e)
+        exit(1)
 
     try:
         video_info = get_video_info(file_path)
         print(video_info)
         if video_info:
             snapshot_times = calculate_snapshot_times(
-                video_info, snapshot_count=grid_size[0] * grid_size[1])
+                video_info, avoid_leading, avoid_ending,
+                snapshot_count=grid_shape[0] * grid_shape[1]
+            )
             snapshots = take_snapshots(video_info, snapshot_times, 800, 450)
 
-            scan = create_scan_image(snapshots, grid_size, snapshot_times,
+            scan = create_scan_image(snapshots, grid_shape, snapshot_times,
                                      video_info, font_file, font_file_2, logo_file)
-            if resize:
-                scan = scan.resize((1600, 1125), Resampling.LANCZOS)
+
+            w, h = scan.size
+            scan = scan.resize((w//resize_scale, h//resize_scale), Resampling.LANCZOS)
             scan.save(f"scans/{datetime.now().strftime('%H%M%S')}.scan.{video_info.file_name}.png")
 
         else:
             print("Failed to retrieve video information.")
-    except FileNotFoundError as e:
+    except (FileNotFoundError, ValueError) as e:
         print(e)
