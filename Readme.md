@@ -70,24 +70,38 @@ The output will be a composite image arranged in a grid layout, displaying snaps
 
 ## Notes
 
-- **Grid Layout**: Adjust the grid layout in the `create_scan_image` function by modifying the grid tuple `(4, 4)` for different rows and columns. The number of snapshots to capture is automatically determined based on the `grid_size` configuration (e.g., a 4x4 grid results in 16 snapshots).
-- **Configuration File**: All configurable parameters, such as file paths for fonts and logo, as well as the grid size, are now managed through the `config.json` file. The default values are provided in the file, but you can modify them as needed.
-
+- **Grid Layout**: The grid layout can be customized by adjusting the `grid_size` tuple in the `config.json` file. For instance, setting the grid to `(4, 4)` will create a 4x4 grid of snapshots (16 snapshots in total). You can change the grid size to any other desired configuration, such as `(3, 3)` for 9 snapshots, or `(5, 5)` for 25 snapshots, based on your needs.
+  
+- **Configuration File**: All customizable parameters, such as file paths for fonts, logo, and snapshot grid size, are managed via the `config.json` file. The default values are already provided, but you can modify them according to your project requirements.
+  
 ### Default Configuration (`config.json`)
 
 The default `config.json` looks like this:
 
 ```json
 {
-  "font_file": "fonts/serif.ttf",
-  "font_file_2": "fonts/sans.ttf",
-  "logo_file": "logo/logo.png",
-  "resize": true,
-  "grid_size": [4, 4]
+   "font_file": "fonts/serif.ttf",
+   "font_file_2": "fonts/sans.ttf",
+   "logo_file": "logo/logo.png",
+   "resize_scale": 2,
+   "avoid_leading": true,
+   "avoid_ending": true,
+   "grid_size": [
+         4,
+         4
+   ]
 }
 ```
 
-You can update the paths and grid size as needed. For example, change `"grid_size": [4, 4]` to `"grid_size": [3, 3]` for a 3x3 grid of snapshots.
+- `font_file`: Path to the serif font file used for metadata text.
+- `font_file_2`: Path to the sans-serif font file used for secondary text.
+- `logo_file`: Path to the logo image file to overlay on the scan.
+- `resize_scale`: Scaling factor for resizing the final scan image (e.g., `2` means resize to half size).
+- `avoid_leading`: If `true`, avoids taking snapshots from the very beginning of the video.
+- `avoid_ending`: If `true`, avoids taking snapshots from the very end of the video.
+- `grid_size`: A tuple defining the grid size for snapshot arrangement (e.g., `[4, 4]` for a 4x4 grid).
+
+You can update these values to suit your project needs. For example, if you'd prefer a smaller grid (or  bigger snapshots), change `"grid_size": [4, 4]` to `"grid_size": [3, 3]` for a 3x3 grid (9 snapshots).
 
 ## Limitations & Known Issues
 
