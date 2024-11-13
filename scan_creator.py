@@ -214,15 +214,6 @@ def calculate_snapshot_times(video_info: VideoInfo, avoid_leading: bool = True, 
 
     Returns:
         List[int]: A list of integers representing the times (in seconds) at which to capture each snapshot, spaced evenly throughout the adjusted video duration.
-
-    Calculation Details:
-        - The function adjusts the video duration by the `skip_seconds_from_head` and `discard_seconds_from_end` parameters.
-        - The adjusted duration is divided into intervals, with snapshot times being evenly spaced within that range.
-        - The behavior of snapshot timing is influenced by the `avoid_leading` and `avoid_ending` flags:
-            - `avoid_leading=True` skips the first snapshot.
-            - `avoid_ending=True` skips the last snapshot.
-            - When both are `True`, no snapshot will be taken at the beginning or end.
-            - The function ensures that the total number of snapshots (`snapshot_count`) is respected, accounting for the leading and ending exclusions.
     """
 
     duration = video_info.duration
@@ -336,6 +327,22 @@ def multiline_text_with_shade(
     pos: Tuple[int, int], offset: Tuple[int, int], spacing: int,
     font: FreeTypeFont, text_color: Tuple[int, int, int], shade_color: Tuple[int, int, int]
 ) -> None:
+    """
+    Draw multiline text with a shaded background on the image.
+
+    Args:
+        draw_obj (ImageDrawType): The ImageDraw object used to draw the text.
+        text (str): The text to be drawn.
+        pos (Tuple[int, int]): The starting position (x, y) for the text.
+        offset (Tuple[int, int]): The offset for drawing the shaded background behind the text.
+        spacing (int): The spacing between lines of text.
+        font (FreeTypeFont): The font to be used for drawing the text.
+        text_color (Tuple[int, int, int]): The color of the text.
+        shade_color (Tuple[int, int, int]): The color of the shaded background.
+
+    Returns:
+        None: This function does not return any value; it directly modifies the `draw_obj`.
+    """
 
     x, y = pos
     dx, dy = offset
@@ -498,29 +505,38 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
     return scan_image
 
 
-if __name__ == '__main__':
+def main():
     """
     Main script execution for generating a video scan image with snapshots and metadata overlay.
 
-    Steps:
-        1. Prompts the user for the video file path and verifies the existence of required resources.
-        2. Retrieves video information and calculates evenly spaced snapshot times.
-        3. Captures snapshots at the calculated times, resizing each to 800x450 pixels.
-        4. Creates a scan image with snapshots arranged in a 4x4 grid, metadata details, and a logo overlay.
-        5. Optionally resizes the final scan image to 1600x1125 pixels before saving.
+    This function guides the user through the following process:
+        1. Prompts the user for the video file path and checks the existence of required files (video, fonts, and logo).
+        2. Retrieves detailed video information, such as duration and resolution, and calculates the appropriate snapshot times.
+        3. Captures snapshots from the video at evenly spaced intervals, resizing each snapshot to 800x450 pixels.
+        4. Creates a scan image consisting of a 4x4 grid of snapshots with metadata and a logo overlay.
+        5. Optionally resizes the final scan image to a smaller resolution (scaled by a configurable factor) before saving.
 
     Inputs:
         - file_path (str): Path to the video file provided by the user.
-        - font_file (str): Path to a recommended serif font file.
-        - font_file_2 (str): Path to a recommended sans-serif font file.
-        - logo_file (str): Path to the logo image file.
+        - font_file (str): Path to a serif font file for metadata text.
+        - font_file_2 (str): Path to a sans-serif font file for secondary text.
+        - logo_file (str): Path to the logo image file to overlay on the scan.
+        - resize_scale (int): Scaling factor for resizing the final scan image (e.g., 2 to reduce by half).
+        - avoid_leading (bool): Flag to avoid including the very beginning of the video for snapshots.
+        - avoid_ending (bool): Flag to avoid including the very end of the video for snapshots.
+        - grid_shape (tuple): Grid size for the snapshot arrangement, typically a 4x4 grid.
 
     Outputs:
-        - Saves the final scan image with a timestamped filename to the "scans" directory.
+        - Saves the final scan image to a "scans" directory with a timestamped filename.
+        - The image is saved as a PNG file, containing the arranged snapshots and metadata.
 
     Raises:
-        FileNotFoundError: If any required file (video, fonts, or logo) does not exist.
-        ValueError: If unable to retrieve video information or if other issues occur during processing.
+        - FileNotFoundError: If any required file (video, fonts, or logo) does not exist.
+        - ValueError: If there are issues retrieving video information, taking snapshots, or creating the scan image.
+        - IOError: If there are errors when saving the final scan image.
+
+    Example:
+        The user provides a path to a video, and the script outputs a scan image file named with the current time and video filename.
     """
 
     # chcp 65001
@@ -565,3 +581,7 @@ if __name__ == '__main__':
             print("Failed to retrieve video information.")
     except (FileNotFoundError, ValueError) as e:
         print(e)
+
+
+if __name__ == '__main__':
+    main()
