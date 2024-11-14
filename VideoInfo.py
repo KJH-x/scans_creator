@@ -12,7 +12,7 @@ class VideoInfo:
         self.bitrate: int = _ if isinstance(_ := file_info.get("bitrate"), int) else 0
 
         # multiply video streams
-        self.video_streams : List[Dict[str, str | float | int]] = video_streams
+        self.video_streams: List[Dict[str, str | float | int]] = video_streams
         self.set_active_video_stream(0)
 
         # Audio information
@@ -21,13 +21,23 @@ class VideoInfo:
         self.audio_title: str = _ if isinstance(_ := audio_info.get("title"), str) else ""
         self.audio_sampleRate: str = _ if isinstance(_ := audio_info.get("sampleRate"), str) else ""
         self.audio_channels: str = _ if isinstance(_ := audio_info.get("channels"), str) else ""
+        self.audio_channelLayout: str = _ if isinstance(_ := audio_info.get("channelLayout"), str) else ""
+        self.audio_channel: str = f"{self.audio_channelLayout}({self.audio_channels}@{self.audio_sampleRate})"
 
         # Subtitle information
         self.subtitle_codec: str = _ if isinstance(_ := subtitle_info.get("codec"), str) else ""
         self.subtitle_lang: str = _ if isinstance(_ := subtitle_info.get("lang"), str) else ""
         self.subtitle_title: str = _ if isinstance(_ := subtitle_info.get("title"), str) else ""
 
-    def set_active_video_stream(self, index : int) -> None:
+    def set_active_video_stream(self, index: int) -> None:
+        def _has_long_aspect_ratio(aspect_ratio: str) -> bool:
+            parts = aspect_ratio.split(":")
+            return any(len(part) > 2 for part in parts)
+
+        # ddd:ddd -> f.ff (d:d or dd:dd remain itself)
+        def _short_aspect_ratio(aspect_ratio: str) -> str:
+            return f"{eval(aspect_ratio.replace(':','/')):.2f}" if _has_long_aspect_ratio(aspect_ratio) else aspect_ratio
+
         if index >= len(self.video_streams) | index < 0:
             raise IndexError(f"{index} is not available.")
 
@@ -35,12 +45,26 @@ class VideoInfo:
             self.current_video_stream_index: int = index  # Index for active video stream
             video_info = self.video_streams[self.current_video_stream_index]
 
-            # Video information
-            self.video_codec: str = _ if isinstance(_ := video_info.get("codec"), str) else ""
-            self.video_colorspace: str = _ if isinstance(_ := video_info.get("colorspace"), str) else ""
-            self.frame_size: str = _ if isinstance(_ := video_info.get("frame_size"), str) else ""
-            self.framerate: float = _ if isinstance(_ := video_info.get("framerate"), float) else 0.0
+            # Detail info, not for print
+            self.pix_fmt: str = _ if isinstance(_ := video_info.get("pix_fmt"), str) else ""
+            self.color_range: str = _ if isinstance(_ := video_info.get("color_range"), str) else ""
+            self.color_space: str = _ if isinstance(_ := video_info.get("color_space"), str) else ""
+            self.codec_name: str = _ if isinstance(_ := video_info.get("codec_name"), str) else ""
+            self.profile: str = _ if isinstance(_ := video_info.get("profile"), str) else ""
+            self.pix_depth: int = _ if isinstance(_ := video_info.get("pix_depth"), int) else 0
+            self.pix_channels: int = _ if isinstance(_ := video_info.get("pix_channels"), int) else 0
+            self.width: int = _ if isinstance(_ := video_info.get("width"), int) else 0
+            self.height: int = _ if isinstance(_ := video_info.get("height"), int) else 0
+            self.sar: str = _ if isinstance(_ := video_info.get("sar"), str) else ""
+            self.dar: str = _ if isinstance(_ := video_info.get("dar"), str) else ""
             # self.video_lang: str = _ if isinstance(_ := video_info.get("lang"), str) else ""
+
+            # Video information
+            self.video_codec: str = f"{self.codec_name} ({self.profile}, {self.pix_channels}x{self.pix_depth}bit)"
+            self.video_color: str = f"{self.pix_fmt} ({self.color_range}, {self.color_space})"
+
+            self.frame_size: str = f"{self.width}x{self.height} ({_short_aspect_ratio(self.sar)}/{_short_aspect_ratio(self.dar)})"
+            self.framerate: float = _ if isinstance(_ := video_info.get("framerate"), float) else 0.0
 
     def __list__(self) -> List[str]:
         return [
@@ -52,7 +76,7 @@ class VideoInfo:
             f"Audio Language:   {self.audio_lang}",
             f"Audio Title:      {self.audio_title}",
             f"Video Codec:      {self.video_codec}",
-            f"Video Colorspace: {self.video_colorspace}",
+            f"Video color:      {self.video_color}",
             f"Frame Size:       {self.frame_size}",
             f"Framerate:        {self.framerate:.2f} fps",
             # f"Video Language:   {self.video_lang}",
@@ -74,7 +98,7 @@ class VideoInfo:
             },
             "V": {
                 "codec": self.video_codec,
-                "colorspace": self.video_colorspace,
+                "color": self.video_color,
                 "frameSize": self.frame_size,
                 "frameRate": f"{self.framerate:.2f} fps",
                 # "lang": self.video_lang
@@ -83,6 +107,8 @@ class VideoInfo:
                 "codec": self.audio_codec,
                 "lang": self.audio_lang,
                 "title": self.audio_title,
+                "sampleRate":self.audio_sampleRate,
+                "channel":self.audio_channel
             },
             "S": {
                 "codec": self.subtitle_codec,
@@ -94,4 +120,3 @@ class VideoInfo:
     def __getitem__(self, key) -> Dict[str, str]:
         # Retrieve values as a dictionary and allow indexing
         return self.__dict__().get(key, {"err": "No value"})
-
