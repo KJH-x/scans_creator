@@ -4,6 +4,7 @@ import json
 import math
 import os
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -85,7 +86,7 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
 
     Metadata Includes:
         - File information: name, path, size, duration, and bitrate.
-        - Video stream: codec, colorspace, frame size, frame rate, and language.
+        - Video stream: codec, color, frame size, frame rate, and language.
         - Audio stream: codec, language, title, sample rate, and channel count.
         - Subtitle stream: codec, language, and title.
     """
@@ -117,10 +118,21 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
 
     video_info = {
         "codec": "",
-        "colorspace": "",
+        "color": "",
         "frame_size": "",
         "framerate": 0.0,
-        "lang": ""
+        "lang": "",
+        "pix_fmt": "",
+        "color_range": "",
+        "color_space": "",
+        "codec_name": "",
+        "profile": "",
+        "pix_depth": 0,
+        "pix_channels": 0,
+        "width": 0,
+        "height": 0,
+        "sar": "",
+        "dar": "",
     }
 
     audio_info = {
@@ -129,6 +141,7 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
         "title": "",
         "sampleRate": "",
         "channels": "",
+        "channelLayout": "",
     }
 
     subtitle_info = {
@@ -136,6 +149,9 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
         "lang": "",
         "title": ""
     }
+
+    with open("pix_fmt.json", mode='r', encoding="utf-8") as fp:
+        fmt_info = json.load(fp)
 
     # For files with multiple video streams, each item in this list is a dictionary
     # containing video information (video_info) as described above.
@@ -146,6 +162,7 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
     audio_title_l: List[str] = []
     audio_sampleRate_l: List[str] = []
     audio_channels_l: List[str] = []
+    audio_channelLO_l: List[str] = []
 
     sub_codec_l: List[str] = []
     sub_lang_l: List[str] = []
@@ -156,27 +173,45 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
             continue
 
         if stream.get("codec_type") == "video":
+            # Cross-property concat should done within class init.
+            # Video lang is not considered since most video donot have this tag.
             if stream.get("codec_name") not in ['png', 'jpeg', 'mjpeg']:
-                video_info["codec"] = stream.get("codec_name", "")
-                video_info["colorspace"] = stream.get("color_space", "")
-                width = stream.get("width", 0)
-                height = stream.get("height", 0)
-                video_info["frame_size"] = f"{width}x{height}"
+
+                video_info["pix_fmt"] = pix_fmt = stream.get('pix_fmt', 'N/A')
+                video_info["color_range"] = stream.get('color_range', 'N/A')
+                video_info["color_space"] = stream.get('color_space', 'N/A')
+                # video_info["color"] = f"{pix_fmt} ({color_range}, {color_space})"
+
+                video_info["codec_name"] = stream.get('codec_name', '')
+                video_info["profile"] = stream.get('profile', '')
+                video_info["pix_depth"] = fmt_info[pix_fmt]["TYPICAL_DEPTH"]
+                video_info["pix_channels"] = fmt_info[pix_fmt]["CHANNELS"]
+                # video_info["codec"] = f"{codec_name} ({profile}) ({pix_depth}bit x {pix_channels})"
+
+                video_info["width"] = stream.get("width", 0)
+                video_info["height"] = stream.get("height", 0)
+                video_info["sar"] = stream.get("sample_aspect_ratio", "")
+                video_info["dar"] = stream.get("display_aspect_ratio", "")
+                # video_info["frame_size"] = f"{width}x{height} ({sar}/{dar})"
+
                 avg_frame_rate = stream.get("avg_frame_rate", "0/1")
                 video_info["framerate"] = eval(avg_frame_rate) if avg_frame_rate != "0/1" else 0.0
 
-                if isinstance(tags := stream.get("tags", {}), dict):
-                    video_info["lang"] = tags.get("language", "N/A")
+                # if isinstance(tags := stream.get("tags", {}), dict):
+                #     video_info["lang"] = tags.get("language", "N/A")
 
                 video_info_ld.append(copy.deepcopy(video_info))
                 # In the case of other video streams, the other keys are overwritten,
                 # but not necessarily for the "lang" item
-                video_info["lang"] = ""
+                # video_info["lang"] = ""
 
         elif stream.get("codec_type") == "audio":
             audio_codec_l.append(stream.get("codec_name", "N/A"))
-            audio_sampleRate_l.append(stream.get("sample_rate", "N/A"))
+            if (sample_rate := stream.get("sample_rate", "N/A")) != "N/A":
+                sample_rate = f"{int(sample_rate)//1000} kHz"
+            audio_sampleRate_l.append(sample_rate)
             audio_channels_l.append(str(stream.get("channels", "N/A")))
+            audio_channelLO_l.append(str(stream.get("channel_layout", "N/A")))
 
             if not isinstance(tags := stream.get("tags", {}), dict):
                 continue
@@ -196,6 +231,7 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
     audio_info["title"] = parse_list(audio_title_l)
     audio_info["sampleRate"] = parse_list(audio_sampleRate_l)
     audio_info["channels"] = parse_list(audio_channels_l)
+    audio_info["channelLayout"] = parse_list(audio_channelLO_l)
 
     subtitle_info["codec"] = parse_list(sub_codec_l)
     subtitle_info["lang"] = parse_list(sub_lang_l)
@@ -263,7 +299,7 @@ def take_snapshots(video_info: VideoInfo, snapshot_times, target_width=0, target
 
     snapshots: List[ImageType] = []
 
-    width, height = map(int, video_info.frame_size.split('x'))
+    width, height = video_info.width, video_info.height
     aspect_ratio = width / height
 
     if target_width and not target_height:
@@ -274,55 +310,67 @@ def take_snapshots(video_info: VideoInfo, snapshot_times, target_width=0, target
         target_height = height
         target_width = width
 
-    for idx, time in enumerate(snapshot_times):
-        hhmmss = f"{time // 3600:02}:{(time % 3600) // 60:02}:{time % 60:02}"
+    def _get_snapshot(snap_at: int, video_info: VideoInfo) -> ImageType:
+        hhmmss = f"{snap_at // 3600:02}:{(snap_at % 3600) // 60:02}:{snap_at % 60:02}"
+
         output = subprocess.Popen(
-            ["ffmpeg", "-ss", hhmmss, "-i", video_info.file_path,
+            ["ffmpeg", "-ss", hhmmss,
+             "-i", video_info.file_path,
              "-map", f"0:v:{video_info.current_video_stream_index}",
-             "-skip_frame", "nokey", "-frames:v",
-             "1", "-q:v", "2", "-f", "image2pipe", "-vcodec", "png", "-"],
+             "-skip_frame", "nokey", "-frames:v", "1", "-q:v", "2", "-f", "image2pipe", "-vcodec", "png", "-"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
-
+        # print(f"[{idx+1}/{len(snapshot_times)}] snapshot(s) taken.")
         stdout, _ = output.communicate()
         image = Image.open(io.BytesIO(stdout))
+        return image
 
-        if scale_method == "fit":
-            scale_factor = min(target_width/width, target_height/height)
-            scale_width, scale_height = (math.floor(
-                scale_factor*width), math.floor(scale_factor*height))
+    def _get_snapshots(snapshot_times: List[int], video_info: VideoInfo) -> List[ImageType]:
+        with ThreadPoolExecutor() as executor:
+            images = list(executor.map(lambda time: _get_snapshot(time, video_info), snapshot_times))
+        return images
 
-            image = image.resize(
-                (scale_width, scale_height), Resampling.LANCZOS)
+    snapshots = _get_snapshots(snapshot_times, video_info)
+    snapshots_copy = []
 
-            left = int((target_width - scale_width) // 2)
-            top = int((target_height - scale_height) // 2)
-            right = int(target_width - scale_width - left)
-            bottom = int(target_height - scale_height - top)
-            image = ImageOps.expand(
-                image, (left, top, right, bottom), fill='black')
+    if target_height != height and target_width != width:
+        for image in snapshots:
+            if scale_method == "fit":
+                scale_factor = min(target_width/width, target_height/height)
+                scale_width, scale_height = (math.floor(
+                    scale_factor*width), math.floor(scale_factor*height))
 
-        elif scale_method == "stretch":
-            image = image.resize(
-                (target_width, target_height), Resampling.LANCZOS)
+                image = image.resize(
+                    (scale_width, scale_height), Resampling.LANCZOS)
 
-        elif scale_method == "crop":
-            scale_factor = max(target_width/width, target_height/height)
-            scale_width, scale_height = (
-                math.ceil(scale_factor*width), math.ceil(scale_factor*height))
+                left = int((target_width - scale_width) // 2)
+                top = int((target_height - scale_height) // 2)
+                right = int(target_width - scale_width - left)
+                bottom = int(target_height - scale_height - top)
+                image = ImageOps.expand(
+                    image, (left, top, right, bottom), fill='black')
 
-            image = image.resize(
-                (scale_width, scale_height), Resampling.LANCZOS)
+            elif scale_method == "stretch":
+                image = image.resize(
+                    (target_width, target_height), Resampling.LANCZOS)
 
-            left = int((target_width - scale_width) // 2)
-            top = int((target_height - scale_height) // 2)
-            right = int(target_width - scale_width - left)
-            bottom = int(target_height - scale_height - top)
-            image = image.crop((left, top, right, bottom))
+            elif scale_method == "crop":
+                scale_factor = max(target_width/width, target_height/height)
+                scale_width, scale_height = (
+                    math.ceil(scale_factor*width), math.ceil(scale_factor*height))
 
-        print(f"[{idx+1}/{len(snapshot_times)}] snapshot(s) taken.")
-        snapshots.append(image)
+                image = image.resize(
+                    (scale_width, scale_height), Resampling.LANCZOS)
+
+                left = int((target_width - scale_width) // 2)
+                top = int((target_height - scale_height) // 2)
+                right = int(target_width - scale_width - left)
+                bottom = int(target_height - scale_height - top)
+                image = image.crop((left, top, right, bottom))
+
+            snapshots_copy.append(image)
+        snapshots = snapshots_copy
 
     return snapshots
 
@@ -414,7 +462,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
     draw = ImageDraw.Draw(scan_image)
 
     spacing = 10
-    offset = (2, 2)
+    shade_offset = (2, 2)
     text_color = (0, 0, 0)
     shade_color = (49, 49, 49)
     text_list = [
@@ -422,7 +470,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
             video_info["F"]["name"],
         ],
         [
-            "文件信息：",
+            "　　　　【文件信息】",
             "大　　小：",
             "时　　长：",
             "总比特率：",
@@ -434,33 +482,35 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
             video_info["F"]["bitrate"],
         ],
         [
-            "视频信息：",
+            "　　　　【视频信息】",
             "编　　码：",
-            "色彩空间：",
+            "色　　彩：",
             "尺　　寸：",
             "帧　　率：",
         ],
         [
             "",
             video_info["V"]["codec"],
-            video_info["V"]["colorspace"],
+            video_info["V"]["color"],
             video_info["V"]["frameSize"],
             video_info["V"]["frameRate"],
         ],
         [
-            "音频信息：",
+            "　　　　【音频信息】",
             "编　　码：",
             "音频语言：",
             "音频标题：",
+            "声   道：",
         ],
         [
             "",
             video_info["A"]["codec"],
             video_info["A"]["lang"],
             video_info["A"]["title"],
+            video_info["A"]["channel"],
         ],
         [
-            "字幕信息：",
+            "　　　【字幕信息】",
             "编　　码：",
             "字幕语言：",
             "字幕标题：",
@@ -476,13 +526,13 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
         (30, 10),
         (30, 100), (230, 100),
         (630, 100), (830, 100),
-        (1230, 100), (1430, 100),
-        (1830, 100), (2030, 100),
+        (1330, 100), (1530, 100),
+        (2030, 100), (2230, 100),
     ]
     font_list = [font_1, font_2, font_2, font_2, font_2, font_2, font_2, font_2, font_2]
 
     for i, j, k in zip(text_list, pos_list, font_list):
-        multiline_text_with_shade(draw, "\n".join(i), j, offset, spacing, k, text_color, shade_color)
+        multiline_text_with_shade(draw, "\n".join(i), j, shade_offset, spacing, k, text_color, shade_color)
 
     y_offset = 450
     for idx, image in enumerate(images):
@@ -523,7 +573,7 @@ def main():
     This function guides the user through the following process:
         1. Prompts the user for the video file path and checks the existence of required files (video, fonts, and logo).
         2. Retrieves detailed video information, such as duration and resolution, and calculates the appropriate snapshot times.
-        3. Captures snapshots from the video at evenly spaced intervals, resizing each snapshot to 800x450 pixels.
+        3. Captures snapshots from the video at evenly spaced intervals, resizing each snapshot to 800x450 colorels.
         4. Creates a scan image consisting of a 4x4 grid of snapshots with metadata and a logo overlay.
         5. Optionally resizes the final scan image to a smaller resolution (scaled by a configurable factor) before saving.
 
@@ -616,7 +666,6 @@ def main():
     except (FileNotFoundError, ValueError, IndexError) as e:
         print(e)
         exit(1)
-
 
 
 if __name__ == '__main__':
