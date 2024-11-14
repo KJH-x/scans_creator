@@ -411,7 +411,7 @@ def multiline_text_with_shade(
     return None
 
 
-def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo, fontfile_1: str, fontfile_2: str, logofile: str) -> ImageType:
+def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo, logofile: str) -> ImageType:
     """
     Create a composite scan image by arranging snapshots in a grid format with metadata and a logo overlay.
 
@@ -439,11 +439,44 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
         - Video information (size, duration, codec, etc.) is displayed at the top.
     """
 
+    # TODO: 分离读取、转换和验证步骤
+
+    def _parse_text_list(text_list: List[List[str | Dict[str, str]]], video_info: VideoInfo) -> List[List[str]]:
+        parsed_list: List[List[str]] = []
+        for row in text_list:
+            parsed_row: List[str] = []
+            for item in row:
+                if isinstance(item, dict) and "field" in item and "key" in item:
+                    parsed_row.append(video_info[item["field"]][item["key"]])
+                elif isinstance(item, str):
+                    parsed_row.append(item)
+                else:
+                    raise ValueError(f"Not support text_list item:{item}")
+            parsed_list.append(parsed_row)
+        return parsed_list
+
+    def _parse_font_list(font_idx_list: List[str], font_list: List[FreeTypeFont]) -> List[FreeTypeFont]:
+        parsed_list: List[FreeTypeFont] = []
+        for idx in font_idx_list:
+            if isinstance(idx, int):
+                parsed_list.append(font_list[idx])
+        return parsed_list
+
+    def _get_fonts(layout) -> List[FreeTypeFont]:
+        available_font_list: List[FreeTypeFont] = []
+        for font in layout["fonts"]:
+            if isinstance(font, dict) and "path" in font and "size" in font \
+                    and os.path.exists(font["path"]) and isinstance(font["size"], int):
+                available_font_list.append(ImageFont.truetype(font["path"], font["size"]))
+            else:
+                raise ValueError(f"{font} is not support")
+        return available_font_list
+
     col, row = grid
     total_images = col * row
 
-    font_1 = ImageFont.truetype(fontfile_1, 45)
-    font_2 = ImageFont.truetype(fontfile_2, 40)
+    # font_1 = ImageFont.truetype(fontfile_1, 45)
+    # font_2 = ImageFont.truetype(fontfile_2, 40)
 
     if len(images) != total_images:
         raise ValueError(
@@ -461,75 +494,23 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
     scan_image = Image.new("RGB", (canvas_width, canvas_height), "white")
     draw = ImageDraw.Draw(scan_image)
 
-    spacing = 10
-    shade_offset = (2, 2)
-    text_color = (0, 0, 0)
-    shade_color = (49, 49, 49)
-    text_list = [
-        [
-            video_info["F"]["name"],
-        ],
-        [
-            "　　　　【文件信息】",
-            "大　　小：",
-            "时　　长：",
-            "总比特率：",
-        ],
-        [
-            "",
-            video_info["F"]["size"],
-            video_info["F"]["duration"],
-            video_info["F"]["bitrate"],
-        ],
-        [
-            "　　　　【视频信息】",
-            "编　　码：",
-            "色　　彩：",
-            "尺　　寸：",
-            "帧　　率：",
-        ],
-        [
-            "",
-            video_info["V"]["codec"],
-            video_info["V"]["color"],
-            video_info["V"]["frameSize"],
-            video_info["V"]["frameRate"],
-        ],
-        [
-            "　　　　【音频信息】",
-            "编　　码：",
-            "音频语言：",
-            "音频标题：",
-            "声   道：",
-        ],
-        [
-            "",
-            video_info["A"]["codec"],
-            video_info["A"]["lang"],
-            video_info["A"]["title"],
-            video_info["A"]["channel"],
-        ],
-        [
-            "　　　【字幕信息】",
-            "编　　码：",
-            "字幕语言：",
-            "字幕标题：",
-        ],
-        [
-            "",
-            video_info["S"]["codec"],
-            video_info["S"]["lang"],
-            video_info["S"]["title"],
-        ],
-    ]
-    pos_list = [
-        (30, 10),
-        (30, 100), (230, 100),
-        (630, 100), (830, 100),
-        (1330, 100), (1530, 100),
-        (2030, 100), (2230, 100),
-    ]
-    font_list = [font_1, font_2, font_2, font_2, font_2, font_2, font_2, font_2, font_2]
+    with open("config/info_layout.json", mode='r', encoding='utf-8')as fp:
+        layout = json.load(fp)
+
+    spacing = layout["spacing"]
+    shade_offset = tuple(layout["shade_offset"])
+    text_color = tuple(layout["text_color"])
+    shade_color = tuple(layout["shade_color"])
+    pos_list = layout["pos_list"]
+    available_font_list: List[FreeTypeFont] = []
+    available_font_list = _get_fonts(layout)
+    time_font = available_font_list[layout["time_font"]]
+
+    # Parsing the `text_list` and setting it back to the config
+    text_list = _parse_text_list(layout["text_list"], video_info)
+
+    # 验证index
+    font_list = _parse_font_list(layout["font_list"], available_font_list)
 
     for i, j, k in zip(text_list, pos_list, font_list):
         multiline_text_with_shade(draw, "\n".join(i), j, shade_offset, spacing, k, text_color, shade_color)
@@ -544,7 +525,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
         scan_image.paste(image_resized, (grid_x, grid_y))
 
         snapshot_time = str(timedelta(seconds=snapshottimes[idx]))
-        text_bbox = draw.textbbox((0, 0), snapshot_time, font=font_2)
+        text_bbox = draw.textbbox((0, 0), snapshot_time, font=time_font)
         text_width = text_bbox[2] - text_bbox[0]
         text_height = text_bbox[3] - text_bbox[1]
         timestamp_x = grid_x + (image_width - text_width) // 2
@@ -554,7 +535,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
             "RGBA", (text_width, text_height), (0, 0, 0, int(255 * 0.6)))
         scan_image.paste(background, (timestamp_x, timestamp_y+14), background)
         draw.text((timestamp_x, timestamp_y), snapshot_time,
-                  fill=(255, 255, 255, int(255 * 0.6)), font=font_2)
+                  fill=(255, 255, 255, int(255 * 0.6)), font=time_font)
 
     logo = Image.open(logofile).resize((405, 405), Resampling.LANCZOS)
 
@@ -602,7 +583,7 @@ def main():
 
     # chcp 65001
     try:
-        config_file: str = "config.json"
+        config_file: str = "config/basic.json"
         config: ConfigManager = ConfigManager(config_file)
 
         font_file: str = config.font_file
@@ -611,7 +592,7 @@ def main():
         resize_scale: int = config.resize_scale
         avoid_leading: bool = config.avoid_leading
         avoid_ending: bool = config.avoid_ending
-        grid_shape: tuple = config.grid_size
+        grid_shape: tuple = config.grid_shape
 
         file_path: str = input("File Path :")
         if not os.path.exists(file_path):
@@ -650,7 +631,7 @@ def main():
             snapshots = take_snapshots(video_info, snapshot_times)
 
             scan = create_scan_image(snapshots, grid_shape, snapshot_times,
-                                     video_info, font_file, font_file_2, logo_file)
+                                     video_info, logo_file)
 
             w, h = scan.size
             scan = scan.resize((w//resize_scale, h//resize_scale), Resampling.LANCZOS)

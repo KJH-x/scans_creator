@@ -14,24 +14,24 @@ class ConfigManager:
         - Update configuration data and save changes.
 
     Attributes:
-        config_file (str): Path to the configuration file.
+        config_path (str): Path to the configuration file.
         font_file (str): Path to the font file.
         font_file_2 (str): Path to the second font file.
         logo_file (str): Path to the logo file.
         resize_scale (int): Scale for resize (resize to 1/resize_scale both in w and h).
         avoid_leading (bool): Whether to avoid leading or not.
         avoid_ending (bool): Whether to avoid ending or not.
-        grid_size (tuple[int, int]): Grid size configuration.
+        grid_shape (tuple[int, int]): Grid size configuration.
     """
 
-    def __init__(self, config_file: str) -> None:
+    def __init__(self, config_path: str) -> None:
         """
         Initializes the ConfigManager with the path to the config file.
 
         Args:
-            config_file (str): Path to the configuration file.
+            config_path (str): Path to the configuration file.
         """
-        self.config_file: str = config_file
+        self.config_path: str = config_path
 
         # Ensure the config file exists; create a default one if missing
         if not self._check_config_exists():
@@ -45,7 +45,7 @@ class ConfigManager:
         self.resize_scale: int
         self.avoid_leading: bool
         self.avoid_ending: bool
-        self.grid_size: tuple[int, int]
+        self.grid_shape: tuple[int, int]
 
         self._load_config()
 
@@ -56,7 +56,7 @@ class ConfigManager:
         Returns:
             bool: True if the config file exists, False otherwise.
         """
-        return os.path.exists(self.config_file)
+        return os.path.exists(self.config_path)
 
     def _create_default_config(self) -> None:
         """
@@ -70,12 +70,12 @@ class ConfigManager:
             "resize_scale": 2,
             "avoid_leading": True,
             "avoid_ending": True,
-            "grid_size": (4, 4)
+            "grid_shape": (4, 4)
         }
 
-        with open(self.config_file, 'w', encoding='utf-8') as f:
+        with open(self.config_path, 'w', encoding='utf-8') as f:
             json.dump(default_config, f, indent=4)
-        print(f"Default config file created at {self.config_file}.")
+        print(f"Default config file created at {self.config_path}.")
 
     def _load_config(self) -> None:
         """
@@ -87,10 +87,10 @@ class ConfigManager:
                             file paths for font_file, font_file_2, or logo_file do not exist.
             ValueError: If the config file is not a valid JSON.
         """
-        if not os.path.exists(self.config_file):
-            raise FileNotFoundError(f"Config file {self.config_file} not found.")
+        if not os.path.exists(self.config_path):
+            raise FileNotFoundError(f"Config file {self.config_path} not found.")
 
-        with open(self.config_file, 'r', encoding='utf-8') as f:
+        with open(self.config_path, 'r', encoding='utf-8') as f:
             try:
                 config = json.load(f)
                 # Assign each config value to its respective instance variable
@@ -100,7 +100,7 @@ class ConfigManager:
                 self.resize_scale = config.get("resize_scale", 2)
                 self.avoid_leading = config.get("avoid_leading", True)
                 self.avoid_ending = config.get("avoid_ending", True)
-                self.grid_size = tuple(config.get("grid_size", (4, 4)))
+                self.grid_shape = tuple(config.get("grid_shape", (4, 4)))
 
                 # Validate the file paths for font and logo files
                 if not os.path.exists(self.font_file):
@@ -111,7 +111,7 @@ class ConfigManager:
                     raise FileNotFoundError(f"Logo file not found at {self.logo_file}")
 
             except json.JSONDecodeError:
-                raise ValueError(f"Failed to decode JSON from {self.config_file}.")
+                raise ValueError(f"Failed to decode JSON from {self.config_path}.")
 
     def update(self, key: str, value) -> bool:
         """
@@ -141,9 +141,9 @@ class ConfigManager:
             "resize_scale": self.resize_scale,
             "avoid_leading": self.avoid_leading,
             "avoid_ending": self.avoid_ending,
-            "grid_size": self.grid_size
+            "grid_shape": self.grid_shape
         }
 
-        with open(self.config_file, 'w', encoding='utf-8') as f:
+        with open(self.config_path, 'w', encoding='utf-8') as f:
             json.dump(config, f, indent=4)
-        print(f"Config file saved at {self.config_file}.")
+        print(f"Config file saved at {self.config_path}.")

@@ -1,8 +1,8 @@
 logo/*.ai
-fonts/*.otf
-fonts/*.ttf
+fonts/*
 scans/*.png
 config*.json
+config/*
 model
 .abandoned
 *.dev.py
