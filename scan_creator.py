@@ -271,8 +271,8 @@ def take_snapshots(video_info: VideoInfo, snapshot_times, target_width=0, target
     elif target_height and not target_width:
         target_width = int(target_height * aspect_ratio)
     elif not target_height and not target_width:
-        target_height = 450
-        target_width = 800
+        target_height = height
+        target_width = width
 
     for idx, time in enumerate(snapshot_times):
         hhmmss = f"{time // 3600:02}:{(time % 3600) // 60:02}:{time % 60:02}"
@@ -595,7 +595,9 @@ def main():
                 video_info, avoid_leading, avoid_ending,
                 snapshot_count=grid_shape[0] * grid_shape[1]
             )
-            snapshots = take_snapshots(video_info, snapshot_times, 800, 450)
+
+            # 默认情况下，返回原始截图，缩放工作由`reate_scan_image`进行
+            snapshots = take_snapshots(video_info, snapshot_times)
 
             scan = create_scan_image(snapshots, grid_shape, snapshot_times,
                                      video_info, font_file, font_file_2, logo_file)
