@@ -155,7 +155,6 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
         if not isinstance(stream, dict):
             continue
 
-        # TODO: 多视频流mkv文件的兼容性问题
         if stream.get("codec_type") == "video":
             if stream.get("codec_name") not in ['png', 'jpeg', 'mjpeg']:
                 video_info["codec"] = stream.get("codec_name", "")
@@ -576,22 +575,20 @@ def main():
         video_info = get_video_info(file_path)
         print(video_info)
         if video_info:
-            if video_info.number_of_video_streams > 1:
-                print(f"\nThere are {video_info.number_of_video_streams} video streams available.")
-                selected_stream_index = -1
-                while selected_stream_index < 0 or selected_stream_index >= video_info.number_of_video_streams:
-                    try:
-                        selected_stream_index = int(input(f"Enter a number between 0 and {video_info.number_of_video_streams - 1}: "))
-                        if selected_stream_index < 0 or selected_stream_index >= video_info.number_of_video_streams:
-                            print(f"Invalid selection. Please enter a number between 0 and {video_info.number_of_video_streams - 1}.")
-                    except ValueError:
-                        # Handle invalid input
-                        print("Invalid input. Please enter a valid integer.")
-                else:
-                    # Set the active video stream
-                    video_info.set_active_video_stream(selected_stream_index)
-                    print(f"Video stream {selected_stream_index} activated.")
             
+            if (video_stream_count:=len(video_info.video_streams)) > 1:
+                print(f"\nThere are {video_stream_count} video streams available.")
+                while True:
+                    try:
+                        selected_stream_index = int(input(f"Enter a number between 0 and {video_stream_count - 1}: "))
+                        video_info.set_active_video_stream(selected_stream_index)
+                        print(f"Video stream {selected_stream_index} activated.")
+                        break 
+                    except ValueError:
+                        print("Invalid input. Please enter a valid integer.")
+                    except IndexError:
+                        print(f"Invalid selection. Please enter a number between 0 and {video_stream_count - 1}.")
+
             snapshot_times = calculate_snapshot_times(
                 video_info, avoid_leading, avoid_ending,
                 snapshot_count=grid_shape[0] * grid_shape[1]

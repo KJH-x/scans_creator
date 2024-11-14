@@ -14,8 +14,7 @@ class VideoInfo:
         # multiply video streams
         self.video_streams : List[Dict[str, str | float | int]] = video_streams
         self.number_of_video_streams : int = len(video_streams)
-        if not self.set_active_video_stream(0):
-            raise ValueError("No video streams available.")
+        self.set_active_video_stream(0)
 
         # Audio information
         self.audio_codec: str = _ if isinstance(_ := audio_info.get("codec"), str) else ""
@@ -29,9 +28,9 @@ class VideoInfo:
         self.subtitle_lang: str = _ if isinstance(_ := subtitle_info.get("lang"), str) else ""
         self.subtitle_title: str = _ if isinstance(_ := subtitle_info.get("title"), str) else ""
 
-    def set_active_video_stream(self, index : int) -> bool:
+    def set_active_video_stream(self, index : int) -> None:
         if index >= self.number_of_video_streams | index < 0:
-            return False
+            raise IndexError(f"{index} is not available.")
 
         else:
             self.current_video_stream_index: int = index  # Index for active video stream
@@ -43,8 +42,6 @@ class VideoInfo:
             self.frame_size: str = _ if isinstance(_ := video_info.get("frame_size"), str) else ""
             self.framerate: float = _ if isinstance(_ := video_info.get("framerate"), float) else 0.0
             # self.video_lang: str = _ if isinstance(_ := video_info.get("lang"), str) else ""
-
-            return True
 
     def __list__(self) -> List[str]:
         return [
