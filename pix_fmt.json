@@ -1,0 +1,1570 @@
+{
+    "yuv420p": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "12",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "yuyv422": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "rgb24": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "bgr24": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "yuv422p": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "yuv444p": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "yuv410p": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "9",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "yuv411p": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "12",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "gray": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "8",
+        "BIT_DEPTHS": "8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 1
+    },
+    "monow": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "1",
+        "BIT_DEPTHS": "1",
+        "TYPICAL_DEPTH": 1,
+        "CHANNELS": 1
+    },
+    "monob": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "1",
+        "BIT_DEPTHS": "1",
+        "TYPICAL_DEPTH": 1,
+        "CHANNELS": 1
+    },
+    "pal8": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "8",
+        "BIT_DEPTHS": "8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 1
+    },
+    "yuvj420p": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "12",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "yuvj422p": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "yuvj444p": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "uyvy422": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "uyyvyy411": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "12",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "bgr8": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "8",
+        "BIT_DEPTHS": "3-3-2",
+        "TYPICAL_DEPTH": 3,
+        "CHANNELS": 3
+    },
+    "bgr4": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "4",
+        "BIT_DEPTHS": "1-2-1",
+        "TYPICAL_DEPTH": 2,
+        "CHANNELS": 3
+    },
+    "bgr4_byte": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "4",
+        "BIT_DEPTHS": "1-2-1",
+        "TYPICAL_DEPTH": 2,
+        "CHANNELS": 3
+    },
+    "rgb8": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "8",
+        "BIT_DEPTHS": "2-3-3",
+        "TYPICAL_DEPTH": 3,
+        "CHANNELS": 3
+    },
+    "rgb4": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "4",
+        "BIT_DEPTHS": "1-2-1",
+        "TYPICAL_DEPTH": 2,
+        "CHANNELS": 3
+    },
+    "rgb4_byte": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "4",
+        "BIT_DEPTHS": "1-2-1",
+        "TYPICAL_DEPTH": 2,
+        "CHANNELS": 3
+    },
+    "nv12": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "12",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "nv21": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "12",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "argb": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "8-8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 4
+    },
+    "rgba": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "8-8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 4
+    },
+    "abgr": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "8-8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 4
+    },
+    "bgra": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "8-8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 4
+    },
+    "gray16be": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 1
+    },
+    "gray16le": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 1
+    },
+    "yuv440p": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "yuvj440p": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "yuva420p": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "20",
+        "BIT_DEPTHS": "8-8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 4
+    },
+    "rgb48be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "rgb48le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "rgb565be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "5-6-5",
+        "TYPICAL_DEPTH": 6,
+        "CHANNELS": 3
+    },
+    "rgb565le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "5-6-5",
+        "TYPICAL_DEPTH": 6,
+        "CHANNELS": 3
+    },
+    "rgb555be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "15",
+        "BIT_DEPTHS": "5-5-5",
+        "TYPICAL_DEPTH": 5,
+        "CHANNELS": 3
+    },
+    "rgb555le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "15",
+        "BIT_DEPTHS": "5-5-5",
+        "TYPICAL_DEPTH": 5,
+        "CHANNELS": 3
+    },
+    "bgr565be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "5-6-5",
+        "TYPICAL_DEPTH": 6,
+        "CHANNELS": 3
+    },
+    "bgr565le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "5-6-5",
+        "TYPICAL_DEPTH": 6,
+        "CHANNELS": 3
+    },
+    "bgr555be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "15",
+        "BIT_DEPTHS": "5-5-5",
+        "TYPICAL_DEPTH": 5,
+        "CHANNELS": 3
+    },
+    "bgr555le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "15",
+        "BIT_DEPTHS": "5-5-5",
+        "TYPICAL_DEPTH": 5,
+        "CHANNELS": 3
+    },
+    "vaapi_moco": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "vaapi_idct": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "vaapi_vld": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "yuv420p16le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "yuv420p16be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "yuv422p16le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "yuv422p16be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "yuv444p16le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "yuv444p16be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "dxva2_vld": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "rgb444le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "12",
+        "BIT_DEPTHS": "4-4-4",
+        "TYPICAL_DEPTH": 4,
+        "CHANNELS": 3
+    },
+    "rgb444be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "12",
+        "BIT_DEPTHS": "4-4-4",
+        "TYPICAL_DEPTH": 4,
+        "CHANNELS": 3
+    },
+    "bgr444le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "12",
+        "BIT_DEPTHS": "4-4-4",
+        "TYPICAL_DEPTH": 4,
+        "CHANNELS": 3
+    },
+    "bgr444be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "12",
+        "BIT_DEPTHS": "4-4-4",
+        "TYPICAL_DEPTH": 4,
+        "CHANNELS": 3
+    },
+    "ya8": {
+        "NB_COMPONENTS": "2",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 2
+    },
+    "bgr48be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "bgr48le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "yuv420p9be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "13",
+        "BIT_DEPTHS": "9-9-9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 3
+    },
+    "yuv420p9le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "13",
+        "BIT_DEPTHS": "9-9-9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 3
+    },
+    "yuv420p10be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "15",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "yuv420p10le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "15",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "yuv422p10be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "20",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "yuv422p10le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "20",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "yuv444p9be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "27",
+        "BIT_DEPTHS": "9-9-9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 3
+    },
+    "yuv444p9le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "27",
+        "BIT_DEPTHS": "9-9-9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 3
+    },
+    "yuv444p10be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "30",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "yuv444p10le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "30",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "yuv422p9be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "18",
+        "BIT_DEPTHS": "9-9-9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 3
+    },
+    "yuv422p9le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "18",
+        "BIT_DEPTHS": "9-9-9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 3
+    },
+    "gbrp": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "gbrp9be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "27",
+        "BIT_DEPTHS": "9-9-9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 3
+    },
+    "gbrp9le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "27",
+        "BIT_DEPTHS": "9-9-9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 3
+    },
+    "gbrp10be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "30",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "gbrp10le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "30",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "gbrp16be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "gbrp16le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "yuva422p": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "8-8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 4
+    },
+    "yuva444p": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "8-8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 4
+    },
+    "yuva420p9be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "22",
+        "BIT_DEPTHS": "9-9-9-9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 4
+    },
+    "yuva420p9le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "22",
+        "BIT_DEPTHS": "9-9-9-9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 4
+    },
+    "yuva422p9be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "27",
+        "BIT_DEPTHS": "9-9-9-9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 4
+    },
+    "yuva422p9le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "27",
+        "BIT_DEPTHS": "9-9-9-9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 4
+    },
+    "yuva444p9be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "36",
+        "BIT_DEPTHS": "9-9-9-9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 4
+    },
+    "yuva444p9le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "36",
+        "BIT_DEPTHS": "9-9-9-9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 4
+    },
+    "yuva420p10be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "25",
+        "BIT_DEPTHS": "10-10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 4
+    },
+    "yuva420p10le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "25",
+        "BIT_DEPTHS": "10-10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 4
+    },
+    "yuva422p10be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "30",
+        "BIT_DEPTHS": "10-10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 4
+    },
+    "yuva422p10le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "30",
+        "BIT_DEPTHS": "10-10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 4
+    },
+    "yuva444p10be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "40",
+        "BIT_DEPTHS": "10-10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 4
+    },
+    "yuva444p10le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "40",
+        "BIT_DEPTHS": "10-10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 4
+    },
+    "yuva420p16be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "40",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "yuva420p16le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "40",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "yuva422p16be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "yuva422p16le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "yuva444p16be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "64",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "yuva444p16le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "64",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "vdpau": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "xyz12le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "36",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "xyz12be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "36",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "nv16": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "nv20le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "20",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "nv20be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "20",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "rgba64be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "64",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "rgba64le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "64",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "bgra64be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "64",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "bgra64le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "64",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "yvyu422": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "ya16be": {
+        "NB_COMPONENTS": "2",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 2
+    },
+    "ya16le": {
+        "NB_COMPONENTS": "2",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 2
+    },
+    "gbrap": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "8-8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 4
+    },
+    "gbrap16be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "64",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "gbrap16le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "64",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "qsv": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "mmal": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "d3d11va_vld": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "cuda": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "0rgb": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "rgb0": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "0bgr": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "bgr0": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "yuv420p12be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "18",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "yuv420p12le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "18",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "yuv420p14be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "21",
+        "BIT_DEPTHS": "14-14-14",
+        "TYPICAL_DEPTH": 14,
+        "CHANNELS": 3
+    },
+    "yuv420p14le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "21",
+        "BIT_DEPTHS": "14-14-14",
+        "TYPICAL_DEPTH": 14,
+        "CHANNELS": 3
+    },
+    "yuv422p12be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "yuv422p12le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "yuv422p14be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "28",
+        "BIT_DEPTHS": "14-14-14",
+        "TYPICAL_DEPTH": 14,
+        "CHANNELS": 3
+    },
+    "yuv422p14le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "28",
+        "BIT_DEPTHS": "14-14-14",
+        "TYPICAL_DEPTH": 14,
+        "CHANNELS": 3
+    },
+    "yuv444p12be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "36",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "yuv444p12le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "36",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "yuv444p14be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "42",
+        "BIT_DEPTHS": "14-14-14",
+        "TYPICAL_DEPTH": 14,
+        "CHANNELS": 3
+    },
+    "yuv444p14le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "42",
+        "BIT_DEPTHS": "14-14-14",
+        "TYPICAL_DEPTH": 14,
+        "CHANNELS": 3
+    },
+    "gbrp12be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "36",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "gbrp12le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "36",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "gbrp14be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "42",
+        "BIT_DEPTHS": "14-14-14",
+        "TYPICAL_DEPTH": 14,
+        "CHANNELS": 3
+    },
+    "gbrp14le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "42",
+        "BIT_DEPTHS": "14-14-14",
+        "TYPICAL_DEPTH": 14,
+        "CHANNELS": 3
+    },
+    "yuvj411p": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "12",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "bayer_bggr8": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "8",
+        "BIT_DEPTHS": "2-4-2",
+        "TYPICAL_DEPTH": 4,
+        "CHANNELS": 3
+    },
+    "bayer_rggb8": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "8",
+        "BIT_DEPTHS": "2-4-2",
+        "TYPICAL_DEPTH": 4,
+        "CHANNELS": 3
+    },
+    "bayer_gbrg8": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "8",
+        "BIT_DEPTHS": "2-4-2",
+        "TYPICAL_DEPTH": 4,
+        "CHANNELS": 3
+    },
+    "bayer_grbg8": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "8",
+        "BIT_DEPTHS": "2-4-2",
+        "TYPICAL_DEPTH": 4,
+        "CHANNELS": 3
+    },
+    "bayer_bggr16le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "4-8-4",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "bayer_bggr16be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "4-8-4",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "bayer_rggb16le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "4-8-4",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "bayer_rggb16be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "4-8-4",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "bayer_gbrg16le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "4-8-4",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "bayer_gbrg16be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "4-8-4",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "bayer_grbg16le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "4-8-4",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "bayer_grbg16be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "16",
+        "BIT_DEPTHS": "4-8-4",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "xvmc": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "yuv440p10le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "20",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "yuv440p10be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "20",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "yuv440p12le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "yuv440p12be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "ayuv64le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "64",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "ayuv64be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "64",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "videotoolbox_vld": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "p010le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "15",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "p010be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "15",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "gbrap12be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "12-12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 4
+    },
+    "gbrap12le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "12-12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 4
+    },
+    "gbrap10be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "40",
+        "BIT_DEPTHS": "10-10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 4
+    },
+    "gbrap10le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "40",
+        "BIT_DEPTHS": "10-10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 4
+    },
+    "mediacodec": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "gray12be": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "12",
+        "BIT_DEPTHS": "12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 1
+    },
+    "gray12le": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "12",
+        "BIT_DEPTHS": "12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 1
+    },
+    "gray10be": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "10",
+        "BIT_DEPTHS": "10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 1
+    },
+    "gray10le": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "10",
+        "BIT_DEPTHS": "10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 1
+    },
+    "p016le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "p016be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "d3d11": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "gray9be": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "9",
+        "BIT_DEPTHS": "9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 1
+    },
+    "gray9le": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "9",
+        "BIT_DEPTHS": "9",
+        "TYPICAL_DEPTH": 9,
+        "CHANNELS": 1
+    },
+    "gbrpf32be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "96",
+        "BIT_DEPTHS": "32-32-32",
+        "TYPICAL_DEPTH": 32,
+        "CHANNELS": 3
+    },
+    "gbrpf32le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "96",
+        "BIT_DEPTHS": "32-32-32",
+        "TYPICAL_DEPTH": 32,
+        "CHANNELS": 3
+    },
+    "gbrapf32be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "128",
+        "BIT_DEPTHS": "32-32-32-32",
+        "TYPICAL_DEPTH": 32,
+        "CHANNELS": 4
+    },
+    "gbrapf32le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "128",
+        "BIT_DEPTHS": "32-32-32-32",
+        "TYPICAL_DEPTH": 32,
+        "CHANNELS": 4
+    },
+    "drm_prime": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "opencl": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "gray14be": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "14",
+        "BIT_DEPTHS": "14",
+        "TYPICAL_DEPTH": 14,
+        "CHANNELS": 1
+    },
+    "gray14le": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "14",
+        "BIT_DEPTHS": "14",
+        "TYPICAL_DEPTH": 14,
+        "CHANNELS": 1
+    },
+    "grayf32be": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "32",
+        "TYPICAL_DEPTH": 32,
+        "CHANNELS": 1
+    },
+    "grayf32le": {
+        "NB_COMPONENTS": "1",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "32",
+        "TYPICAL_DEPTH": 32,
+        "CHANNELS": 1
+    },
+    "yuva422p12be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "36",
+        "BIT_DEPTHS": "12-12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 4
+    },
+    "yuva422p12le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "36",
+        "BIT_DEPTHS": "12-12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 4
+    },
+    "yuva444p12be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "12-12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 4
+    },
+    "yuva444p12le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "12-12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 4
+    },
+    "nv24": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "nv42": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "vulkan": {
+        "NB_COMPONENTS": "0",
+        "BITS_PER_PIXEL": "0",
+        "BIT_DEPTHS": "0",
+        "TYPICAL_DEPTH": 0,
+        "CHANNELS": 0
+    },
+    "y210be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "20",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "y210le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "20",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "x2rgb10le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "30",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "x2rgb10be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "30",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "x2bgr10le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "30",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "x2bgr10be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "30",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "p210be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "20",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "p210le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "20",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "p410be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "30",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "p410le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "30",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "p216be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "p216le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "p416be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "p416le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "48",
+        "BIT_DEPTHS": "16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 3
+    },
+    "vuya": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "32",
+        "BIT_DEPTHS": "8-8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 4
+    },
+    "rgbaf16be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "64",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "rgbaf16le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "64",
+        "BIT_DEPTHS": "16-16-16-16",
+        "TYPICAL_DEPTH": 16,
+        "CHANNELS": 4
+    },
+    "vuyx": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "8-8-8",
+        "TYPICAL_DEPTH": 8,
+        "CHANNELS": 3
+    },
+    "p012le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "18",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "p012be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "18",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "y212be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "y212le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "24",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "xv30be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "30",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "xv30le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "30",
+        "BIT_DEPTHS": "10-10-10",
+        "TYPICAL_DEPTH": 10,
+        "CHANNELS": 3
+    },
+    "xv36be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "36",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "xv36le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "36",
+        "BIT_DEPTHS": "12-12-12",
+        "TYPICAL_DEPTH": 12,
+        "CHANNELS": 3
+    },
+    "rgbf32be": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "96",
+        "BIT_DEPTHS": "32-32-32",
+        "TYPICAL_DEPTH": 32,
+        "CHANNELS": 3
+    },
+    "rgbf32le": {
+        "NB_COMPONENTS": "3",
+        "BITS_PER_PIXEL": "96",
+        "BIT_DEPTHS": "32-32-32",
+        "TYPICAL_DEPTH": 32,
+        "CHANNELS": 3
+    },
+    "rgbaf32be": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "128",
+        "BIT_DEPTHS": "32-32-32-32",
+        "TYPICAL_DEPTH": 32,
+        "CHANNELS": 4
+    },
+    "rgbaf32le": {
+        "NB_COMPONENTS": "4",
+        "BITS_PER_PIXEL": "128",
+        "BIT_DEPTHS": "32-32-32-32",
+        "TYPICAL_DEPTH": 32,
+        "CHANNELS": 4
+    }
+}
