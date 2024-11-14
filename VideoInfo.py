@@ -13,7 +13,6 @@ class VideoInfo:
 
         # multiply video streams
         self.video_streams : List[Dict[str, str | float | int]] = video_streams
-        self.number_of_video_streams : int = len(video_streams)
         self.set_active_video_stream(0)
 
         # Audio information
@@ -29,7 +28,7 @@ class VideoInfo:
         self.subtitle_title: str = _ if isinstance(_ := subtitle_info.get("title"), str) else ""
 
     def set_active_video_stream(self, index : int) -> None:
-        if index >= self.number_of_video_streams | index < 0:
+        if index >= len(self.video_streams) | index < 0:
             raise IndexError(f"{index} is not available.")
 
         else:

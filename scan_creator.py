@@ -573,6 +573,7 @@ def main():
 
     try:
         video_info = get_video_info(file_path)
+        # TODO: 输入无视频流的文件时，此处会弹出IndexError
         print(video_info)
         if video_info:
             
