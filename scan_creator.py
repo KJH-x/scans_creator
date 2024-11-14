@@ -1,9 +1,9 @@
+import copy
 import io
 import json
 import math
 import os
 import subprocess
-import copy
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -167,9 +167,9 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
 
                 if isinstance(tags := stream.get("tags", {}), dict):
                     video_info["lang"] = tags.get("language", "N/A")
-                
+
                 video_info_ld.append(copy.deepcopy(video_info))
-                # In the case of other video streams, the other keys are overwritten, 
+                # In the case of other video streams, the other keys are overwritten,
                 # but not necessarily for the "lang" item
                 video_info["lang"] = ""
 
@@ -568,27 +568,28 @@ def main():
             raise FileNotFoundError(f"input file: {file_path} no found")
 
     except (FileNotFoundError, ValueError) as e:
+        # 此处的 Exception 均为预定触发
         print(e)
         exit(1)
 
     try:
         video_info = get_video_info(file_path)
-        # TODO: 输入无视频流的文件时，此处会弹出IndexError
         print(video_info)
+
         if video_info:
-            
-            if (video_stream_count:=len(video_info.video_streams)) > 1:
+
+            # 多视频流处理
+            if (video_stream_count := len(video_info.video_streams)) > 1:
                 print(f"\nThere are {video_stream_count} video streams available.")
                 while True:
                     try:
                         selected_stream_index = int(input(f"Enter a number between 0 and {video_stream_count - 1}: "))
                         video_info.set_active_video_stream(selected_stream_index)
                         print(f"Video stream {selected_stream_index} activated.")
-                        break 
-                    except ValueError:
-                        print("Invalid input. Please enter a valid integer.")
-                    except IndexError:
-                        print(f"Invalid selection. Please enter a number between 0 and {video_stream_count - 1}.")
+                        break
+                    except (ValueError, IndexError):
+                        print(f"Invalid input. Please enter a valid integer between 0 and {video_stream_count - 1}.")
+                        continue
 
             snapshot_times = calculate_snapshot_times(
                 video_info, avoid_leading, avoid_ending,
@@ -605,8 +606,15 @@ def main():
 
         else:
             print("Failed to retrieve video information.")
-    except (FileNotFoundError, ValueError) as e:
+
+    except IndexError as e:
+        print("No video streeams available.")
+        exit(1)
+
+    except (FileNotFoundError, ValueError, IndexError) as e:
         print(e)
+        exit(1)
+
 
 
 if __name__ == '__main__':
