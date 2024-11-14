@@ -16,6 +16,7 @@ from PIL.ImageFont import FreeTypeFont
 
 from ConfigManager import ConfigManager
 from VideoInfo import VideoInfo
+from TextDrawer import TextDrawer
 
 
 def ffprobe_get_info(filename: str) -> Dict[Any, Any] | None:
@@ -411,7 +412,7 @@ def multiline_text_with_shade(
     return None
 
 
-def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo, fontfile_1: str, fontfile_2: str, logofile: str) -> ImageType:
+def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo, fontfile_1: str, fontfile_2: str, logofile: str, use_text_drawer: bool) -> ImageType:
     """
     Create a composite scan image by arranging snapshots in a grid format with metadata and a logo overlay.
 
@@ -423,6 +424,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
         fontfile_1 (str): Path to the font file for primary headings.
         fontfile_2 (str): Path to the font file for subheadings and timestamps.
         logofile (str): Path to the logo image file to place in the top-right corner.
+        use_text_drawer (bool): Use class `TextDrawer` to draw text.
 
     Raises:
         ValueError: If the number of `images` does not match the required number based on `grid`.
@@ -461,78 +463,83 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
     scan_image = Image.new("RGB", (canvas_width, canvas_height), "white")
     draw = ImageDraw.Draw(scan_image)
 
-    spacing = 10
-    shade_offset = (2, 2)
-    text_color = (0, 0, 0)
-    shade_color = (49, 49, 49)
-    text_list = [
-        [
-            video_info["F"]["name"],
-        ],
-        [
-            "　　　　【文件信息】",
-            "大　　小：",
-            "时　　长：",
-            "总比特率：",
-        ],
-        [
-            "",
-            video_info["F"]["size"],
-            video_info["F"]["duration"],
-            video_info["F"]["bitrate"],
-        ],
-        [
-            "　　　　【视频信息】",
-            "编　　码：",
-            "色　　彩：",
-            "尺　　寸：",
-            "帧　　率：",
-        ],
-        [
-            "",
-            video_info["V"]["codec"],
-            video_info["V"]["color"],
-            video_info["V"]["frameSize"],
-            video_info["V"]["frameRate"],
-        ],
-        [
-            "　　　　【音频信息】",
-            "编　　码：",
-            "音频语言：",
-            "音频标题：",
-            "声   道：",
-        ],
-        [
-            "",
-            video_info["A"]["codec"],
-            video_info["A"]["lang"],
-            video_info["A"]["title"],
-            video_info["A"]["channel"],
-        ],
-        [
-            "　　　【字幕信息】",
-            "编　　码：",
-            "字幕语言：",
-            "字幕标题：",
-        ],
-        [
-            "",
-            video_info["S"]["codec"],
-            video_info["S"]["lang"],
-            video_info["S"]["title"],
-        ],
-    ]
-    pos_list = [
-        (30, 10),
-        (30, 100), (230, 100),
-        (630, 100), (830, 100),
-        (1330, 100), (1530, 100),
-        (2030, 100), (2230, 100),
-    ]
-    font_list = [font_1, font_2, font_2, font_2, font_2, font_2, font_2, font_2, font_2]
+    if not use_text_drawer:
+        spacing = 10
+        shade_offset = (2, 2)
+        text_color = (0, 0, 0)
+        shade_color = (49, 49, 49)
+        text_list = [
+            [
+                video_info["F"]["name"],
+            ],
+            [
+                "　　　　【文件信息】",
+                "大　　小：",
+                "时　　长：",
+                "总比特率：",
+            ],
+            [
+                "",
+                video_info["F"]["size"],
+                video_info["F"]["duration"],
+                video_info["F"]["bitrate"],
+            ],
+            [
+                "　　　　【视频信息】",
+                "编　　码：",
+                "色　　彩：",
+                "尺　　寸：",
+                "帧　　率：",
+            ],
+            [
+                "",
+                video_info["V"]["codec"],
+                video_info["V"]["color"],
+                video_info["V"]["frameSize"],
+                video_info["V"]["frameRate"],
+            ],
+            [
+                "　　　　【音频信息】",
+                "编　　码：",
+                "音频语言：",
+                "音频标题：",
+                "声   道：",
+            ],
+            [
+                "",
+                video_info["A"]["codec"],
+                video_info["A"]["lang"],
+                video_info["A"]["title"],
+                video_info["A"]["channel"],
+            ],
+            [
+                "　　　【字幕信息】",
+                "编　　码：",
+                "字幕语言：",
+                "字幕标题：",
+            ],
+            [
+                "",
+                video_info["S"]["codec"],
+                video_info["S"]["lang"],
+                video_info["S"]["title"],
+            ],
+        ]
+        pos_list = [
+            (30, 10),
+            (30, 100), (230, 100),
+            (630, 100), (830, 100),
+            (1330, 100), (1530, 100),
+            (2030, 100), (2230, 100),
+        ]
+        font_list = [font_1, font_2, font_2, font_2, font_2, font_2, font_2, font_2, font_2]
 
-    for i, j, k in zip(text_list, pos_list, font_list):
-        multiline_text_with_shade(draw, "\n".join(i), j, shade_offset, spacing, k, text_color, shade_color)
+        for i, j, k in zip(text_list, pos_list, font_list):
+            # multiline_text_with_shade(draw, "\n".join(i), j, shade_offset, spacing, k, text_color, shade_color)
+            pass
+    else:
+        text_drawer = TextDrawer(video_info=video_info, draw=draw, font=font_2)
+        text_drawer.draw_text()
 
     y_offset = 450
     for idx, image in enumerate(images):
@@ -650,7 +657,7 @@ def main():
             snapshots = take_snapshots(video_info, snapshot_times)
 
             scan = create_scan_image(snapshots, grid_shape, snapshot_times,
-                                     video_info, font_file, font_file_2, logo_file)
+                                     video_info, font_file, font_file_2, logo_file, True)
 
             w, h = scan.size
             scan = scan.resize((w//resize_scale, h//resize_scale), Resampling.LANCZOS)
