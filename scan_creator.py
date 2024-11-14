@@ -3,6 +3,7 @@ import json
 import math
 import os
 import subprocess
+import copy
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -136,6 +137,10 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
         "title": ""
     }
 
+    # For files with multiple video streams, each item in this list is a dictionary
+    # containing video information (video_info) as described above.
+    video_info_ld: List[Dict] = []
+
     audio_codec_l: List[str] = []
     audio_lang_l: List[str] = []
     audio_title_l: List[str] = []
@@ -160,9 +165,13 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
                 avg_frame_rate = stream.get("avg_frame_rate", "0/1")
                 video_info["framerate"] = eval(avg_frame_rate) if avg_frame_rate != "0/1" else 0.0
 
-                if not isinstance(tags := stream.get("tags", {}), dict):
-                    continue
-                video_info["lang"] = tags.get("language", "N/A")
+                if isinstance(tags := stream.get("tags", {}), dict):
+                    video_info["lang"] = tags.get("language", "N/A")
+                
+                video_info_ld.append(copy.deepcopy(video_info))
+                # In the case of other video streams, the other keys are overwritten, 
+                # but not necessarily for the "lang" item
+                video_info["lang"] = ""
 
         elif stream.get("codec_type") == "audio":
             audio_codec_l.append(stream.get("codec_name", "N/A"))
@@ -192,7 +201,7 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
     subtitle_info["lang"] = parse_list(sub_lang_l)
     subtitle_info["title"] = parse_list(sub_title_l)
 
-    return VideoInfo(file_info, video_info, audio_info, subtitle_info)
+    return VideoInfo(file_info, video_info_ld, audio_info, subtitle_info)
 
 
 def calculate_snapshot_times(video_info: VideoInfo, avoid_leading: bool = True, avoid_ending: bool = True, snapshot_count=4, skip_seconds_from_head=0, discard_seconds_from_end=1) -> List[int]:
@@ -268,7 +277,9 @@ def take_snapshots(video_info: VideoInfo, snapshot_times, target_width=0, target
     for idx, time in enumerate(snapshot_times):
         hhmmss = f"{time // 3600:02}:{(time % 3600) // 60:02}:{time % 60:02}"
         output = subprocess.Popen(
-            ["ffmpeg", "-ss", hhmmss, "-i", video_info.file_path, "-skip_frame", "nokey", "-frames:v",
+            ["ffmpeg", "-ss", hhmmss, "-i", video_info.file_path,
+             "-map", f"0:v:{video_info.current_video_stream_index}",
+             "-skip_frame", "nokey", "-frames:v",
              "1", "-q:v", "2", "-f", "image2pipe", "-vcodec", "png", "-"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
@@ -562,8 +573,23 @@ def main():
 
     try:
         video_info = get_video_info(file_path)
+        # TODO: 输入无视频流的文件时，此处会弹出IndexError
         print(video_info)
         if video_info:
+            
+            if (video_stream_count:=len(video_info.video_streams)) > 1:
+                print(f"\nThere are {video_stream_count} video streams available.")
+                while True:
+                    try:
+                        selected_stream_index = int(input(f"Enter a number between 0 and {video_stream_count - 1}: "))
+                        video_info.set_active_video_stream(selected_stream_index)
+                        print(f"Video stream {selected_stream_index} activated.")
+                        break 
+                    except ValueError:
+                        print("Invalid input. Please enter a valid integer.")
+                    except IndexError:
+                        print(f"Invalid selection. Please enter a number between 0 and {video_stream_count - 1}.")
+
             snapshot_times = calculate_snapshot_times(
                 video_info, avoid_leading, avoid_ending,
                 snapshot_count=grid_shape[0] * grid_shape[1]

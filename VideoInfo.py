@@ -3,7 +3,7 @@ from typing import Dict, List
 
 
 class VideoInfo:
-    def __init__(self, file_info: Dict[str, str | int], video_info: Dict[str, str | float | int], audio_info: Dict[str, str], subtitle_info: Dict[str, str]) -> None:
+    def __init__(self, file_info: Dict[str, str | int], video_streams: List[Dict[str, str | float | int]], audio_info: Dict[str, str], subtitle_info: Dict[str, str]) -> None:
         # File information
         self.file_name: str = _ if isinstance(_ := file_info.get("name"), str) else ""
         self.file_path: str = _ if isinstance(_ := file_info.get("path"), str) else ""
@@ -11,12 +11,9 @@ class VideoInfo:
         self.duration: int = _ if isinstance(_ := file_info.get("duration"), int) else 0
         self.bitrate: int = _ if isinstance(_ := file_info.get("bitrate"), int) else 0
 
-        # Video information
-        self.video_codec: str = _ if isinstance(_ := video_info.get("codec"), str) else ""
-        self.video_colorspace: str = _ if isinstance(_ := video_info.get("colorspace"), str) else ""
-        self.frame_size: str = _ if isinstance(_ := video_info.get("frame_size"), str) else ""
-        self.framerate: float = _ if isinstance(_ := video_info.get("framerate"), float) else 0.0
-        # self.video_lang: str = _ if isinstance(_ := video_info.get("lang"), str) else ""
+        # multiply video streams
+        self.video_streams : List[Dict[str, str | float | int]] = video_streams
+        self.set_active_video_stream(0)
 
         # Audio information
         self.audio_codec: str = _ if isinstance(_ := audio_info.get("codec"), str) else ""
@@ -29,6 +26,21 @@ class VideoInfo:
         self.subtitle_codec: str = _ if isinstance(_ := subtitle_info.get("codec"), str) else ""
         self.subtitle_lang: str = _ if isinstance(_ := subtitle_info.get("lang"), str) else ""
         self.subtitle_title: str = _ if isinstance(_ := subtitle_info.get("title"), str) else ""
+
+    def set_active_video_stream(self, index : int) -> None:
+        if index >= len(self.video_streams) | index < 0:
+            raise IndexError(f"{index} is not available.")
+
+        else:
+            self.current_video_stream_index: int = index  # Index for active video stream
+            video_info = self.video_streams[self.current_video_stream_index]
+
+            # Video information
+            self.video_codec: str = _ if isinstance(_ := video_info.get("codec"), str) else ""
+            self.video_colorspace: str = _ if isinstance(_ := video_info.get("colorspace"), str) else ""
+            self.frame_size: str = _ if isinstance(_ := video_info.get("frame_size"), str) else ""
+            self.framerate: float = _ if isinstance(_ := video_info.get("framerate"), float) else 0.0
+            # self.video_lang: str = _ if isinstance(_ := video_info.get("lang"), str) else ""
 
     def __list__(self) -> List[str]:
         return [
