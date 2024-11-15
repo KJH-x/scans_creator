@@ -32,7 +32,7 @@ class TextDrawer:
         logo_width = 405
         
 
-    def __init__(self, video_info: VideoInfo, draw: ImageDrawType, font: FreeTypeFont) -> None:
+    def __init__(self, video_info: VideoInfo, draw: ImageDrawType, font_1: FreeTypeFont, font_2: FreeTypeFont) -> None:
         """
         Initializes a TextDrawer object with the given title, content, and grid shape.
 
@@ -40,7 +40,8 @@ class TextDrawer:
         """
         
         self.draw: ImageDrawType = draw
-        self.font: FreeTypeFont = font
+        self.font_title: FreeTypeFont = font_1
+        self.font_content: FreeTypeFont = font_2
         self.title: str = video_info["F"]["name"]
         self.content: List[List[str]] = [
             [
@@ -97,21 +98,20 @@ class TextDrawer:
             ],
         ]
         
+        # The size of the limit for the entire text rendering area
+        self.max_text_width: float = self.Defaults.scan_image_width - self.Defaults.logo_width - self.Defaults.content_margin_left
+        self.max_text_height: float = 450 - self.Defaults.content_margin_top - self.Defaults.vertical_spacing # TODO: the inline number 450
+        
         # update by `self.calculate_content_width_height()`
         # same shape as `self.content`
         self.content_width: List[List[float]] = []
         self.content_height: List[List[float]] = []
         self._calculate_content_width_height()
+        self.chinese_char_height: float = draw.textbbox((0, 0), "田", font=self.font_content)[3]
+        self.ellipsis_width: float = self.Defaults.horizontal_spacing + draw.textbbox((0, 0), "...", font=self.font_content)[2]
         
         self.column_widths: List[float] = [0] * len(self.content)
         self._allocate_column_widths()
-        
-        self.chinese_char_height: float = draw.textbbox((0, 0), "田", font=font)[3]
-        self.ellipsis_width: float = self.Defaults.horizontal_spacing + draw.textbbox((0, 0), "...", font=self.font)[2]
-        
-        # The size of the limit for the entire text rendering area
-        self.max_text_width: float = self.Defaults.scan_image_width - self.Defaults.logo_width - self.Defaults.content_margin_left
-        self.max_text_height: float = 450 - self.Defaults.content_margin_top - self.Defaults.vertical_spacing # TODO: the inline number 450
         
         # Store start positions for text drawing
         self.content_start: List[List[Tuple[float, float]]] = []
@@ -121,11 +121,13 @@ class TextDrawer:
         """
         Calculate the width and height of text in the content.
         """
+        self.content_width: List[List[float]] = []
+        self.content_height: List[List[float]] = []
         for col_idx, col in enumerate(self.content):
             self.content_width.append([])
             self.content_height.append([])
             for _, text in enumerate(col):
-                bbox = self.draw.textbbox((0, 0), text, font=self.font)
+                bbox = self.draw.textbbox((0, 0), text, font=self.font_content)
                 self.content_width[col_idx].append(bbox[2])
                 self.content_height[col_idx].append(bbox[3])
 
@@ -161,15 +163,19 @@ class TextDrawer:
                 longest_texts = text_lengths[:n]
                 
                 # Now calculate how much we need to shorten these texts
-                excess_width = required_width - remaining_width + self.ellipsis_width * n
+                # * the `3 * ()` is magic number to avoid endless loop temporarily
+                excess_width = required_width - remaining_width + 3 * (self.ellipsis_width * n + self.Defaults.horizontal_spacing * number_of_column / 2)
                 # TODO: If they are in the same column?
                 shorten_factor = excess_width / sum(width for _, _, width in longest_texts) 
                 
                 # Replace the longest n texts with shortened versions
                 for col_idx, row_idx, _ in longest_texts:
                     original_text = self.content[col_idx][row_idx]
+                    # ! Sometimes there may be an endless loop here and needs to be optimized
+                    # * It is based on lenth, but a chinese char is wider than an english char
                     truncated_text = original_text[:int(len(original_text) * (1 - shorten_factor))] + "..."
                     self.content[col_idx][row_idx] = truncated_text
+                self._calculate_content_width_height()
                     
                 # * In the 'else', we don't(can't) change column_widths because of `required_widths`.
 
@@ -186,13 +192,13 @@ class TextDrawer:
             Ox += self.column_widths[col_idx]
 
     def draw_text(self) -> None:
-        self._draw_text_with_shadow((self.Defaults.title_margin_left, self.Defaults.title_margin_top), self.title)
+        self._draw_text_with_shadow((self.Defaults.title_margin_left, self.Defaults.title_margin_top), self.title, self.font_title)
         for col_idx, col in enumerate(self.content):
             for row_idx, text in enumerate(col):
-                self._draw_text_with_shadow(self.content_start[col_idx][row_idx], text)
+                self._draw_text_with_shadow(self.content_start[col_idx][row_idx], text, self.font_content)
 
-    def _draw_text_with_shadow(self, pos: Tuple[int, int], text: str) -> None:
+    def _draw_text_with_shadow(self, pos: Tuple[int, int], text: str, font: FreeTypeFont) -> None:
         dx, dy = self.Defaults.shade_offset
         x, y = pos
-        self.draw.text((x+dx, y+dy), text, fill=self.Defaults.shade_color, font=self.font)
-        self.draw.text((x, y), text, fill=self.Defaults.text_color, font=self.font)
+        self.draw.text((x+dx, y+dy), text, fill=self.Defaults.shade_color, font=font)
+        self.draw.text((x, y), text, fill=self.Defaults.text_color, font=font)

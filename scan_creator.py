@@ -538,7 +538,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
             multiline_text_with_shade(draw, "\n".join(i), j, shade_offset, spacing, k, text_color, shade_color)
             pass
     else:
-        text_drawer = TextDrawer(video_info=video_info, draw=draw, font=font_2)
+        text_drawer = TextDrawer(video_info=video_info, draw=draw, font_1=font_1, font_2=font_2)
         text_drawer.draw_text()
 
     y_offset = 450
