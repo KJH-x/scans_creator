@@ -7,3 +7,4 @@ model
 .abandoned
 *.dev.py
 __pycache__
+.vscode
