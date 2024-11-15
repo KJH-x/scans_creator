@@ -421,8 +421,6 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
         grid (Tuple[int, int]): Number of columns and rows for arranging images in the scan image.
         snapshottimes (List[int]): List of snapshot times (in seconds) for each image to display as timestamps.
         video_info (VideoInfo): Metadata about the video, including file, video, audio, and subtitle information.
-        fontfile_1 (str): Path to the font file for primary headings.
-        fontfile_2 (str): Path to the font file for subheadings and timestamps.
         logofile (str): Path to the logo image file to place in the top-right corner.
         use_text_drawer (bool): Use class `TextDrawer` to draw text.
 
@@ -486,6 +484,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
 
     # The width is directly associated with drawing information,
     # should not be variable before the info grid become flexible.
+    
     canvas_width = 3200
 
     scan_width, scan_height = images[0].size
@@ -513,11 +512,13 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
 
     # 验证index
     font_list = _parse_font_list(layout["font_list"], available_font_list)
-
+    if not use_text_drawer:
         for i, j, k in zip(text_list, pos_list, font_list):
             multiline_text_with_shade(draw, "\n".join(i), j, shade_offset, spacing, k, text_color, shade_color)
             pass
     else:
+        font_1 = font_list[0]
+        font_2 = font_list[1]
         text_drawer = TextDrawer(video_info=video_info, draw=draw, font_1=font_1, font_2=font_2)
         text_drawer.draw_text()
 
@@ -637,7 +638,7 @@ def main():
             snapshots = take_snapshots(video_info, snapshot_times)
 
             scan = create_scan_image(snapshots, grid_shape, snapshot_times,
-                                     video_info, logo_file, True)
+                                     video_info, logo_file, False)
 
             w, h = scan.size
             scan = scan.resize((w//resize_scale, h//resize_scale), Resampling.LANCZOS)
