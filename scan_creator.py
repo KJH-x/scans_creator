@@ -535,7 +535,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
         font_list = [font_1, font_2, font_2, font_2, font_2, font_2, font_2, font_2, font_2]
 
         for i, j, k in zip(text_list, pos_list, font_list):
-            # multiline_text_with_shade(draw, "\n".join(i), j, shade_offset, spacing, k, text_color, shade_color)
+            multiline_text_with_shade(draw, "\n".join(i), j, shade_offset, spacing, k, text_color, shade_color)
             pass
     else:
         text_drawer = TextDrawer(video_info=video_info, draw=draw, font=font_2)

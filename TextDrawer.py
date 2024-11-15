@@ -16,7 +16,8 @@ class TextDrawer:
         """
         A nested class to store various default settings for text rendering and grid layout.
         """
-        spacing = 10
+        horizontal_spacing = 10.0  # Horizontal spacing between columns
+        vertical_spacing = 10.0    # Vertical spacing between rows
         shade_offset = (2, 2)
         text_color = (0, 0, 0)
         shade_color = (49, 49, 49)
@@ -24,6 +25,11 @@ class TextDrawer:
         content_margin_top = 100
         title_margin_left = 30
         title_margin_top = 10
+        
+        # associated with `canvas_width` in `create_scan_image`, need change in later update
+        scan_image_width = 3200
+        # also associated with someone, make it variable in later update
+        logo_width = 405
         
 
     def __init__(self, video_info: VideoInfo, draw: ImageDrawType, font: FreeTypeFont) -> None:
@@ -92,14 +98,24 @@ class TextDrawer:
         ]
         
         # update by `self.calculate_content_width_height()`
+        # same shape as `self.content`
         self.content_width: List[List[float]] = []
         self.content_height: List[List[float]] = []
         self._calculate_content_width_height()
         
-        # Store start positions for text drawing
-        self.content_start: List[List[Tuple[float, float]]] = [] 
-        self.calculate_content_start() 
+        self.column_widths: List[float] = [0] * len(self.content)
+        self._allocate_column_widths()
         
+        self.chinese_char_height: float = draw.textbbox((0, 0), "田", font=font)[3]
+        self.ellipsis_width: float = self.Defaults.horizontal_spacing + draw.textbbox((0, 0), "...", font=self.font)[2]
+        
+        # The size of the limit for the entire text rendering area
+        self.max_text_width: float = self.Defaults.scan_image_width - self.Defaults.logo_width - self.Defaults.content_margin_left
+        self.max_text_height: float = 450 - self.Defaults.content_margin_top - self.Defaults.vertical_spacing # TODO: the inline number 450
+        
+        # Store start positions for text drawing
+        self.content_start: List[List[Tuple[float, float]]] = []
+        self._calculate_content_start() 
 
     def _calculate_content_width_height(self) -> None:
         """
@@ -112,24 +128,63 @@ class TextDrawer:
                 bbox = self.draw.textbbox((0, 0), text, font=self.font)
                 self.content_width[col_idx].append(bbox[2])
                 self.content_height[col_idx].append(bbox[3])
+
+    def _allocate_column_widths(self) -> None:
+        """
+        Allocate the width for each column in the grid based on the maximum width of each column's text.
+        
+        The maximum width for each column is determined by the longest text in that column.
+        The width is then stored in the member variable `column_widths`.
+        """
+        number_of_column = len(self.content)
+        for col_idx in range(0, number_of_column, 2):
+            # These cols are usually 5 characters wide (except the first row)
+            self.column_widths[col_idx] = max(self.content_width[col_idx][1:]) + self.Defaults.horizontal_spacing
+
+        while True:
+            required_width = sum(max(self.content_width[i]) for i in range(1, number_of_column, 2))
+            remaining_width = self.max_text_width - sum(self.column_widths)
+            
+            if required_width + self.Defaults.horizontal_spacing * number_of_column / 2 < remaining_width:
+                for col_idx in range(1, number_of_column, 2):
+                    self.column_widths[col_idx] = max(self.content_width[col_idx]) + (remaining_width - required_width) / number_of_column * 2 
+                break
+            else:
+                n = 2
+                text_lengths = []
+                for col_idx in range(1, number_of_column, 2):
+                    for row_idx, text in enumerate(self.content[col_idx]):
+                        text_lengths.append((col_idx, row_idx, self.content_width[col_idx][row_idx]))  # store (col_idx, row_idx, width)
                 
-    def calculate_content_start(self) -> None:
-        # Origin of content is (Ox, Oy)
+                # Sort text_lengths by width in descending order and pick top n longest
+                text_lengths.sort(key=lambda x: x[2], reverse=True)
+                longest_texts = text_lengths[:n]
+                
+                # Now calculate how much we need to shorten these texts
+                excess_width = required_width - remaining_width + self.ellipsis_width * n
+                # TODO: If they are in the same column?
+                shorten_factor = excess_width / sum(width for _, _, width in longest_texts) 
+                
+                # Replace the longest n texts with shortened versions
+                for col_idx, row_idx, _ in longest_texts:
+                    original_text = self.content[col_idx][row_idx]
+                    truncated_text = original_text[:int(len(original_text) * (1 - shorten_factor))] + "..."
+                    self.content[col_idx][row_idx] = truncated_text
+                    
+                # * In the 'else', we don't(can't) change column_widths because of `required_widths`.
+
+    def _calculate_content_start(self) -> None:
+        # Origin of content is (Ox, Oy) and it will change
         Ox = self.Defaults.content_margin_left
         for col_idx, col in enumerate(self.content):
             Oy = self.Defaults.content_margin_top
             self.content_start.append([])
             for row_idx, text in enumerate(col):
                 self.content_start[col_idx].append((Ox, Oy))
-                # Oy += self.content_height[col_idx][row_idx] + self.Defaults.spacing
-                Oy += 50
+                Oy += self.chinese_char_height + self.Defaults.vertical_spacing
                 
-            if col_idx % 2 == 0:
-                Ox += min(self.content_width[col_idx]) + 10
-            else:
-                Ox += max(self.content_width[col_idx]) + 40
-            
-    
+            Ox += self.column_widths[col_idx]
+
     def draw_text(self) -> None:
         self._draw_text_with_shadow((self.Defaults.title_margin_left, self.Defaults.title_margin_top), self.title)
         for col_idx, col in enumerate(self.content):
