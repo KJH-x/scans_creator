@@ -2,6 +2,9 @@ import json
 import os
 from typing import Dict, List
 
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
+
 
 class ConfigManager:
     """
@@ -29,7 +32,12 @@ class ConfigManager:
             "basic": os.path.join(self.config_folder, "basic.json"),
             "info_layout": os.path.join(self.config_folder, "info_layout.json")
         }
-        
+        self.config_schema_folder: str = "schemas"
+        self.config_schema_files: Dict[str, str] = {
+            "basic": os.path.join(self.config_schema_folder, "basic.schema.json"),
+            "info_layout": os.path.join(self.config_schema_folder, "info_layout.schema.json")
+        }
+
         self._check_configfile()
         self.active_configfile: str = ""
 
@@ -51,8 +59,8 @@ class ConfigManager:
                 ]
             },
             os.path.join(self.config_folder, "info_layout.json"): {
-                "fonts": [{"path": "fonts/sans....ttf","size": 45},{"path": "fonts/serif....ttf","size": 40}],
-                "font_list": [0,1,1,1,1,1,1,1,1],
+                "fonts": [{"path": "fonts/sans....ttf", "size": 45}, {"path": "fonts/serif....ttf", "size": 40}],
+                "font_list": [0, 1, 1, 1, 1, 1, 1, 1, 1],
                 "time_font": 1,
                 "horizontal_spacing": 20,
                 "vertical_spacing": 10,
@@ -60,17 +68,17 @@ class ConfigManager:
                 "content_margin_top": 100,
                 "title_margin_left": 30,
                 "title_margin_top": 10,
-                "shade_offset": [2,2],
-                "text_color": [0,0,0],
-                "shade_color": [49,49,49],
-                "text_list": [[{"field": "F","key": "name"}],["　　　　【文件信息】","大　　小：","时　　长：","总比特率："],["",{"field": "F","key": "size"},{"field": "F","key": "duration"},{"field": "F","key": "bitrate"}],["　　　　【视频信息】","编　　码：","色　　彩：","尺　　寸：","帧　　率："],["",{"field": "V","key": "codec"},{"field": "V","key": "color"},{"field": "V","key": "frameSize"},{"field": "V","key": "frameRate"}],["　　　　【音频信息】","编　　码：","音频语言：","音频标题：","声　　道："],["",{"field": "A","key": "codec"},{"field": "A","key": "lang"},{"field": "A","key": "title"},{"field": "A","key": "channel"}],["　　　【字幕信息】","编　　码：","字幕语言：","字幕标题："],["",{"field": "S","key": "codec"},{"field": "S","key": "lang"},{"field": "S","key": "title"}]],
-                "pos_list": [[30,10],[30,100],[230,100],[630,100],[830,100],[1330,100],[1530,100],[2030,100],[2230,100]]
+                "shade_offset": [2, 2],
+                "text_color": [0, 0, 0],
+                "shade_color": [49, 49, 49],
+                "text_list": [[{"field": "F", "key": "name"}], ["　　　　【文件信息】", "大　　小：", "时　　长：", "总比特率："], ["", {"field": "F", "key": "size"}, {"field": "F", "key": "duration"}, {"field": "F", "key": "bitrate"}], ["　　　　【视频信息】", "编　　码：", "色　　彩：", "尺　　寸：", "帧　　率："], ["", {"field": "V", "key": "codec"}, {"field": "V", "key": "color"}, {"field": "V", "key": "frameSize"}, {"field": "V", "key": "frameRate"}], ["　　　　【音频信息】", "编　　码：", "音频语言：", "音频标题：", "声　　道："], ["", {"field": "A", "key": "codec"}, {"field": "A", "key": "lang"}, {"field": "A", "key": "title"}, {"field": "A", "key": "channel"}], ["　　　【字幕信息】", "编　　码：", "字幕语言：", "字幕标题："], ["", {"field": "S", "key": "codec"}, {"field": "S", "key": "lang"}, {"field": "S", "key": "title"}]],
+                "pos_list": [[30, 10], [30, 100], [230, 100], [630, 100], [830, 100], [1330, 100], [1530, 100], [2030, 100], [2230, 100]]
             }
         }
         check_flag: bool = True
         if not os.path.exists(self.config_folder):
             os.makedirs(self.config_folder)
-            
+
         for file_path in self.config_files.values():
             if not os.path.exists(file_path):
                 try:
@@ -80,15 +88,30 @@ class ConfigManager:
                     check_flag = False
                 except KeyError:
                     print(f"Unknow filename: {file_path}")
-                    
+
         if not check_flag:
             raise ValueError(f"The default configuration file needs to be set before use.")
+
+    def _validate_json_schema(self,alias:str) -> None:
+        try:
+            with open(self.config_schema_files[alias], "r", encoding='utf-8') as schema_file:
+                schema = json.load(schema_file)
+
+            validate(instance=self.config, schema=schema)
+            print(f"JSON file {alias} validation successful")
+        except ValidationError as e:
+            print("Validation error:", e.message)
+        except FileNotFoundError as e:
+            print("File not found:", e)
+        except json.JSONDecodeError as e:
+            print("Invalid JSON format:", e)
 
     def activate_config(self, alias: str):
         config_file = self.config_files.get(alias)
         if config_file:
             self.active_configfile = config_file
             self._load_config()
+            self._validate_json_schema(alias)
             print(f"Activated config: {alias} -> {config_file}")
         else:
             print(f"Error: Config alias '{alias}' not found.")
@@ -131,11 +154,11 @@ class ConfigManager:
         if isinstance(data, dict):
             for key, value in data.items():
                 self._validate_file_paths(value)
-        
+
         elif isinstance(data, list):
             for item in data:
                 self._validate_file_paths(item)
-        
+
         elif isinstance(data, str):
             if any(data.lower().endswith(ext) for ext in self.common_extensions):
                 if not os.path.exists(data):
