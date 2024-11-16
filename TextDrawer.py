@@ -33,8 +33,6 @@ class TextDrawer:
             scan_image_width (float): 3200, associated with `canvas_width` in `create_scan_image`, need change in later update.
             logo_width (float): 405, also associated with someone, make it variable in later update.
             post_list (List): Only used by the old method.
-    
-    TODO: wrapping 
     """ 
 
     def __init__(self, video_info: VideoInfo, draw: ImageDrawType, config_manager: ConfigManager, use_new_method: bool) -> None:
@@ -77,7 +75,7 @@ class TextDrawer:
         # Parsing the `text_list` and setting it back to the config
         self.old_content: List[List[str]] = self._parse_text_list(layout["text_list"], video_info)
         self.title: str = self.old_content[0][0]
-        self.content = copy.deepcopy(self.old_content[1:])
+        self.content: List[List[str]] = copy.deepcopy(self.old_content[1:])
 
         # 验证index
         self.font_list: List[FreeTypeFont] = self._parse_font_list(layout["font_list"], available_font_list)
@@ -99,6 +97,7 @@ class TextDrawer:
         self._calculate_content_width_height()
         self.chinese_char_height: List[float] = [draw.textbbox((0, 0), "田", font=font)[3] for font in self.font_list]
         self.ellipsis_width: List[float] = [self.horizontal_spacing + draw.textbbox((0, 0), "...", font=font)[2] for font in self.font_list]
+        self.max_rows_each_column: List[int] = [self.max_text_height // (chinese_height + self.vertical_spacing) for chinese_height in self.chinese_char_height]
         
         self.column_widths: List[float] = [0] * len(self.content)
         self._allocate_column_widths()
@@ -131,7 +130,8 @@ class TextDrawer:
         number_of_column = len(self.content)
         for col_idx in range(0, number_of_column, 2):
             # These cols are usually 5 characters wide (except the first row)
-            self.column_widths[col_idx] = max(self.content_width[col_idx][1:]) + self.horizontal_spacing
+            # horizontal_spacing / 2 是期望标题列与对应信息列的间距稍小一点
+            self.column_widths[col_idx] = max(self.content_width[col_idx][1:]) + self.horizontal_spacing / 2
 
         while True:
             required_width = sum(max(self.content_width[i]) for i in range(1, number_of_column, 2))
@@ -142,37 +142,86 @@ class TextDrawer:
                     self.column_widths[col_idx] = max(self.content_width[col_idx]) + (remaining_width - required_width) / number_of_column * 2 
                 break
             else:
-                n = 2
                 text_lengths = []
                 for col_idx in range(1, number_of_column, 2):
                     for row_idx, text in enumerate(self.content[col_idx]):
                         text_lengths.append((col_idx, row_idx, self.content_width[col_idx][row_idx]))  # store (col_idx, row_idx, width)
                 
-                # Sort text_lengths by width in descending order and pick top n longest
+                # Sort text_lengths by width in descending order and pick top 2 longest (not in the same column)
                 text_lengths.sort(key=lambda x: x[2], reverse=True)
-                longest_texts = text_lengths[:n]
+                longest_texts: List[Tuple[int, int, float]] = []
+                longest_texts.append(text_lengths[0])
+                i = 1
+                while text_lengths[i][0] == text_lengths[0][0]:
+                    i += 1
+                longest_texts.append(text_lengths[i])
                 
-                # Now calculate how much we need to shorten these texts
                 sum_ellipsis_width = 0
                 for col_idx, row_idx, width in longest_texts:
                     # 0 is for title, so +1
                     sum_ellipsis_width += self.ellipsis_width[col_idx+1]
-                    
-                # * the `3 * ()` is magic number to avoid endless loop temporarily
-                excess_width = required_width - remaining_width + 3 * (sum_ellipsis_width + self.horizontal_spacing * number_of_column / 2)
-                # TODO: If they are in the same column?
-                shorten_factor = excess_width / sum(width for _, _, width in longest_texts) 
+                excess_width = required_width - remaining_width + sum_ellipsis_width + self.horizontal_spacing * number_of_column / 2
+                # 尝试将最长的2个文本长度降低到此值
+                shorten_target = (sum(width for _, _, width in longest_texts) - excess_width) / 2
                 
-                # Replace the longest n texts with shortened versions
                 for col_idx, row_idx, _ in longest_texts:
-                    original_text = self.content[col_idx][row_idx]
-                    # ! Sometimes there may be an endless loop here and needs to be optimized (after add the `3*()`, dont appear)
-                    # * It is based on lenth, but a chinese char is wider than an english char
-                    truncated_text = original_text[:int(len(original_text) * (1 - shorten_factor))] + "..."
-                    self.content[col_idx][row_idx] = truncated_text
+                    str_to_change: str = self.content[col_idx][row_idx]
+                    # 提取每一个字符
+                    str_every_char: List[str] = [i for i in str_to_change]
+                    font = self.font_list[col_idx+1]
+                    # 每个字符分别计算一次宽度
+                    width_every_char: List[float] = [self.draw.textbbox((0, 0), str_, font=font)[2] for str_ in str_every_char]
+                    # 依次从头累加，得到到某一个字符为止的宽度
+                    width_to_idx: List[float] = [sum(width_every_char[:i+1]) for i in range(len(width_every_char))]
+                    # 这是另一种方法计算的长度，他们的结果有差异但是不大，时间开销差异无法感知到
+                    # width_to_idx_other: List[float] = [self.draw.textbbox((0, 0), str_to_change[:i+1], font=font)[2] for i in range(len(str_to_change))]
+                    # 剩余多少行可供挥霍
+                    extra_lines: int = self.max_rows_each_column[col_idx] - len(self.content[col_idx]) 
+                    if extra_lines <= 0:
+                        # can't creat a new line, just truncate
+                        original_text = self.content[col_idx][row_idx]
+                        shorten_index = max((i for i, num in enumerate(width_to_idx) if num < shorten_target), default=0)
+                        truncated_text = original_text[:shorten_index] + "..."
+                        self.content[col_idx][row_idx] = truncated_text
+                    else:
+                        # attemp to warp
+                        last_shorten_index = 0
+                        last_idx_extra = 0
+                        for idx_extra in range(extra_lines - 1):
+                            original_text = self.content[col_idx][row_idx + idx_extra]
+                            shorten_index = 1 + max((i for i, num in enumerate(width_to_idx) if num < shorten_target), default=0)
+                            # 换行后，这一行的长度
+                            width_this_row = width_to_idx[shorten_index-1]
+                            truncated_text = original_text[last_shorten_index: shorten_index]
+                            self.content[col_idx].insert(row_idx + idx_extra, truncated_text)
+                            # 这是前面的信息栏，需要空一行
+                            self.content[col_idx-1].insert(row_idx + idx_extra + 1, "")
+                            last_shorten_index = shorten_index
+                            width_to_idx[:] = [num - width_this_row for num in width_to_idx]
+                            
+                            # 外面还有一次写入，用于处理最后一行（省略或无需省略）
+                            if ((width_to_idx[-1] < shorten_target) | (idx_extra == extra_lines - 2)):
+                                last_idx_extra = idx_extra + 1
+                                break
+                        
+                        # 前面idx_extra的最后一次未完成的处理
+                        idx_extra = last_idx_extra
+                        if width_to_idx[-1] >= shorten_target:
+                            # 还是要省略
+                            original_text = self.content[col_idx][row_idx + idx_extra]
+                            shorten_index = max((i for i, num in enumerate(width_to_idx) if num < shorten_target), default=0)
+                            truncated_text = original_text[last_shorten_index: shorten_index] + "..."
+                            self.content[col_idx][row_idx + idx_extra] = truncated_text
+                            
+                        else:
+                            original_text = self.content[col_idx][row_idx + idx_extra]
+                            truncated_text = original_text[last_shorten_index:]
+                            self.content[col_idx][row_idx + idx_extra] = truncated_text
+                    # if extra_lines <= 0
                 self._calculate_content_width_height()
-                    
-                # * In the 'else', we don't(can't) change column_widths because of `required_widths`.
+            # if required_width + self.horizontal_spacing * number_of_column / 2 < remaining_width
+            # * In the 'else', we don't(can't) change column_widths because of `required_widths`.
+        # while True, break 
 
     def _calculate_content_start(self) -> None:
         # Origin of content is (Ox, Oy) and it will change

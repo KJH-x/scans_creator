@@ -53,7 +53,7 @@ class ConfigManager:
                 "fonts": [{"path": "fonts/sans....ttf","size": 45},{"path": "fonts/serif....ttf","size": 40}],
                 "font_list": [0,1,1,1,1,1,1,1,1],
                 "time_font": 1,
-                "horizontal_spacing": 10,
+                "horizontal_spacing": 20,
                 "vertical_spacing": 10,
                 "content_margin_left": 30,
                 "content_margin_top": 100,
