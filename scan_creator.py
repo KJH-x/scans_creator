@@ -15,8 +15,8 @@ from PIL.ImageDraw import ImageDraw as ImageDrawType
 from PIL.ImageFont import FreeTypeFont
 
 from ConfigManager import ConfigManager
-from VideoInfo import VideoInfo
 from TextDrawer import TextDrawer
+from VideoInfo import VideoInfo
 
 
 def ffprobe_get_info(filename: str) -> Dict[Any, Any] | None:
