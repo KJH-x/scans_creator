@@ -7,6 +7,7 @@ import json
 import copy
 
 from VideoInfo import VideoInfo
+from ConfigManager import ConfigManager
 
 class TextDrawer:
     """
@@ -37,17 +38,18 @@ class TextDrawer:
         logo_width = 405
         
 
-    def __init__(self, video_info: VideoInfo, draw: ImageDrawType, use_new_method: bool) -> None:
+    def __init__(self, video_info: VideoInfo, draw: ImageDrawType, config_manager: ConfigManager, use_new_method: bool) -> None:
         """
         Initializes a TextDrawer object with the given title, content, and grid shape.
 
         Args:
             video_info (VideoInfo): Metadata about the video, including file, video, audio, and subtitle information.
             draw (ImageDrawType): The ImageDraw object used to draw the text.
+            config_manager (ConfigManager): Manage the settings about text rendering.
             use_new_method (bool): True for use new method to draw text, and False for old method.
         """
-        with open("config/info_layout.json", mode='r', encoding='utf-8')as fp:
-            layout = json.load(fp)
+        config_manager.activate_config("info_layout")
+        layout = config_manager.config
 
         # used by new method, overwrite
         self.Defaults.shade_offset = tuple(layout["shade_offset"])

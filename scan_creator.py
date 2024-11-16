@@ -382,7 +382,7 @@ def _image_histogram(image: ImageType) -> ImageType: ...
 def _image_complexity(image: ImageType): ...
 
 
-def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo, logofile: str, use_new_method: bool) -> ImageType:
+def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo, logofile: str, config_manager: ConfigManager, use_new_method: bool) -> ImageType:
     """
     Create a composite scan image by arranging snapshots in a grid format with metadata and a logo overlay.
 
@@ -392,6 +392,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
         snapshottimes (List[int]): List of snapshot times (in seconds) for each image to display as timestamps.
         video_info (VideoInfo): Metadata about the video, including file, video, audio, and subtitle information.
         logofile (str): Path to the logo image file to place in the top-right corner.
+        config_manager (ConfigManager): Manage the settings about text rendering.
         use_new_method (bool): True for use new method in class `TextDrawer` to draw text, and False for old method.
 
     Raises:
@@ -433,7 +434,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
     scan_image = Image.new("RGB", (canvas_width, canvas_height), "white")
     draw = ImageDraw.Draw(scan_image)
     
-    text_drawer = TextDrawer(video_info=video_info, draw=draw, use_new_method=use_new_method)
+    text_drawer = TextDrawer(video_info=video_info, draw=draw, config_manager=config_manager, use_new_method=use_new_method)
     text_drawer.draw_text()
 
     time_font = text_drawer.get_time_font()
@@ -505,16 +506,16 @@ def main():
 
     # chcp 65001
     try:
-        config_file: str = "config/basic.json"
-        config: ConfigManager = ConfigManager(config_file)
+        config_manager: ConfigManager = ConfigManager()
+        config_manager.activate_config("basic")
 
-        font_file: str = config.font_file
-        font_file_2: str = config.font_file_2
-        logo_file: str = config.logo_file
-        resize_scale: int = config.resize_scale
-        avoid_leading: bool = config.avoid_leading
-        avoid_ending: bool = config.avoid_ending
-        grid_shape: tuple = config.grid_shape
+        font_file: str = config_manager["font_file"]
+        font_file_2: str = config_manager["font_file_2"]
+        logo_file: str = config_manager["logo_file"]
+        resize_scale: int = config_manager["resize_scale"]
+        avoid_leading: bool = config_manager["avoid_leading"]
+        avoid_ending: bool = config_manager["avoid_ending"]
+        grid_shape: tuple = tuple(config_manager["grid_shape"])
         use_new_method: bool = True
 
         file_path: str = input("File Path :")
@@ -554,7 +555,7 @@ def main():
             snapshots = take_snapshots(video_info, snapshot_times)
 
             scan = create_scan_image(snapshots, grid_shape, snapshot_times,
-                                     video_info, logo_file, use_new_method)
+                                     video_info, logo_file, config_manager, use_new_method)
 
             w, h = scan.size
             scan = scan.resize((w//resize_scale, h//resize_scale), Resampling.LANCZOS)
