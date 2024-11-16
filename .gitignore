@@ -2,8 +2,9 @@ logo/*.ai
 fonts/*
 scans/*.png
 config*.json
-config/*
+config*/*
 model
 .abandoned
 *.dev.py
 __pycache__
+.vscode

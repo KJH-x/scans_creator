@@ -16,6 +16,7 @@ from PIL.ImageFont import FreeTypeFont
 
 from ConfigManager import ConfigManager
 from VideoInfo import VideoInfo
+from TextDrawer import TextDrawer
 
 
 def ffprobe_get_info(filename: str) -> Dict[Any, Any] | None:
@@ -381,37 +382,7 @@ def _image_histogram(image: ImageType) -> ImageType: ...
 def _image_complexity(image: ImageType): ...
 
 
-def multiline_text_with_shade(
-    draw_obj: ImageDrawType, text: str,
-    pos: Tuple[int, int], offset: Tuple[int, int], spacing: int,
-    font: FreeTypeFont, text_color: Tuple[int, int, int], shade_color: Tuple[int, int, int]
-) -> None:
-    """
-    Draw multiline text with a shaded background on the image.
-
-    Args:
-        draw_obj (ImageDrawType): The ImageDraw object used to draw the text.
-        text (str): The text to be drawn.
-        pos (Tuple[int, int]): The starting position (x, y) for the text.
-        offset (Tuple[int, int]): The offset for drawing the shaded background behind the text.
-        spacing (int): The spacing between lines of text.
-        font (FreeTypeFont): The font to be used for drawing the text.
-        text_color (Tuple[int, int, int]): The color of the text.
-        shade_color (Tuple[int, int, int]): The color of the shaded background.
-
-    Returns:
-        None: This function does not return any value; it directly modifies the `draw_obj`.
-    """
-
-    x, y = pos
-    dx, dy = offset
-    draw_obj.multiline_text((x+dx, y+dy), text, fill=shade_color, font=font, spacing=spacing)
-    draw_obj.multiline_text((x, y), text, fill=text_color, font=font, spacing=spacing)
-
-    return None
-
-
-def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo, logofile: str) -> ImageType:
+def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo, logofile: str, config_manager: ConfigManager, use_new_method: bool) -> ImageType:
     """
     Create a composite scan image by arranging snapshots in a grid format with metadata and a logo overlay.
 
@@ -420,9 +391,9 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
         grid (Tuple[int, int]): Number of columns and rows for arranging images in the scan image.
         snapshottimes (List[int]): List of snapshot times (in seconds) for each image to display as timestamps.
         video_info (VideoInfo): Metadata about the video, including file, video, audio, and subtitle information.
-        fontfile_1 (str): Path to the font file for primary headings.
-        fontfile_2 (str): Path to the font file for subheadings and timestamps.
         logofile (str): Path to the logo image file to place in the top-right corner.
+        config_manager (ConfigManager): Manage the settings about text rendering.
+        use_new_method (bool): True for use new method in class `TextDrawer` to draw text, and False for old method.
 
     Raises:
         ValueError: If the number of `images` does not match the required number based on `grid`.
@@ -439,39 +410,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
         - Video information (size, duration, codec, etc.) is displayed at the top.
     """
 
-    # TODO: 分离读取、转换和验证步骤
-
-    def _parse_text_list(text_list: List[List[str | Dict[str, str]]], video_info: VideoInfo) -> List[List[str]]:
-        parsed_list: List[List[str]] = []
-        for row in text_list:
-            parsed_row: List[str] = []
-            for item in row:
-                if isinstance(item, dict) and "field" in item and "key" in item:
-                    parsed_row.append(video_info[item["field"]][item["key"]])
-                elif isinstance(item, str):
-                    parsed_row.append(item)
-                else:
-                    raise ValueError(f"Not support text_list item:{item}")
-            parsed_list.append(parsed_row)
-        return parsed_list
-
-    def _parse_font_list(font_idx_list: List[str], font_list: List[FreeTypeFont]) -> List[FreeTypeFont]:
-        parsed_list: List[FreeTypeFont] = []
-        for idx in font_idx_list:
-            if isinstance(idx, int):
-                parsed_list.append(font_list[idx])
-        return parsed_list
-
-    def _get_fonts(layout) -> List[FreeTypeFont]:
-        available_font_list: List[FreeTypeFont] = []
-        for font in layout["fonts"]:
-            if isinstance(font, dict) and "path" in font and "size" in font \
-                    and os.path.exists(font["path"]) and isinstance(font["size"], int):
-                available_font_list.append(ImageFont.truetype(font["path"], font["size"]))
-            else:
-                raise ValueError(f"{font} is not support")
-        return available_font_list
-
+    
     col, row = grid
     total_images = col * row
 
@@ -484,6 +423,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
 
     # The width is directly associated with drawing information,
     # should not be variable before the info grid become flexible.
+    
     canvas_width = 3200
 
     scan_width, scan_height = images[0].size
@@ -493,28 +433,11 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
 
     scan_image = Image.new("RGB", (canvas_width, canvas_height), "white")
     draw = ImageDraw.Draw(scan_image)
+    
+    text_drawer = TextDrawer(video_info=video_info, draw=draw, config_manager=config_manager, use_new_method=use_new_method)
+    text_drawer.draw_text()
 
-    with open("config/info_layout.json", mode='r', encoding='utf-8')as fp:
-        layout = json.load(fp)
-
-    spacing = layout["spacing"]
-    shade_offset = tuple(layout["shade_offset"])
-    text_color = tuple(layout["text_color"])
-    shade_color = tuple(layout["shade_color"])
-    pos_list = layout["pos_list"]
-    available_font_list: List[FreeTypeFont] = []
-    available_font_list = _get_fonts(layout)
-    time_font = available_font_list[layout["time_font"]]
-
-    # Parsing the `text_list` and setting it back to the config
-    text_list = _parse_text_list(layout["text_list"], video_info)
-
-    # 验证index
-    font_list = _parse_font_list(layout["font_list"], available_font_list)
-
-    for i, j, k in zip(text_list, pos_list, font_list):
-        multiline_text_with_shade(draw, "\n".join(i), j, shade_offset, spacing, k, text_color, shade_color)
-
+    time_font = text_drawer.get_time_font()
     y_offset = 450
     for idx, image in enumerate(images):
 
@@ -583,16 +506,17 @@ def main():
 
     # chcp 65001
     try:
-        config_file: str = "config/basic.json"
-        config: ConfigManager = ConfigManager(config_file)
+        config_manager: ConfigManager = ConfigManager()
+        config_manager.activate_config("basic")
 
-        font_file: str = config.font_file
-        font_file_2: str = config.font_file_2
-        logo_file: str = config.logo_file
-        resize_scale: int = config.resize_scale
-        avoid_leading: bool = config.avoid_leading
-        avoid_ending: bool = config.avoid_ending
-        grid_shape: tuple = config.grid_shape
+        font_file: str = config_manager["font_file"]
+        font_file_2: str = config_manager["font_file_2"]
+        logo_file: str = config_manager["logo_file"]
+        resize_scale: int = config_manager["resize_scale"]
+        avoid_leading: bool = config_manager["avoid_leading"]
+        avoid_ending: bool = config_manager["avoid_ending"]
+        grid_shape: tuple[int, int] = tuple(config_manager["grid_shape"])
+        use_new_method: bool = True
 
         file_path: str = input("File Path :")
         if not os.path.exists(file_path):
@@ -631,7 +555,7 @@ def main():
             snapshots = take_snapshots(video_info, snapshot_times)
 
             scan = create_scan_image(snapshots, grid_shape, snapshot_times,
-                                     video_info, logo_file)
+                                     video_info, logo_file, config_manager, use_new_method)
 
             w, h = scan.size
             scan = scan.resize((w//resize_scale, h//resize_scale), Resampling.LANCZOS)
@@ -641,7 +565,7 @@ def main():
             print("Failed to retrieve video information.")
 
     except IndexError as e:
-        print("No video streeams available.")
+        print(e)
         exit(1)
 
     except (FileNotFoundError, ValueError, IndexError) as e:
