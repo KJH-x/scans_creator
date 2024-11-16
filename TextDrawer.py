@@ -3,7 +3,6 @@ from PIL import ImageFont
 from PIL.ImageDraw import ImageDraw as ImageDrawType
 from PIL.ImageFont import FreeTypeFont
 import os
-import json
 import copy
 
 from VideoInfo import VideoInfo
@@ -15,28 +14,28 @@ class TextDrawer:
     handling long text (truncation or wrapping). It also manages the structure and organization of text data 
     for the grid.
     
-    TODO: wrapping 
-    """
+    Params:
+        Style:
+            shade_offset (Tuple): A tuple representing the offset for the shadow, typically in (x, y) format.
+            text_color (Tuple): A tuple representing the color of the text in RGB format.
+            shade_color (Tuple): A tuple representing the color of the shadow in RGB format.
+            font_list (List[FreeTypeFont]): Font list(font size inside).
+        
+        Layout:
+            horizontal_spacing (float): Horizontal spacing between columns
+            vertical_spacing (float): Vertical spacing between rows
+            title_margin_left (float): Adjust its distance from the left edge.
+            title_margin_top (float): Adjust its distance from the top edge.
+            content_margin_left (float): Adjust its distance from the left edge.
+            content_margin_top (float): Adjust its distance from the top edge.
+        
+        Hardcode:
+            scan_image_width (float): 3200, associated with `canvas_width` in `create_scan_image`, need change in later update.
+            logo_width (float): 405, also associated with someone, make it variable in later update.
+            post_list (List): Only used by the old method.
     
-    class Defaults:
-        """
-        A nested class to store various default settings for text rendering and grid layout.
-        """
-        horizontal_spacing = 10.0  # Horizontal spacing between columns
-        vertical_spacing = 10.0    # Vertical spacing between rows
-        shade_offset = (2, 2)
-        text_color = (0, 0, 0)
-        shade_color = (49, 49, 49)
-        content_margin_left = 30
-        content_margin_top = 100
-        title_margin_left = 30
-        title_margin_top = 10
-        
-        # associated with `canvas_width` in `create_scan_image`, need change in later update
-        scan_image_width = 3200
-        # also associated with someone, make it variable in later update
-        logo_width = 405
-        
+    TODO: wrapping 
+    """ 
 
     def __init__(self, video_info: VideoInfo, draw: ImageDrawType, config_manager: ConfigManager, use_new_method: bool) -> None:
         """
@@ -50,12 +49,22 @@ class TextDrawer:
         """
         config_manager.activate_config("info_layout")
         layout = config_manager.config
+        
+        # associated with `canvas_width` in `create_scan_image`, need change in later update
+        self.scan_image_width = 3200
+        # also associated with someone, make it variable in later update
+        self.logo_width = 405
 
         # used by new method, overwrite
-        self.Defaults.shade_offset = tuple(layout["shade_offset"])
-        self.Defaults.text_color = tuple(layout["text_color"])
-        self.Defaults.shade_color = tuple(layout["shade_color"])
-        self.Defaults.vertical_spacing = layout["spacing"]
+        self.shade_offset = tuple(layout["shade_offset"])
+        self.text_color = tuple(layout["text_color"])
+        self.shade_color = tuple(layout["shade_color"])
+        self.vertical_spacing = layout["vertical_spacing"]
+        self.horizontal_spacing = layout["horizontal_spacing"]    # Vertical spacing between rows
+        self.content_margin_left = layout["content_margin_left"]
+        self.content_margin_top = layout["content_margin_top"]
+        self.title_margin_left = layout["title_margin_left"]
+        self.title_margin_top = layout["title_margin_top"]
         
         # only used by old method
         self.pos_list = layout["pos_list"]
@@ -71,7 +80,7 @@ class TextDrawer:
         self.content = copy.deepcopy(self.old_content[1:])
 
         # 验证index
-        self.font_list = self._parse_font_list(layout["font_list"], available_font_list)
+        self.font_list: List[FreeTypeFont] = self._parse_font_list(layout["font_list"], available_font_list)
         if len(self.font_list) != len(self.content) + 1:
             raise IndexError(f"The length of font_list({len(self.font_list)}) does not match the number of coloum({len(self.content) + 1})")
         
@@ -79,8 +88,8 @@ class TextDrawer:
         self.use_new_method: bool = use_new_method
         
         # The size of the limit for the entire text rendering area
-        self.max_text_width: float = self.Defaults.scan_image_width - self.Defaults.logo_width - self.Defaults.content_margin_left
-        self.max_text_height: float = 450 - self.Defaults.content_margin_top - self.Defaults.vertical_spacing 
+        self.max_text_width: float = self.scan_image_width - self.logo_width - self.content_margin_left
+        self.max_text_height: float = 450 - self.content_margin_top - self.vertical_spacing 
         # TODO: the inline number 450, associated with `y_offset` in `creat_scan_image`
         
         # update by `self.calculate_content_width_height()`
@@ -89,7 +98,7 @@ class TextDrawer:
         self.content_height: List[List[float]] = []
         self._calculate_content_width_height()
         self.chinese_char_height: List[float] = [draw.textbbox((0, 0), "田", font=font)[3] for font in self.font_list]
-        self.ellipsis_width: List[float] = [self.Defaults.horizontal_spacing + draw.textbbox((0, 0), "...", font=font)[2] for font in self.font_list]
+        self.ellipsis_width: List[float] = [self.horizontal_spacing + draw.textbbox((0, 0), "...", font=font)[2] for font in self.font_list]
         
         self.column_widths: List[float] = [0] * len(self.content)
         self._allocate_column_widths()
@@ -122,13 +131,13 @@ class TextDrawer:
         number_of_column = len(self.content)
         for col_idx in range(0, number_of_column, 2):
             # These cols are usually 5 characters wide (except the first row)
-            self.column_widths[col_idx] = max(self.content_width[col_idx][1:]) + self.Defaults.horizontal_spacing
+            self.column_widths[col_idx] = max(self.content_width[col_idx][1:]) + self.horizontal_spacing
 
         while True:
             required_width = sum(max(self.content_width[i]) for i in range(1, number_of_column, 2))
             remaining_width = self.max_text_width - sum(self.column_widths)
             
-            if required_width + self.Defaults.horizontal_spacing * number_of_column / 2 < remaining_width:
+            if required_width + self.horizontal_spacing * number_of_column / 2 < remaining_width:
                 for col_idx in range(1, number_of_column, 2):
                     self.column_widths[col_idx] = max(self.content_width[col_idx]) + (remaining_width - required_width) / number_of_column * 2 
                 break
@@ -150,7 +159,7 @@ class TextDrawer:
                     sum_ellipsis_width += self.ellipsis_width[col_idx+1]
                     
                 # * the `3 * ()` is magic number to avoid endless loop temporarily
-                excess_width = required_width - remaining_width + 3 * (sum_ellipsis_width + self.Defaults.horizontal_spacing * number_of_column / 2)
+                excess_width = required_width - remaining_width + 3 * (sum_ellipsis_width + self.horizontal_spacing * number_of_column / 2)
                 # TODO: If they are in the same column?
                 shorten_factor = excess_width / sum(width for _, _, width in longest_texts) 
                 
@@ -167,13 +176,13 @@ class TextDrawer:
 
     def _calculate_content_start(self) -> None:
         # Origin of content is (Ox, Oy) and it will change
-        Ox = self.Defaults.content_margin_left
+        Ox = self.content_margin_left
         for col_idx, col in enumerate(self.content):
-            Oy = self.Defaults.content_margin_top
+            Oy = self.content_margin_top
             self.content_start.append([])
             for row_idx, text in enumerate(col):
                 self.content_start[col_idx].append((Ox, Oy))
-                Oy += self.chinese_char_height[col_idx+1] + self.Defaults.vertical_spacing
+                Oy += self.chinese_char_height[col_idx+1] + self.vertical_spacing
                 
             Ox += self.column_widths[col_idx]
 
@@ -220,19 +229,19 @@ class TextDrawer:
 
     def draw_text(self) -> None:
         if self.use_new_method:
-            self._draw_text_with_shadow((self.Defaults.title_margin_left, self.Defaults.title_margin_top), self.title, self.font_list[0])
+            self._draw_text_with_shadow((self.title_margin_left, self.title_margin_top), self.title, self.font_list[0])
             for col_idx, col in enumerate(self.content):
                 for row_idx, text in enumerate(col):
                     self._draw_text_with_shadow(self.content_start[col_idx][row_idx], text, self.font_list[col_idx+1])
         else:
             for i, j, k in zip(self.old_content, self.pos_list, self.font_list):
-                self._multiline_text_with_shade(self.draw, "\n".join(i), j, self.Defaults.shade_offset, self.Defaults.vertical_spacing, k, self.Defaults.text_color, self.Defaults.shade_color)
+                self._multiline_text_with_shade(self.draw, "\n".join(i), j, self.shade_offset, self.vertical_spacing, k, self.text_color, self.shade_color)
 
     def _draw_text_with_shadow(self, pos: Tuple[int, int], text: str, font: FreeTypeFont) -> None:
-        dx, dy = self.Defaults.shade_offset
+        dx, dy = self.shade_offset
         x, y = pos
-        self.draw.text((x+dx, y+dy), text, fill=self.Defaults.shade_color, font=font)
-        self.draw.text((x, y), text, fill=self.Defaults.text_color, font=font)
+        self.draw.text((x+dx, y+dy), text, fill=self.shade_color, font=font)
+        self.draw.text((x, y), text, fill=self.text_color, font=font)
         
     @staticmethod
     def _multiline_text_with_shade(
