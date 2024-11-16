@@ -1,7 +1,10 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from PIL import ImageFont
 from PIL.ImageDraw import ImageDraw as ImageDrawType
 from PIL.ImageFont import FreeTypeFont
+import os
+import json
+import copy
 
 from VideoInfo import VideoInfo
 
@@ -32,75 +35,50 @@ class TextDrawer:
         logo_width = 405
         
 
-    def __init__(self, video_info: VideoInfo, draw: ImageDrawType, font_1: FreeTypeFont, font_2: FreeTypeFont) -> None:
+    def __init__(self, video_info: VideoInfo, draw: ImageDrawType, use_new_method: bool) -> None:
         """
         Initializes a TextDrawer object with the given title, content, and grid shape.
 
         Args:
         """
+        with open("config/info_layout.json", mode='r', encoding='utf-8')as fp:
+            layout = json.load(fp)
+
+        # used by new method, overwrite
+        self.Defaults.shade_offset = tuple(layout["shade_offset"])
+        self.Defaults.text_color = tuple(layout["text_color"])
+        self.Defaults.shade_color = tuple(layout["shade_color"])
+        self.Defaults.vertical_spacing = layout["spacing"]
+        
+        # only used by old method
+        self.pos_list = layout["pos_list"]
+        
+        available_font_list: List[FreeTypeFont] = []
+        available_font_list = self._get_fonts(layout)
+        # output by `self.get_time_font()`
+        self.time_font = available_font_list[layout["time_font"]]
+
+        # Parsing the `text_list` and setting it back to the config
+        self.old_content: List[List[str]] = self._parse_text_list(layout["text_list"], video_info)
+        self.title: str = self.old_content[0][0]
+        self.content = copy.deepcopy(self.old_content[1:])
+
+        # 验证index
+        self.font_list = self._parse_font_list(layout["font_list"], available_font_list)
+        
+        # Used to estimate the space occupied by the text
+        # TODO: 隐含了内容均为同一个字体的基本假设，并不灵活，需要使用font_list替代
+        self.font_title = self.font_list[0]
+        self.font_content = self.font_list[1]
+        
         
         self.draw: ImageDrawType = draw
-        self.font_title: FreeTypeFont = font_1
-        self.font_content: FreeTypeFont = font_2
-        self.title: str = video_info["F"]["name"]
-        self.content: List[List[str]] = [
-            [
-                "　　　　【文件信息】",
-                "大　　小：",
-                "时　　长：",
-                "总比特率：",
-            ],
-            [
-                "",
-                video_info["F"]["size"],
-                video_info["F"]["duration"],
-                video_info["F"]["bitrate"],
-            ],
-            [
-                "　　　　【视频信息】",
-                "编　　码：",
-                "色　　彩：",
-                "尺　　寸：",
-                "帧　　率：",
-            ],
-            [
-                "",
-                video_info["V"]["codec"],
-                video_info["V"]["color"],
-                video_info["V"]["frameSize"],
-                video_info["V"]["frameRate"],
-            ],
-            [
-                "　　　　【音频信息】",
-                "编　　码：",
-                "音频语言：",
-                "音频标题：",
-                "声　　道：",
-            ],
-            [
-                "",
-                video_info["A"]["codec"],
-                video_info["A"]["lang"],
-                video_info["A"]["title"],
-                video_info["A"]["channel"],
-            ],
-            [
-                "　　　【字幕信息】",
-                "编　　码：",
-                "字幕语言：",
-                "字幕标题：",
-            ],
-            [
-                "",
-                video_info["S"]["codec"],
-                video_info["S"]["lang"],
-                video_info["S"]["title"],
-            ],
-        ]
+        self.use_new_method: bool = use_new_method
         
         # The size of the limit for the entire text rendering area
         self.max_text_width: float = self.Defaults.scan_image_width - self.Defaults.logo_width - self.Defaults.content_margin_left
-        self.max_text_height: float = 450 - self.Defaults.content_margin_top - self.Defaults.vertical_spacing # TODO: the inline number 450
+        self.max_text_height: float = 450 - self.Defaults.content_margin_top - self.Defaults.vertical_spacing 
+        # TODO: the inline number 450, associated with `y_offset` in `creat_scan_image`
         
         # update by `self.calculate_content_width_height()`
         # same shape as `self.content`
@@ -191,14 +169,91 @@ class TextDrawer:
                 
             Ox += self.column_widths[col_idx]
 
+    # TODO: 分离读取、转换和验证步骤
+    @staticmethod
+    def _parse_text_list(text_list: List[List[str | Dict[str, str]]], video_info: VideoInfo) -> List[List[str]]:
+        parsed_list: List[List[str]] = []
+        for row in text_list:
+            parsed_row: List[str] = []
+            for item in row:
+                if isinstance(item, dict) and "field" in item and "key" in item:
+                    parsed_row.append(video_info[item["field"]][item["key"]])
+                elif isinstance(item, str):
+                    parsed_row.append(item)
+                else:
+                    raise ValueError(f"Not support text_list item:{item}")
+            parsed_list.append(parsed_row)
+        return parsed_list
+
+    @staticmethod
+    def _parse_font_list(font_idx_list: List[str], font_list: List[FreeTypeFont]) -> List[FreeTypeFont]:
+        parsed_list: List[FreeTypeFont] = []
+        for idx in font_idx_list:
+            if isinstance(idx, int):
+                parsed_list.append(font_list[idx])
+        return parsed_list
+
+    @staticmethod
+    def _get_fonts(layout) -> List[FreeTypeFont]:
+        available_font_list: List[FreeTypeFont] = []
+        for font in layout["fonts"]:
+            if isinstance(font, dict) and "path" in font and "size" in font \
+                    and os.path.exists(font["path"]) and isinstance(font["size"], int):
+                available_font_list.append(ImageFont.truetype(font["path"], font["size"]))
+            else:
+                raise ValueError(f"{font} is not support")
+        return available_font_list
+    
+    def get_time_font(self) -> FreeTypeFont:
+        """
+        This font is used outside, by parsed in this class.
+        """
+        return self.time_font
+
     def draw_text(self) -> None:
-        self._draw_text_with_shadow((self.Defaults.title_margin_left, self.Defaults.title_margin_top), self.title, self.font_title)
-        for col_idx, col in enumerate(self.content):
-            for row_idx, text in enumerate(col):
-                self._draw_text_with_shadow(self.content_start[col_idx][row_idx], text, self.font_content)
+        if self.use_new_method:
+            self._draw_text_with_shadow((self.Defaults.title_margin_left, self.Defaults.title_margin_top), self.title, self.font_list[0])
+            for col_idx, col in enumerate(self.content):
+                for row_idx, text in enumerate(col):
+                    # TODO: 没有验证font_list真的有这么多项
+                    self._draw_text_with_shadow(self.content_start[col_idx][row_idx], text, self.font_list[col_idx+1])
+        else:
+            for i, j, k in zip(self.old_content, self.pos_list, self.font_list):
+                self._multiline_text_with_shade(self.draw, "\n".join(i), j, self.Defaults.shade_offset, self.Defaults.vertical_spacing, k, self.Defaults.text_color, self.Defaults.shade_color)
 
     def _draw_text_with_shadow(self, pos: Tuple[int, int], text: str, font: FreeTypeFont) -> None:
         dx, dy = self.Defaults.shade_offset
         x, y = pos
         self.draw.text((x+dx, y+dy), text, fill=self.Defaults.shade_color, font=font)
         self.draw.text((x, y), text, fill=self.Defaults.text_color, font=font)
+        
+    @staticmethod
+    def _multiline_text_with_shade(
+        draw_obj: ImageDrawType, text: str,
+        pos: Tuple[int, int], offset: Tuple[int, int], spacing: int,
+        font: FreeTypeFont, text_color: Tuple[int, int, int], shade_color: Tuple[int, int, int]
+    ) -> None:
+        """
+        Draw multiline text with a shaded background on the image.
+        The old method to draw multitext, without change.
+
+        Args:
+            draw_obj (ImageDrawType): The ImageDraw object used to draw the text.
+            text (str): The text to be drawn.
+            pos (Tuple[int, int]): The starting position (x, y) for the text.
+            offset (Tuple[int, int]): The offset for drawing the shaded background behind the text.
+            spacing (int): The spacing between lines of text.
+            font (FreeTypeFont): The font to be used for drawing the text.
+            text_color (Tuple[int, int, int]): The color of the text.
+            shade_color (Tuple[int, int, int]): The color of the shaded background.
+
+        Returns:
+            None: This function does not return any value; it directly modifies the `draw_obj`.
+        """
+
+        x, y = pos
+        dx, dy = offset
+        draw_obj.multiline_text((x+dx, y+dy), text, fill=shade_color, font=font, spacing=spacing)
+        draw_obj.multiline_text((x, y), text, fill=text_color, font=font, spacing=spacing)
+
+        return None
