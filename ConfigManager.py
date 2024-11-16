@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Dict, List
 
 
 class ConfigManager:
@@ -22,9 +23,9 @@ class ConfigManager:
         After init, `activate_config()` is needed to run before use.
         """
         # Used for file existence verification in `_validate_file_paths`
-        self.common_extensions = ['.png', '.json', ".ttf"]
+        self.common_extensions: List[str] = ['.png', '.json', '.ttf']
         self.config_folder: str = "config"
-        self.config_files: dict[str] = {
+        self.config_files: Dict[str, str] = {
             "basic": os.path.join(self.config_folder, "basic.json"),
             "info_layout": os.path.join(self.config_folder, "info_layout.json")
         }

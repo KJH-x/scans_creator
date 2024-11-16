@@ -515,7 +515,7 @@ def main():
         resize_scale: int = config_manager["resize_scale"]
         avoid_leading: bool = config_manager["avoid_leading"]
         avoid_ending: bool = config_manager["avoid_ending"]
-        grid_shape: tuple = tuple(config_manager["grid_shape"])
+        grid_shape: tuple[int, int] = tuple(config_manager["grid_shape"])
         use_new_method: bool = True
 
         file_path: str = input("File Path :")

@@ -103,7 +103,7 @@ class TextDrawer:
         self._allocate_column_widths()
         
         # Store start positions for text drawing
-        self.content_start: List[List[Tuple[float, float]]] = []
+        self.content_start: List[List[Tuple[int, int]]] = []
         self._calculate_content_start() 
 
     def _calculate_content_width_height(self) -> None:
@@ -230,7 +230,7 @@ class TextDrawer:
             Oy = self.content_margin_top
             self.content_start.append([])
             for row_idx, text in enumerate(col):
-                self.content_start[col_idx].append((Ox, Oy))
+                self.content_start[col_idx].append((int(Ox), int(Oy)))
                 Oy += self.chinese_char_height[col_idx+1] + self.vertical_spacing
                 
             Ox += self.column_widths[col_idx]
