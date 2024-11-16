@@ -62,7 +62,7 @@ class ConfigManager:
                 "shade_offset": [2,2],
                 "text_color": [0,0,0],
                 "shade_color": [49,49,49],
-                "text_list": [[{"field": "F","key": "name"}],["　　　　【文件信息】","大　　小：","时　　长：","总比特率："],["",{"field": "F","key": "size"},{"field": "F","key": "duration"},{"field": "F","key": "bitrate"}],["　　　　【视频信息】","编　　码：","色　　彩：","尺　　寸：","帧　　率："],["",{"field": "V","key": "codec"},{"field": "V","key": "color"},{"field": "V","key": "frameSize"},{"field": "V","key": "frameRate"}],["　　　　【音频信息】","编　　码：","音频语言：","音频标题：","声   道："],["",{"field": "A","key": "codec"},{"field": "A","key": "lang"},{"field": "A","key": "title"},{"field": "A","key": "channel"}],["　　　【字幕信息】","编　　码：","字幕语言：","字幕标题："],["",{"field": "S","key": "codec"},{"field": "S","key": "lang"},{"field": "S","key": "title"}]],
+                "text_list": [[{"field": "F","key": "name"}],["　　　　【文件信息】","大　　小：","时　　长：","总比特率："],["",{"field": "F","key": "size"},{"field": "F","key": "duration"},{"field": "F","key": "bitrate"}],["　　　　【视频信息】","编　　码：","色　　彩：","尺　　寸：","帧　　率："],["",{"field": "V","key": "codec"},{"field": "V","key": "color"},{"field": "V","key": "frameSize"},{"field": "V","key": "frameRate"}],["　　　　【音频信息】","编　　码：","音频语言：","音频标题：","声　　道："],["",{"field": "A","key": "codec"},{"field": "A","key": "lang"},{"field": "A","key": "title"},{"field": "A","key": "channel"}],["　　　【字幕信息】","编　　码：","字幕语言：","字幕标题："],["",{"field": "S","key": "codec"},{"field": "S","key": "lang"},{"field": "S","key": "title"}]],
                 "pos_list": [[30,10],[30,100],[230,100],[630,100],[830,100],[1330,100],[1530,100],[2030,100],[2230,100]]
             }
         }
