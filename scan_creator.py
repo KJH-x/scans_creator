@@ -382,9 +382,7 @@ def _image_histogram(image: ImageType) -> ImageType: ...
 def _image_complexity(image: ImageType): ...
 
 
-
-
-def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo, logofile: str, use_text_drawer: bool) -> ImageType:
+def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo, logofile: str, use_new_method: bool) -> ImageType:
     """
     Create a composite scan image by arranging snapshots in a grid format with metadata and a logo overlay.
 
@@ -394,7 +392,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
         snapshottimes (List[int]): List of snapshot times (in seconds) for each image to display as timestamps.
         video_info (VideoInfo): Metadata about the video, including file, video, audio, and subtitle information.
         logofile (str): Path to the logo image file to place in the top-right corner.
-        use_text_drawer (bool): Use class `TextDrawer` to draw text.
+        use_new_method (bool): True for use new method in class `TextDrawer` to draw text, and False for old method.
 
     Raises:
         ValueError: If the number of `images` does not match the required number based on `grid`.
@@ -435,7 +433,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
     scan_image = Image.new("RGB", (canvas_width, canvas_height), "white")
     draw = ImageDraw.Draw(scan_image)
     
-    text_drawer = TextDrawer(video_info=video_info, draw=draw, use_new_method=use_text_drawer)
+    text_drawer = TextDrawer(video_info=video_info, draw=draw, use_new_method=use_new_method)
     text_drawer.draw_text()
 
     time_font = text_drawer.get_time_font()
@@ -517,6 +515,7 @@ def main():
         avoid_leading: bool = config.avoid_leading
         avoid_ending: bool = config.avoid_ending
         grid_shape: tuple = config.grid_shape
+        use_new_method: bool = True
 
         file_path: str = input("File Path :")
         if not os.path.exists(file_path):
@@ -555,7 +554,7 @@ def main():
             snapshots = take_snapshots(video_info, snapshot_times)
 
             scan = create_scan_image(snapshots, grid_shape, snapshot_times,
-                                     video_info, logo_file, True)
+                                     video_info, logo_file, use_new_method)
 
             w, h = scan.size
             scan = scan.resize((w//resize_scale, h//resize_scale), Resampling.LANCZOS)
@@ -565,7 +564,7 @@ def main():
             print("Failed to retrieve video information.")
 
     except IndexError as e:
-        print("No video streeams available.")
+        print(e)
         exit(1)
 
     except (FileNotFoundError, ValueError, IndexError) as e:

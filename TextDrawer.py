@@ -10,9 +10,11 @@ from VideoInfo import VideoInfo
 
 class TextDrawer:
     """
-    A class to manage and draw text within a grid layout on an image. The class supports two types of grid layouts and
-    two modes of handling long text (truncation or wrapping). It also manages the structure and organization of text data 
+    A class to manage and draw text within a grid layout on an image. The class supports two modes of 
+    handling long text (truncation or wrapping). It also manages the structure and organization of text data 
     for the grid.
+    
+    TODO: wrapping 
     """
     
     class Defaults:
@@ -40,6 +42,9 @@ class TextDrawer:
         Initializes a TextDrawer object with the given title, content, and grid shape.
 
         Args:
+            video_info (VideoInfo): Metadata about the video, including file, video, audio, and subtitle information.
+            draw (ImageDrawType): The ImageDraw object used to draw the text.
+            use_new_method (bool): True for use new method to draw text, and False for old method.
         """
         with open("config/info_layout.json", mode='r', encoding='utf-8')as fp:
             layout = json.load(fp)
@@ -65,12 +70,8 @@ class TextDrawer:
 
         # 验证index
         self.font_list = self._parse_font_list(layout["font_list"], available_font_list)
-        
-        # Used to estimate the space occupied by the text
-        # TODO: 隐含了内容均为同一个字体的基本假设，并不灵活，需要使用font_list替代
-        self.font_title = self.font_list[0]
-        self.font_content = self.font_list[1]
-        
+        if len(self.font_list) != len(self.content) + 1:
+            raise IndexError(f"The length of font_list({len(self.font_list)}) does not match the number of coloum({len(self.content) + 1})")
         
         self.draw: ImageDrawType = draw
         self.use_new_method: bool = use_new_method
@@ -85,8 +86,8 @@ class TextDrawer:
         self.content_width: List[List[float]] = []
         self.content_height: List[List[float]] = []
         self._calculate_content_width_height()
-        self.chinese_char_height: float = draw.textbbox((0, 0), "田", font=self.font_content)[3]
-        self.ellipsis_width: float = self.Defaults.horizontal_spacing + draw.textbbox((0, 0), "...", font=self.font_content)[2]
+        self.chinese_char_height: List[float] = [draw.textbbox((0, 0), "田", font=font)[3] for font in self.font_list]
+        self.ellipsis_width: List[float] = [self.Defaults.horizontal_spacing + draw.textbbox((0, 0), "...", font=font)[2] for font in self.font_list]
         
         self.column_widths: List[float] = [0] * len(self.content)
         self._allocate_column_widths()
@@ -105,7 +106,7 @@ class TextDrawer:
             self.content_width.append([])
             self.content_height.append([])
             for _, text in enumerate(col):
-                bbox = self.draw.textbbox((0, 0), text, font=self.font_content)
+                bbox = self.draw.textbbox((0, 0), text, font=self.font_list[col_idx+1])
                 self.content_width[col_idx].append(bbox[2])
                 self.content_height[col_idx].append(bbox[3])
 
@@ -141,15 +142,20 @@ class TextDrawer:
                 longest_texts = text_lengths[:n]
                 
                 # Now calculate how much we need to shorten these texts
+                sum_ellipsis_width = 0
+                for col_idx, row_idx, width in longest_texts:
+                    # 0 is for title, so +1
+                    sum_ellipsis_width += self.ellipsis_width[col_idx+1]
+                    
                 # * the `3 * ()` is magic number to avoid endless loop temporarily
-                excess_width = required_width - remaining_width + 3 * (self.ellipsis_width * n + self.Defaults.horizontal_spacing * number_of_column / 2)
+                excess_width = required_width - remaining_width + 3 * (sum_ellipsis_width + self.Defaults.horizontal_spacing * number_of_column / 2)
                 # TODO: If they are in the same column?
                 shorten_factor = excess_width / sum(width for _, _, width in longest_texts) 
                 
                 # Replace the longest n texts with shortened versions
                 for col_idx, row_idx, _ in longest_texts:
                     original_text = self.content[col_idx][row_idx]
-                    # ! Sometimes there may be an endless loop here and needs to be optimized
+                    # ! Sometimes there may be an endless loop here and needs to be optimized (after add the `3*()`, dont appear)
                     # * It is based on lenth, but a chinese char is wider than an english char
                     truncated_text = original_text[:int(len(original_text) * (1 - shorten_factor))] + "..."
                     self.content[col_idx][row_idx] = truncated_text
@@ -165,7 +171,7 @@ class TextDrawer:
             self.content_start.append([])
             for row_idx, text in enumerate(col):
                 self.content_start[col_idx].append((Ox, Oy))
-                Oy += self.chinese_char_height + self.Defaults.vertical_spacing
+                Oy += self.chinese_char_height[col_idx+1] + self.Defaults.vertical_spacing
                 
             Ox += self.column_widths[col_idx]
 
@@ -215,7 +221,6 @@ class TextDrawer:
             self._draw_text_with_shadow((self.Defaults.title_margin_left, self.Defaults.title_margin_top), self.title, self.font_list[0])
             for col_idx, col in enumerate(self.content):
                 for row_idx, text in enumerate(col):
-                    # TODO: 没有验证font_list真的有这么多项
                     self._draw_text_with_shadow(self.content_start[col_idx][row_idx], text, self.font_list[col_idx+1])
         else:
             for i, j, k in zip(self.old_content, self.pos_list, self.font_list):
