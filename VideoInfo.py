@@ -39,7 +39,10 @@ class VideoInfo:
             return f"{eval(aspect_ratio.replace(':','/')):.2f}" if _has_long_aspect_ratio(aspect_ratio) else aspect_ratio
 
         if index >= len(self.video_streams) | index < 0:
-            raise IndexError(f"{index} is not available.")
+            if len(self.video_streams) == 0:
+                raise IndexError(f"No video streeams available.")
+            else:
+                raise IndexError(f"{index} is not available.")
 
         else:
             self.current_video_stream_index: int = index  # Index for active video stream
