@@ -32,7 +32,27 @@
     "time_font": {
       "type": "integer"
     },
-    "spacing": {
+    "horizontal_spacing": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "vertical_spacing": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "content_margin_left": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "content_margin_top": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "title_margin_left": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "title_margin_top": {
       "type": "integer",
       "minimum": 0
     },
@@ -65,11 +85,11 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "oneOf": [
-          {
-            "type": "array",
-            "minItems": 1,
-            "items": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "anyOf": [
+            {
               "type": "object",
               "properties": {
                 "field": {
@@ -83,16 +103,12 @@
                 "field",
                 "key"
               ]
-            }
-          },
-          {
-            "type": "array",
-            "minItems": 1,
-            "items": {
+            },
+            {
               "type": "string"
             }
-          }
-        ]
+          ]
+        }
       }
     },
     "pos_list": {
@@ -112,7 +128,12 @@
     "fonts",
     "font_list",
     "time_font",
-    "spacing",
+    "horizontal_spacing",
+    "vertical_spacing",
+    "content_margin_left",
+    "content_margin_top",
+    "title_margin_left",
+    "title_margin_top",
     "shade_offset",
     "text_color",
     "shade_color",
