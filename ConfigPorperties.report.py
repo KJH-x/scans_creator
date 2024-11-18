@@ -7,7 +7,7 @@ class Report:
         # ==================================================================================================
         # Just paste it into `ConfigManager.__init__()`
         
-        self.defaults_SHA256 = "4c937f50a444b1297075a9b77f178e10103733e8114bac703169dcd9a82215d9"
+        self.defaults_SHA256 = "cd5ae8eec5d556c7cce8df52ff50657fc873f8874ac731d1610771c845eb70e6"
         
         self.config_files: Dict[str, str] = {
             "basic": os.path.join(self.config_folder, "basic.json"),
@@ -28,7 +28,7 @@ class Report:
             self.resize_scale: int = self.config.get('resize_scale', None)  # Scaling factor for resizing.
             self.avoid_leading: bool = self.config.get('avoid_leading', None)  # Indicates whether to avoid leading content.
             self.avoid_ending: bool = self.config.get('avoid_ending', None)  # Indicates whether to avoid ending content.
-            self.grid_size: List[Any] = self.config.get('grid_size', None)  # Grid size configuration, represented as an array of two integers.
+            self.grid_shape: List[Any] = self.config.get('grid_shape', None)  # Grid size configuration, represented as an array of two integers.
 
         if self.active_configfile == os.path.join(self.config_folder, "info_layout.json"):
             self.fonts: List[Dict[str, str]] = self.config.get('fonts', None)  # 
