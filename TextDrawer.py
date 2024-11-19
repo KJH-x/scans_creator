@@ -24,8 +24,8 @@ class TextCell:
         self.chinese_char_height: float = draw.textbbox((0, 0), "田", font=font)[3] 
         self.update_content(content)
         
-    def set_father(self, father: "TextColumn") -> None:
-        self.father: TextColumn = father
+    def set_height(self, height: float) -> None:
+        self.height = height
     
     def update_content(self, content: str) -> None:
         bbox = self.draw.textbbox((0, 0), content, font=self.font)
@@ -61,6 +61,13 @@ class TextCell:
 
 
 class TextColumn:
+    """
+    Types:
+        label_and_value: 将标签列与对应的文本列作为一个列进行组织
+    
+    Note:
+        如果要新增其他类型的列，后面的各种逻辑中可能需要添加验证环节
+    """
     def __init__(self, draw: ImageDrawType, type: str, font: FreeTypeFont, h_spacing: float, v_spacing: float, max_height: float) -> None:
         self.draw: ImageDrawType = draw
         self.type: str = type
@@ -79,40 +86,71 @@ class TextColumn:
         
         self.cells: List[TextCell] = []
         
-    def add_cell(self, cell: TextCell) -> None:
-        self.cells.append(cell)
-        self.extra_lines = self.extra_lines - 1
-        self.cal_size()
+        if self.type == "label_and_value":
+            self.label_cells: List[TextCell] = []
+            # 每一个 label 对应着多少行 value
+            self.label_value_map: List[int] = []
         
-    def insert_cell(self, origin_cell: TextCell, new_cell: TextCell, index=-1) -> int:
+    def add_cell(self, new_cell: List[TextCell]) -> None:
+        if self.type == "default":
+            pass
+            # self.cells.append(cell)
+            # self.extra_lines = self.extra_lines - 1
+            # self.cal_size()
+        elif self.type == "label_and_value":
+            self.label_cells.append(new_cell[0])
+            if len(new_cell) == 2:
+                self.cells.append(new_cell[1])
+            elif len(new_cell) > 2:
+                self.cells.extend(new_cell[1:])
+            else:
+                raise IndexError("the length of new_cell is too short")
+            self.extra_lines = self.extra_lines - len(new_cell) + 1
+            self.label_value_map.append(len(new_cell) - 1)
+            self.cal_size()
+        
+    def insert_cell(self, origin_cell: TextCell, new_cell: TextCell) -> int:
         """
         Find the same object of origin_cell in self.cells, and insert after it.
         If not found, the method doesn't add a cell.
         
-        Return:
-            index (int): 为了同步插入空格到label列，返回插入的参数index
         """
-        if index == -1:
-            for index, cell in enumerate(self.cells):
+        if self.type == "label_and_value":
+            label_idx = 0
+            sum_map_value = self.label_value_map[0]
+            for idx, cell in enumerate(self.cells):
+                if idx >= sum_map_value:
+                    label_idx += 1
+                    if label_idx < len(self.label_value_map):
+                        sum_map_value += self.label_value_map[label_idx]
+                    else:
+                        sum_map_value += 0
+                
                 if cell == origin_cell:
-                    self.cells.insert(index+1, new_cell)
-                    self.cal_size()
-                    return index+1
-        else:
-            self.cells.insert(index, new_cell)
-            return index
+                    self.cells.insert(idx+1, new_cell)
+                    self.label_value_map[label_idx] += 1
         
     def cal_size(self) -> None:
-        self.width = max([cell.width for cell in self.cells])
-        self.height = sum([cell.height for cell in self.cells])
-        
-    def change_type(self, type: str) -> None:
-        self.type = type
+        if self.type == "label_and_value":
+            self.value_width = max([cell.width for cell in self.cells])
+            self.label_width = max([cell.width for cell in self.label_cells])
+            self.width = self.value_width + self.label_width
+            self.height = sum([cell.height for cell in self.cells])
+            
+            for idx, label_cell in enumerate(self.label_cells):
+                label_height: float = 0
+                for idx_map in range(self.label_value_map[idx]):
+                    label_height += self.cells[idx + idx_map].height
+                # 对于一个label匹配多个value的情况，另其高度对齐
+                label_cell.set_height(label_height)
         
     def set_width(self, width: float) -> None:
+        """
+        仅用于输出前的最后一步分配
+        """
         self.width = width
     
-    def get_widest_cell(self) -> TextCell:
+    def get_widest_value_cell(self) -> TextCell:
         longest_cell: List[Tuple[TextCell, float]] = []
         for cell in self.cells:
             longest_cell.append((cell, cell.width))
@@ -215,33 +253,25 @@ class TextDrawer:
         
         self.text_columns: List[TextColumn] = []
         for col_idx, col in enumerate(self.content):
-            new_column: TextColumn = TextColumn(self.draw, "value", self.font_list[col_idx+1], self.horizontal_spacing, self.vertical_spacing, self.max_text_height)
-            if col_idx % 2 == 0:
-                new_column.change_type("label")
+            if col_idx % 2 == 1:
+                continue
             
-            for _, text in enumerate(col):
-                if new_column.type == "label":
-                    new_cell: TextCell = TextCell(self.draw, "label_text", text, self.font_list[col_idx+1], self.horizontal_spacing, self.vertical_spacing)
-                else:
-                    new_cell: TextCell = TextCell(self.draw, "text", text, self.font_list[col_idx+1], self.horizontal_spacing, self.vertical_spacing)
-                new_cell.set_father(new_column)
-                new_column.add_cell(new_cell)
+            new_column: TextColumn = TextColumn(self.draw, "label_and_value", self.font_list[col_idx+1], self.horizontal_spacing, self.vertical_spacing, self.max_text_height)
+            for row_idx, text in enumerate(col):
+                
+                new_label_cell: TextCell = TextCell(self.draw, "label_text", text, self.font_list[col_idx+1], self.horizontal_spacing, self.vertical_spacing)
+                new_value_cell: TextCell = TextCell(self.draw, "text", self.content[col_idx+1][row_idx], self.font_list[col_idx+1], self.horizontal_spacing, self.vertical_spacing)
+                
+                # new_cell.set_father(new_column)
+                new_column.add_cell([new_label_cell, new_value_cell])
+                
             self.text_columns.append(new_column)
-        
         
         self._allocate_column_widths()
         
         # Store start positions for text drawing
         self.content_start: List[List[Tuple[int, int]]] = []
         self._calculate_content_start() 
-
-    def get_previous_label_column(self, current_column: TextColumn) -> TextColumn:
-        res: TextColumn = None
-        for column in self.text_columns:
-            if column.type == "label":
-                res = column
-            elif column == current_column:
-                return res
 
     def _allocate_column_widths(self) -> None:
         """
@@ -250,7 +280,7 @@ class TextDrawer:
         The maximum width for each column is determined by the longest text in that column.
         The width is then stored in the member variable `column_widths`.
         """
-        number_of_column = len(self.text_columns)
+        # number_of_column = len(self.text_columns)
 
         while True:
             # for column in self.text_columns:
@@ -259,21 +289,20 @@ class TextDrawer:
             for column in self.text_columns:
                 column.cal_size()
             
-            required_width = sum([column.width for column in self.text_columns if column.type != "label"])
-            remaining_width = self.max_text_width - sum([column.width for column in self.text_columns if column.type == "label"])
+            required_width = sum(column.value_width for column in self.text_columns if column.type == "label_and_value")
+            remaining_width = self.max_text_width - sum(column.label_width for column in self.text_columns if column.type == "label_and_value")
             
             if required_width < remaining_width:
-                number_of_column_not_label = sum([1 for column in self.text_columns if column.type != "label"])
+                number_of_column = sum(1 for column in self.text_columns if column.type == "label_and_value")
                 for column in self.text_columns:
-                    if column.type != "label":
-                        column.set_width(column.width + (remaining_width - required_width) / number_of_column_not_label)
+                    column.set_width(column.width + (remaining_width - required_width) / number_of_column)
+                
                 break
             else:
-                longest_cell: List[Tuple[TextColumn, TextCell, float]] = [] # (column, cell, width)
+                longest_cell: List[Tuple[TextColumn, TextCell, float]] = [] # (column, value_cell, value_width)
                 for column in self.text_columns:
-                    if column.type != "label":
-                        cell = column.get_widest_cell()
-                        longest_cell.append((column, cell, cell.width))
+                    cell = column.get_widest_value_cell()
+                    longest_cell.append((column, cell, cell.width))
                 
                 # Pick top 2 longest (not in the same column)
                 longest_cell.sort(key=lambda x: x[2], reverse=True)
@@ -284,7 +313,7 @@ class TextDrawer:
                     sum_ellipsis_width += cell.ellipsis_width
 
                 excess_width = required_width - remaining_width + sum_ellipsis_width
-                # 尝试将最长的2个文本长度降低到此值
+                # Then shorten the 2 longest cell to the target length
                 shorten_target = (sum(width for _, _, width in longest_cell) - excess_width) / 2
                 
                 for column, cell, _ in longest_cell:
@@ -294,26 +323,19 @@ class TextDrawer:
                         cell.truncate_content(shorten_target)
                     else:
                         # attemp to warp
-                        last_shorten_index = 0
-                        last_idx_extra = 0
                         for idx_extra in range(column.extra_lines):
                             original_text = cell.content
                             shorten_index = 1 + max((i for i, num in enumerate(cell.width_to_idx) if num < shorten_target), default=0)
-                            width_this_row = cell.width_to_idx[shorten_index-1]
-                            truncated_text = original_text[last_shorten_index: shorten_index]
+                            truncated_text = original_text[: shorten_index]
                             remaining_text = original_text[shorten_index:]
+                            
                             cell.update_content(truncated_text)
                             new_cell: TextCell = TextCell(self.draw, "text", remaining_text, cell.font, cell.h_spacing, cell.v_spacing)
-                            new_cell.set_father(column)
-                            insert_index = column.insert_cell(cell, new_cell)
-                            label_column = self.get_previous_label_column(column)
-                            new_label_cell: TextCell = TextCell(self.draw, "label_text", "", label_column.font, label_column.h_spacing, label_column.v_spacing)
-                            label_column.insert_cell(None, new_label_cell, index=insert_index)
+                            column.insert_cell(cell, new_cell)
                             
                             cell = new_cell
                             cell.cal_width_every_char()
                             if (idx_extra == column.extra_lines - 1):
-                                new_cell.cal_width_every_char()
                                 shorten_index = 1 + max((i for i, num in enumerate(new_cell.width_to_idx) if num < shorten_target), default=0)
                                 if new_cell.width_to_idx[-1] < shorten_index:
                                     pass
@@ -330,13 +352,21 @@ class TextDrawer:
         # Origin of content is (Ox, Oy) and it will change
         Ox = self.content_margin_left
         for col_idx, column in enumerate(self.text_columns):
-            Oy = self.content_margin_top
-            self.content_start.append([])
-            for cell in column.cells:
-                self.content_start[col_idx].append((int(Ox), int(Oy)))
-                Oy += cell.height
+            if column.type == "label_and_value":
+                Oy = self.content_margin_top
+                self.content_start.append([])
+                for label_cell in column.label_cells:
+                    self.content_start[2*col_idx].append((int(Ox), int(Oy)))
+                    Oy += label_cell.height
+                    
+                Ox += column.label_width
+                Oy = self.content_margin_top
+                self.content_start.append([])
+                for cell in column.cells:
+                    self.content_start[1+2*col_idx].append((int(Ox), int(Oy)))
+                    Oy += cell.height
                 
-            Ox += column.width
+                Ox += column.value_width
 
     # TODO: 分离读取、转换和验证步骤
     @staticmethod
@@ -383,8 +413,11 @@ class TextDrawer:
         if self.use_new_method:
             self._draw_text_with_shadow((self.title_margin_left, self.title_margin_top), self.title, self.font_list[0])
             for col_idx, column in enumerate(self.text_columns):
+                for row_idx, cell in enumerate(column.label_cells):
+                    self._draw_text_with_shadow(self.content_start[2*col_idx][row_idx], cell.content, cell.font)
+                
                 for row_idx, cell in enumerate(column.cells):
-                    self._draw_text_with_shadow(self.content_start[col_idx][row_idx], cell.content, cell.font)
+                    self._draw_text_with_shadow(self.content_start[1+2*col_idx][row_idx], cell.content, cell.font)
         else:
             for i, j, k in zip(self.old_content, self.pos_list, self.font_list):
                 self._multiline_text_with_shade(self.draw, "\n".join(i), j, self.shade_offset, self.vertical_spacing, k, self.text_color, self.shade_color)
