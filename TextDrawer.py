@@ -7,7 +7,7 @@ import copy
 
 from VideoInfo import VideoInfo
 from ConfigManager import ConfigManager
-from GridBase import TextCellBase, TextColumnBase
+from GridBase import TextCellBase, TextColumnBase, ImageCellBase
 
 
 class TextCell_text(TextCellBase):
@@ -41,7 +41,7 @@ class TextColumn_labelAndValue(TextColumnBase):
     def __init__(self, draw: ImageDrawType, font: FreeTypeFont, h_spacing: float, v_spacing: float, max_height: float) -> None:
         super(TextColumn_labelAndValue, self).__init__(draw, font, h_spacing, v_spacing, max_height)
         
-        self.label_cells: List[TextCellBase] = []
+        self.label_cells: List[TextCellBase | ImageCellBase] = []
         # 每一个 label 对应着多少行 value
         self.label_value_map: List[int] = []
         

@@ -1,8 +1,11 @@
-from typing import List, LiteralString, Tuple, Dict, Any
+from typing import List, LiteralString, Tuple, Dict, Union, TypeVar, Generic, Optional
 from abc import ABC, abstractmethod
-from PIL import ImageFont
+
+from PIL import ImageFont, Image
+from PIL.Image import Image as ImageType
 from PIL.ImageDraw import ImageDraw as ImageDrawType
 from PIL.ImageFont import FreeTypeFont
+from PIL.Image import Resampling
 
 """
 ├  │  └
@@ -10,7 +13,7 @@ from PIL.ImageFont import FreeTypeFont
 GridElement 
     ├── GridCell
     │   ├── TextCellBase
-    │   └── ImageCellBase (todo)
+    │   └── ImageCellBase 
     │
     └── GridColumn
         └── TextColumnBase
@@ -21,11 +24,11 @@ class GridElement(ABC):
     Base class for all grid elements.
     
     Attributes:
-        draw: ImageDrawType — The drawing context used to render the element.
-        width: float — The width of the grid element.
-        height: float — The height of the grid element.
-        h_spacing: float — The horizontal spacing between elements.
-        v_spacing: float — The vertical spacing between elements.
+        draw (ImageDrawType): The drawing context used to render the element.
+        width (float): The width of the grid element.
+        height (float): The height of the grid element.
+        h_spacing (float): The horizontal spacing between elements.
+        v_spacing (float): The vertical spacing between elements.
     
     Methods:
         set_width(width: float) -> None:
@@ -66,12 +69,14 @@ class GridElement(ABC):
     def cal_height(self) -> None:
         pass
 
-class GridCell(GridElement):
+
+T = TypeVar('T', bound=Union[str, ImageType])
+class GridCell(GridElement, Generic[T]):
     """
     A base class for grid cells.
     
     Attributes:
-        content: Any — The content of the cell.
+        content (T): The content of the cell.
 
     Methods:
         update_content(content: str) -> None:
@@ -80,13 +85,13 @@ class GridCell(GridElement):
         draw_content(self, pos: Tuple[int, int]) -> None:
             Abstract method for drawing content.
     """
-    def __init__(self, draw: ImageDrawType, h_spacing: float, v_spacing: float, content: Any=None) -> None:
+    def __init__(self, draw: ImageDrawType, h_spacing: float, v_spacing: float, content: Optional[T]=None) -> None:
         super(GridCell, self).__init__(draw, h_spacing, v_spacing)
         
         if content is not None:
             self.update_content(content)
     
-    def update_content(self, content: Any) -> None:
+    def update_content(self, content: T) -> None:
         self.content = content
         self.cal_width()
         self.cal_height()
@@ -103,8 +108,8 @@ class GridColumn(GridElement):
     and arranging cells in a vertical column.
 
     Attributes:
-        max_height: float — The maximum height of the column.
-        cells: List[GridCell] — A list of cells contained in the column.
+        max_height (float): The maximum height of the column.
+        cells (List[GridCell]): A list of cells contained in the column.
 
     Methods:
         add_cell(new_cell: List[TextCellBase]) -> None:
@@ -119,6 +124,7 @@ class GridColumn(GridElement):
     def __init__(self, draw: ImageDrawType, h_spacing: float, v_spacing: float, max_height: float) -> None:
         super(GridColumn, self).__init__(draw, h_spacing, v_spacing)
         
+        self.extra_lines: int = 999
         self.max_height: float = max_height
         self.cells: List[GridCell] = []
         
@@ -156,23 +162,21 @@ class GridColumn(GridElement):
         return f"Column lenght: {len(self)}"
 
 
-class TextCellBase(GridCell):
+class TextCellBase(GridCell[str]):
     """
     A base class for text-based grid cells.
     
     Attributes:
-        ellipsis_width: float — The width of the ellipsis ("...") in the current font.
-        chinese_char_height: float — The height of a Chinese character in the current font.
-        content: str — The text content of the cell.
-        width_to_idx: List[float] — A list of cumulative widths for each character in the content.
+        ellipsis_width (float): The width of the ellipsis ("...") in the current font.
+        chinese_char_height (float): The height of a Chinese character in the current font.
+        content (str): The text content of the cell.
+        width_to_idx (List[float]): A list of cumulative widths for each character in the content.
     """
     def __init__(self, draw: ImageDrawType, font: FreeTypeFont, h_spacing: float, v_spacing: float, content: str) -> None:
-        super(TextCellBase, self).__init__(draw, h_spacing, v_spacing)
-        
         self.font: FreeTypeFont = font
         self.ellipsis_width: float = draw.textbbox((0, 0), "...", font=font)[2]
         self.chinese_char_height: float = draw.textbbox((0, 0), "田", font=font)[3]
-        self.update_content(content)
+        super(TextCellBase, self).__init__(draw, h_spacing, v_spacing, content=content)
         
     def cal_width(self) -> None:
         bbox = self.draw.textbbox((0, 0), self.content, font=self.font)
@@ -200,6 +204,77 @@ class TextCellBase(GridCell):
         return f"{self.content}"
 
 
+class ImageCellBase(GridCell[ImageType]):
+    """
+    A base class for image-based grid cells.
+    
+    Attributes:
+        content (ImageType): The text content of the cell.
+    """
+    def __init__(self, draw: ImageDrawType, h_spacing: float, v_spacing: float, content: ImageType) -> None:
+        super(ImageCellBase, self).__init__(draw, h_spacing, v_spacing, content=content)
+        
+    def cal_width(self) -> None:
+        pass
+        
+    def cal_height(self):
+        pass
+        
+    def cal_size(self) -> None:
+        self.width, self.height = self.content.size
+        
+    def scale_to_width(self, target_width: int) -> None:
+        """
+        Scale the image proportionally to the given target width.
+
+        Args:
+            target_width (int): The desired width of the image.
+        """
+        scale_factor = target_width / self.width
+        new_size = (target_width, int(self.height * scale_factor))
+        self.content = self.content.resize(new_size, Resampling.LANCZOS)
+        self.cal_size()
+
+    def scale_to_height(self, target_height: int) -> None:
+        """
+        Scale the image proportionally to the given target height.
+
+        Args:
+            target_height (int): The desired height of the image.
+        """
+        scale_factor = target_height / self.height
+        new_size = (int(self.width * scale_factor), target_height)
+        self.content = self.content.resize(new_size, Resampling.LANCZOS)
+        self.cal_size()
+
+    def scale_by_factor(self, scale_factor: float) -> None:
+        """
+        Scale the image by a custom factor.
+
+        Args:
+            scale_factor (float): The scaling factor (e.g., 0.5 for 50% reduction, 2.0 for 200% enlargement).
+        """
+        new_size = (int(self.width * scale_factor), int(self.height * scale_factor))
+        self.content = self.content.resize(new_size, Resampling.LANCZOS)
+        self.cal_size()
+
+    def resize(self, target_width: int, target_height: int) -> None:
+        """
+        Resize the image to a specific width and height, ignoring aspect ratio.
+
+        Args:
+            target_width (int): The desired width of the image.
+            target_height (int): The desired height of the image.
+        """
+        new_size = (target_width, target_height)
+        self.content = self.content.resize(new_size, Resampling.LANCZOS)
+        self.cal_size()
+        
+    def __repr__(self) -> str:
+        content_desc = f"<Image {self.content.size}>" if hasattr(self.content, "size") else "<Invalid Image>"
+        return f"{self.__class__.__name__}(content={content_desc}"
+
+
 class TextColumnBase(GridColumn):
     """
     A base class for text columns. This class extends the `GridElement` class
@@ -208,10 +283,10 @@ class TextColumnBase(GridColumn):
     of the column based on the individual cell sizes.
 
     Attributes:
-        chinese_char_height: float — The height of a Chinese character in the current font.
-        max_rows: int — The maximum number of rows that can fit in the column.
-        extra_lines: int — The number of remaining lines available for adding more cells.
-        cells: List[TextCellBase] — A list of cells contained in the column.
+        chinese_char_height (float): The height of a Chinese character in the current font.
+        max_rows (int): The maximum number of rows that can fit in the column.
+        extra_lines (int): The number of remaining lines available for adding more cells.
+        cells (List[TextCellBase]): A list of cells contained in the column.
 
     Methods:
         add_cell(new_cell: List[TextCellBase]) -> None:
