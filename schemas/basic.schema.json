@@ -1,0 +1,58 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/schemas/font-config.json",
+    "type": "object",
+    "title": "Font Configuration",
+    "description": "Schema for validating font and logo configuration files.",
+    "properties": {
+      "font_file": {
+        "type": "string",
+        "description": "Path to the primary font file.",
+        "format": "uri-reference"
+      },
+      "font_file_2": {
+        "type": "string",
+        "description": "Path to the secondary font file.",
+        "format": "uri-reference"
+      },
+      "logo_file": {
+        "type": "string",
+        "description": "Path to the logo image file.",
+        "format": "uri-reference"
+      },
+      "resize_scale": {
+        "type": "integer",
+        "description": "Scaling factor for resizing.",
+        "minimum": 1
+      },
+      "avoid_leading": {
+        "type": "boolean",
+        "description": "Indicates whether to avoid leading content."
+      },
+      "avoid_ending": {
+        "type": "boolean",
+        "description": "Indicates whether to avoid ending content."
+      },
+      "grid_shape": {
+        "type": "array",
+        "description": "Grid size configuration, represented as an array of two integers.",
+        "items": [
+          {
+            "type": "integer",
+            "description": "Number of rows in the grid.",
+            "minimum": 1
+          },
+          {
+            "type": "integer",
+            "description": "Number of columns in the grid.",
+            "minimum": 1
+          }
+        ],
+        "minItems": 2,
+        "maxItems": 2
+      }
+    },
+    "required": ["font_file", "logo_file", "resize_scale", "grid_shape"],
+    "additionalProperties": false
+  }
+  

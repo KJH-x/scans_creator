@@ -15,8 +15,8 @@ from PIL.ImageDraw import ImageDraw as ImageDrawType
 from PIL.ImageFont import FreeTypeFont
 
 from ConfigManager import ConfigManager
-from VideoInfo import VideoInfo
 from TextDrawer import TextDrawer
+from VideoInfo import VideoInfo
 
 
 def ffprobe_get_info(filename: str) -> Dict[Any, Any] | None:
@@ -382,37 +382,7 @@ def _image_histogram(image: ImageType) -> ImageType: ...
 def _image_complexity(image: ImageType): ...
 
 
-def multiline_text_with_shade(
-    draw_obj: ImageDrawType, text: str,
-    pos: Tuple[int, int], offset: Tuple[int, int], spacing: int,
-    font: FreeTypeFont, text_color: Tuple[int, int, int], shade_color: Tuple[int, int, int]
-) -> None:
-    """
-    Draw multiline text with a shaded background on the image.
-
-    Args:
-        draw_obj (ImageDrawType): The ImageDraw object used to draw the text.
-        text (str): The text to be drawn.
-        pos (Tuple[int, int]): The starting position (x, y) for the text.
-        offset (Tuple[int, int]): The offset for drawing the shaded background behind the text.
-        spacing (int): The spacing between lines of text.
-        font (FreeTypeFont): The font to be used for drawing the text.
-        text_color (Tuple[int, int, int]): The color of the text.
-        shade_color (Tuple[int, int, int]): The color of the shaded background.
-
-    Returns:
-        None: This function does not return any value; it directly modifies the `draw_obj`.
-    """
-
-    x, y = pos
-    dx, dy = offset
-    draw_obj.multiline_text((x+dx, y+dy), text, fill=shade_color, font=font, spacing=spacing)
-    draw_obj.multiline_text((x, y), text, fill=text_color, font=font, spacing=spacing)
-
-    return None
-
-
-def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo, fontfile_1: str, fontfile_2: str, logofile: str, use_text_drawer: bool) -> ImageType:
+def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo, logofile: str, config_manager: ConfigManager, use_new_method: bool) -> ImageType:
     """
     Create a composite scan image by arranging snapshots in a grid format with metadata and a logo overlay.
 
@@ -421,10 +391,9 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
         grid (Tuple[int, int]): Number of columns and rows for arranging images in the scan image.
         snapshottimes (List[int]): List of snapshot times (in seconds) for each image to display as timestamps.
         video_info (VideoInfo): Metadata about the video, including file, video, audio, and subtitle information.
-        fontfile_1 (str): Path to the font file for primary headings.
-        fontfile_2 (str): Path to the font file for subheadings and timestamps.
         logofile (str): Path to the logo image file to place in the top-right corner.
-        use_text_drawer (bool): Use class `TextDrawer` to draw text.
+        config_manager (ConfigManager): Manage the settings about text rendering.
+        use_new_method (bool): True for use new method in class `TextDrawer` to draw text, and False for old method.
 
     Raises:
         ValueError: If the number of `images` does not match the required number based on `grid`.
@@ -441,11 +410,12 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
         - Video information (size, duration, codec, etc.) is displayed at the top.
     """
 
+    
     col, row = grid
     total_images = col * row
 
-    font_1 = ImageFont.truetype(fontfile_1, 45)
-    font_2 = ImageFont.truetype(fontfile_2, 40)
+    # font_1 = ImageFont.truetype(fontfile_1, 45)
+    # font_2 = ImageFont.truetype(fontfile_2, 40)
 
     if len(images) != total_images:
         raise ValueError(
@@ -453,6 +423,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
 
     # The width is directly associated with drawing information,
     # should not be variable before the info grid become flexible.
+    
     canvas_width = 3200
 
     scan_width, scan_height = images[0].size
@@ -462,85 +433,11 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
 
     scan_image = Image.new("RGB", (canvas_width, canvas_height), "white")
     draw = ImageDraw.Draw(scan_image)
+    
+    text_drawer = TextDrawer(video_info=video_info, draw=draw, config_manager=config_manager, use_new_method=use_new_method)
+    text_drawer.draw_text()
 
-    if not use_text_drawer:
-        spacing = 10
-        shade_offset = (2, 2)
-        text_color = (0, 0, 0)
-        shade_color = (49, 49, 49)
-        text_list = [
-            [
-                video_info["F"]["name"],
-            ],
-            [
-                "　　　　【文件信息】",
-                "大　　小：",
-                "时　　长：",
-                "总比特率：",
-            ],
-            [
-                "",
-                video_info["F"]["size"],
-                video_info["F"]["duration"],
-                video_info["F"]["bitrate"],
-            ],
-            [
-                "　　　　【视频信息】",
-                "编　　码：",
-                "色　　彩：",
-                "尺　　寸：",
-                "帧　　率：",
-            ],
-            [
-                "",
-                video_info["V"]["codec"],
-                video_info["V"]["color"],
-                video_info["V"]["frameSize"],
-                video_info["V"]["frameRate"],
-            ],
-            [
-                "　　　　【音频信息】",
-                "编　　码：",
-                "音频语言：",
-                "音频标题：",
-                "声   道：",
-            ],
-            [
-                "",
-                video_info["A"]["codec"],
-                video_info["A"]["lang"],
-                video_info["A"]["title"],
-                video_info["A"]["channel"],
-            ],
-            [
-                "　　　【字幕信息】",
-                "编　　码：",
-                "字幕语言：",
-                "字幕标题：",
-            ],
-            [
-                "",
-                video_info["S"]["codec"],
-                video_info["S"]["lang"],
-                video_info["S"]["title"],
-            ],
-        ]
-        pos_list = [
-            (30, 10),
-            (30, 100), (230, 100),
-            (630, 100), (830, 100),
-            (1330, 100), (1530, 100),
-            (2030, 100), (2230, 100),
-        ]
-        font_list = [font_1, font_2, font_2, font_2, font_2, font_2, font_2, font_2, font_2]
-
-        for i, j, k in zip(text_list, pos_list, font_list):
-            multiline_text_with_shade(draw, "\n".join(i), j, shade_offset, spacing, k, text_color, shade_color)
-            pass
-    else:
-        text_drawer = TextDrawer(video_info=video_info, draw=draw, font_1=font_1, font_2=font_2)
-        text_drawer.draw_text()
-
+    time_font = text_drawer.get_time_font()
     y_offset = 450
     for idx, image in enumerate(images):
 
@@ -551,7 +448,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
         scan_image.paste(image_resized, (grid_x, grid_y))
 
         snapshot_time = str(timedelta(seconds=snapshottimes[idx]))
-        text_bbox = draw.textbbox((0, 0), snapshot_time, font=font_2)
+        text_bbox = draw.textbbox((0, 0), snapshot_time, font=time_font)
         text_width = text_bbox[2] - text_bbox[0]
         text_height = text_bbox[3] - text_bbox[1]
         timestamp_x = grid_x + (image_width - text_width) // 2
@@ -561,7 +458,7 @@ def create_scan_image(images: List[ImageType], grid: Tuple[int, int], snapshotti
             "RGBA", (text_width, text_height), (0, 0, 0, int(255 * 0.6)))
         scan_image.paste(background, (timestamp_x, timestamp_y+14), background)
         draw.text((timestamp_x, timestamp_y), snapshot_time,
-                  fill=(255, 255, 255, int(255 * 0.6)), font=font_2)
+                  fill=(255, 255, 255, int(255 * 0.6)), font=time_font)
 
     logo = Image.open(logofile).resize((405, 405), Resampling.LANCZOS)
 
@@ -609,16 +506,17 @@ def main():
 
     # chcp 65001
     try:
-        config_file: str = "config.json"
-        config: ConfigManager = ConfigManager(config_file)
+        config_manager: ConfigManager = ConfigManager()
+        config_manager.activate_config("basic")
 
-        font_file: str = config.font_file
-        font_file_2: str = config.font_file_2
-        logo_file: str = config.logo_file
-        resize_scale: int = config.resize_scale
-        avoid_leading: bool = config.avoid_leading
-        avoid_ending: bool = config.avoid_ending
-        grid_shape: tuple = config.grid_size
+        font_file: str = config_manager["font_file"]
+        font_file_2: str = config_manager["font_file_2"]
+        logo_file: str = config_manager["logo_file"]
+        resize_scale: int = config_manager["resize_scale"]
+        avoid_leading: bool = config_manager["avoid_leading"]
+        avoid_ending: bool = config_manager["avoid_ending"]
+        grid_shape: tuple[int, int] = tuple(config_manager["grid_shape"])
+        use_new_method: bool = True
 
         file_path: str = input("File Path :")
         if not os.path.exists(file_path):
@@ -657,7 +555,7 @@ def main():
             snapshots = take_snapshots(video_info, snapshot_times)
 
             scan = create_scan_image(snapshots, grid_shape, snapshot_times,
-                                     video_info, font_file, font_file_2, logo_file, True)
+                                     video_info, logo_file, config_manager, use_new_method)
 
             w, h = scan.size
             scan = scan.resize((w//resize_scale, h//resize_scale), Resampling.LANCZOS)
@@ -667,7 +565,7 @@ def main():
             print("Failed to retrieve video information.")
 
     except IndexError as e:
-        print("No video streeams available.")
+        print(e)
         exit(1)
 
     except (FileNotFoundError, ValueError, IndexError) as e:
