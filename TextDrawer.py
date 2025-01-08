@@ -287,7 +287,7 @@ class TextDrawer:
                 self.content_start[1+2*col_idx].append((int(Ox), int(Oy)))
                 Oy += cell.height
             
-            Ox += column.value_width
+            Ox = Ox - column.label_width + column.width
 
     # TODO: 分离读取、转换和验证步骤
     @staticmethod
