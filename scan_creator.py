@@ -509,8 +509,6 @@ def main():
         config_manager: ConfigManager = ConfigManager()
         config_manager.activate_config("basic")
 
-        font_file: str = config_manager["font_file"]
-        font_file_2: str = config_manager["font_file_2"]
         logo_file: str = config_manager["logo_file"]
         resize_scale: int = config_manager["resize_scale"]
         avoid_leading: bool = config_manager["avoid_leading"]

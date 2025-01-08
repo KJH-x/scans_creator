@@ -2,19 +2,9 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/schemas/font-config.json",
     "type": "object",
-    "title": "Font Configuration",
-    "description": "Schema for validating font and logo configuration files.",
+    "title": "Basic Configuration",
+    "description": "Schema for validating scan pictures and logo configuration files.",
     "properties": {
-      "font_file": {
-        "type": "string",
-        "description": "Path to the primary font file.",
-        "format": "uri-reference"
-      },
-      "font_file_2": {
-        "type": "string",
-        "description": "Path to the secondary font file.",
-        "format": "uri-reference"
-      },
       "logo_file": {
         "type": "string",
         "description": "Path to the logo image file.",
@@ -52,7 +42,7 @@
         "maxItems": 2
       }
     },
-    "required": ["font_file", "logo_file", "resize_scale", "grid_shape"],
+    "required": ["logo_file", "resize_scale", "grid_shape"],
     "additionalProperties": false
   }
   

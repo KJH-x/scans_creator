@@ -7,7 +7,7 @@ class Report:
         # ==================================================================================================
         # Just paste it into `ConfigManager.__init__()`
         
-        self.defaults_SHA256 = "cd5ae8eec5d556c7cce8df52ff50657fc873f8874ac731d1610771c845eb70e6"
+        self.defaults_SHA256 = "cb0bba4266696e9f3e2ec5e7c4168f75c4abc133da6f9033aa8cf276c2394177"
         
         self.config_files: Dict[str, str] = {
             "basic": os.path.join(self.config_folder, "basic.json"),
@@ -22,8 +22,6 @@ class Report:
         # Just paste it into `ConfigManager._load_config()`
 
         if self.active_configfile == os.path.join(self.config_folder, "basic.json"):
-            self.font_file: str = self.config.get('font_file', None)  # Path to the primary font file.
-            self.font_file_2: str = self.config.get('font_file_2', None)  # Path to the secondary font file.
             self.logo_file: str = self.config.get('logo_file', None)  # Path to the logo image file.
             self.resize_scale: int = self.config.get('resize_scale', None)  # Scaling factor for resizing.
             self.avoid_leading: bool = self.config.get('avoid_leading', None)  # Indicates whether to avoid leading content.
