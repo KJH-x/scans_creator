@@ -36,7 +36,7 @@ This project is a **video snapshot and metadata scanner** that captures snapshot
    Ensure FFmpeg is installed and accessible from the command line. You can download FFmpeg [here](https://ffmpeg.org/download.html).
 
 3. **Fonts and Logo**:
-   Place your chosen fonts (`font_file` and `font_file_2`) in the `fonts/` directories.
+   Place your chosen fonts in the `fonts/` directories.
 
 ## Usage
 
@@ -46,12 +46,12 @@ This project is a **video snapshot and metadata scanner** that captures snapshot
    python main.py
    ```
 
-2. The script will automatically load configuration settings from the `config.json` file. If the file does not exist, it will be created with default values.
+2. The script will automatically load configuration settings from the `config/` directory. If the file does not exist, it will be created with default values.
 
 3. Enter the **file path** to the video when prompted.
 
 4. The script will:
-   - Verify necessary files (fonts and logo) based on the paths provided in the `config.json` file.
+   - Verify necessary files (fonts and logo) based on the paths provided in the `config/` directory.
    - Extract video information, including file size, duration, and bitrate.
    - Capture snapshots at evenly spaced intervals based on the grid size defined in the configuration.
    - Generate a composite image of snapshots with metadata and save it to the `scans/` directory.
@@ -68,33 +68,16 @@ The output will be a composite image arranged in a grid layout, displaying snaps
 
 ![img](./scans/example/000000.scan.Dune.Part.Two.2024.2160p.BluRay.DoVi.x265.10bit.Atmos.TrueHD7.1-WiKi.mkv.png)
 
-## Notes
+## Configuration Files
 
-- **Grid Layout**: The grid layout can be customized by adjusting the `grid_size` tuple in the `config.json` file. For instance, setting the grid to `(4, 4)` will create a 4x4 grid of snapshots (16 snapshots in total). You can change the grid size to any other desired configuration, such as `(3, 3)` for 9 snapshots, or `(5, 5)` for 25 snapshots, based on your needs.
-  
-- **Configuration File**: All customizable parameters, such as file paths for fonts, logo, and snapshot grid size, are managed via the `config.json` file. The default values are already provided, but you can modify them according to your project requirements.
-  
-### Default Configuration (`config.json`)
+### Default Configuration 
 
-The default `config.json` looks like this:
+Backups of the default configuration files are saved at `schemas/defaults.json.bak`(Preview [here](https://github.com/KJH-x/scans_creator/blob/main/schemas/defaults.json.bak)). The SHA256 checksum of the file is hard-coded in the code to ensure the correctness of the file, and the program cannot run if the checksum does not match.
 
-```json
-{
-   "font_file": "fonts/serif.ttf",
-   "font_file_2": "fonts/sans.ttf",
-   "logo_file": "logo/logo.png",
-   "resize_scale": 2,
-   "avoid_leading": true,
-   "avoid_ending": true,
-   "grid_size": [
-         4,
-         4
-   ]
-}
-```
+### `basic.json`
 
-- `font_file`: Path to the serif font file used for metadata text.
-- `font_file_2`: Path to the sans-serif font file used for secondary text.
+This file contains the following configuration items:
+
 - `logo_file`: Path to the logo image file to overlay on the scan.
 - `resize_scale`: Scaling factor for resizing the final scan image (e.g., `2` means resize to half size).
 - `avoid_leading`: If `true`, avoids taking snapshots from the very beginning of the video.
@@ -102,6 +85,30 @@ The default `config.json` looks like this:
 - `grid_size`: A tuple defining the grid size for snapshot arrangement (e.g., `[4, 4]` for a 4x4 grid).
 
 You can update these values to suit your project needs. For example, if you'd prefer a smaller grid (or  bigger snapshots), change `"grid_size": [4, 4]` to `"grid_size": [3, 3]` for a 3x3 grid (9 snapshots).
+
+### `info_layout.json`
+
+This file is responsible for setting the layout style of the metadata (including font, font size, font color, layout, shadows, and information to be displayed).
+
+- `fonts`: The path to several font files, you can specify the sequence number in the `font_list`.
+
+- `font_list`: The font used for each paragraph of text.
+
+- `time_font`: The font used to time the snapshot.
+
+- Some spacing and margin parameters ([more details](https://github.com/KJH-x/scans_creator/wiki/TextDrawer)).
+
+- `shade_offset`: The amount of shadow offset for the text.
+
+- `text_color`: The color of the text.
+
+- `shade_color`: The color of the shade.
+
+- `text_list`:  The metadata to be displayed. (TODO: Details).
+
+- `pos_list`: The text position of the initial version.
+
+  > Now this parameter is no longer used because of the lack of flexibility unless you turn off the `use_new_method` in [scan_creator.py](https://github.com/KJH-x/scans_creator/blob/94e4145b9387cc5a10f6e1edc09217787949e172/scan_creator.py#L519)
 
 ## Limitations & Known Issues
 
