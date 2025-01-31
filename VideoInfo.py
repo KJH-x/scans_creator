@@ -3,7 +3,13 @@ from typing import Dict, List
 
 
 class VideoInfo:
-    def __init__(self, file_info: Dict[str, str | int], video_streams: List[Dict[str, str | float | int]], audio_info: Dict[str, str], subtitle_info: Dict[str, str]) -> None:
+    def __init__(
+        self,
+        file_info: Dict[str, str | int],
+        video_streams: List[Dict[str, str | float | int]],
+        audio_info: Dict[str, str],
+        subtitle_info: Dict[str, str],
+    ) -> None:
         # File information
         self.file_name: str = _ if isinstance(_ := file_info.get("name"), str) else ""
         self.file_path: str = _ if isinstance(_ := file_info.get("path"), str) else ""
@@ -36,7 +42,9 @@ class VideoInfo:
 
         # ddd:ddd -> f.ff (d:d or dd:dd remain itself)
         def _short_aspect_ratio(aspect_ratio: str) -> str:
-            return f"{eval(aspect_ratio.replace(':','/')):.2f}" if _has_long_aspect_ratio(aspect_ratio) else aspect_ratio
+            return (
+                f"{eval(aspect_ratio.replace(':','/')):.2f}" if _has_long_aspect_ratio(aspect_ratio) else aspect_ratio
+            )
 
         if index >= len(self.video_streams) | index < 0:
             if len(self.video_streams) == 0:
@@ -66,7 +74,9 @@ class VideoInfo:
             self.video_codec: str = f"{self.codec_name} ({self.profile}, {self.pix_channels}x{self.pix_depth}bit)"
             self.video_color: str = f"{self.pix_fmt} ({self.color_range}, {self.color_space})"
 
-            self.frame_size: str = f"{self.width}x{self.height} ({_short_aspect_ratio(self.sar)}/{_short_aspect_ratio(self.dar)})"
+            self.frame_size: str = (
+                f"{self.width}x{self.height} ({_short_aspect_ratio(self.sar)}/{_short_aspect_ratio(self.dar)})"
+            )
             self.framerate: float = _ if isinstance(_ := video_info.get("framerate"), float) else 0.0
 
     def __list__(self) -> List[str]:
@@ -85,7 +95,7 @@ class VideoInfo:
             # f"Video Language:   {self.video_lang}",
             f"Subtitle Codec:   {self.subtitle_codec}",
             f"Subtitle Language:{self.subtitle_lang}",
-            f"Subtitle Title:   {self.subtitle_title}"
+            f"Subtitle Title:   {self.subtitle_title}",
         ]
 
     def __str__(self) -> str:
@@ -110,14 +120,14 @@ class VideoInfo:
                 "codec": self.audio_codec,
                 "lang": self.audio_lang,
                 "title": self.audio_title,
-                "sampleRate":self.audio_sampleRate,
-                "channel":self.audio_channel
+                "sampleRate": self.audio_sampleRate,
+                "channel": self.audio_channel,
             },
             "S": {
                 "codec": self.subtitle_codec,
                 "lang": self.subtitle_lang,
                 "title": self.subtitle_title,
-            }
+            },
         }
 
     def __getitem__(self, key) -> Dict[str, str]:

@@ -1,4 +1,4 @@
-from typing import List, LiteralString, Tuple, Dict
+from typing import List, Tuple, Dict
 from PIL import ImageFont
 from PIL.ImageDraw import ImageDraw as ImageDrawType
 from PIL.ImageFont import FreeTypeFont
@@ -11,26 +11,53 @@ from GridBase import TextCellBase, TextColumnBase, ImageCellBase
 
 
 class TextCell_text(TextCellBase):
-    def __init__(self, draw: ImageDrawType, font: FreeTypeFont, h_spacing: float, v_spacing: float, content: str,
-                 text_color: Tuple[int, int, int], shade_color: Tuple[int, int, int], shade_offset: Tuple[float, float]) -> None:
+    def __init__(
+        self,
+        draw: ImageDrawType,
+        font: FreeTypeFont,
+        h_spacing: float,
+        v_spacing: float,
+        content: str,
+        text_color: Tuple[int, int, int],
+        shade_color: Tuple[int, int, int],
+        shade_offset: Tuple[float, float],
+    ) -> None:
         super(TextCell_text, self).__init__(draw, font, h_spacing, v_spacing, content)
-        
+
         self.text_color = text_color
         self.shade_color = shade_color
         self.shade_offset = shade_offset
-    
+
     def draw_content(self, pos: Tuple[int, int]) -> None:
         x, y = pos
         dx, dy = self.shade_offset
-        self.draw.text((x+dx, y+dy), self.content, fill=self.shade_color, font=self.font)
+        self.draw.text((x + dx, y + dy), self.content, fill=self.shade_color, font=self.font)
         self.draw.text((x, y), self.content, fill=self.text_color, font=self.font)
 
 
 class TextCell_labelText(TextCell_text):
-    def __init__(self, draw: ImageDrawType, font: FreeTypeFont, h_spacing: float, v_spacing: float, content: str,
-                 text_color: Tuple[int, int, int], shade_color: Tuple[int, int, int], shade_offset: Tuple[float, float]) -> None:
-        super(TextCell_labelText, self).__init__(draw, font, h_spacing, v_spacing, content, text_color, shade_color, shade_offset)
-    
+    def __init__(
+        self,
+        draw: ImageDrawType,
+        font: FreeTypeFont,
+        h_spacing: float,
+        v_spacing: float,
+        content: str,
+        text_color: Tuple[int, int, int],
+        shade_color: Tuple[int, int, int],
+        shade_offset: Tuple[float, float],
+    ) -> None:
+        super(TextCell_labelText, self).__init__(
+            draw,
+            font,
+            h_spacing,
+            v_spacing,
+            content,
+            text_color,
+            shade_color,
+            shade_offset,
+        )
+
     def cal_width(self) -> None:
         bbox = self.draw.textbbox((0, 0), self.content, font=self.font)
         # 希望这里的间距更小点
@@ -38,13 +65,20 @@ class TextCell_labelText(TextCell_text):
 
 
 class TextColumn_labelAndValue(TextColumnBase):
-    def __init__(self, draw: ImageDrawType, font: FreeTypeFont, h_spacing: float, v_spacing: float, max_height: float) -> None:
+    def __init__(
+        self,
+        draw: ImageDrawType,
+        font: FreeTypeFont,
+        h_spacing: float,
+        v_spacing: float,
+        max_height: float,
+    ) -> None:
         super(TextColumn_labelAndValue, self).__init__(draw, font, h_spacing, v_spacing, max_height)
-        
+
         self.label_cells: List[TextCellBase | ImageCellBase] = []
         # 每一个 label 对应着多少行 value
         self.label_value_map: List[int] = []
-        
+
     def add_cell(self, new_cell: List[TextCellBase]) -> None:
         self.label_cells.append(new_cell[0])
         if len(new_cell) == 2:
@@ -56,7 +90,7 @@ class TextColumn_labelAndValue(TextColumnBase):
         self.extra_lines = self.extra_lines - len(new_cell) + 1
         self.label_value_map.append(len(new_cell) - 1)
         self.cal_size()
-        
+
     def insert_cell(self, origin_cell: TextCellBase, new_cell: TextCellBase) -> int:
         label_idx = 0
         sum_map_value = self.label_value_map[0]
@@ -67,19 +101,19 @@ class TextColumn_labelAndValue(TextColumnBase):
                     sum_map_value += self.label_value_map[label_idx]
                 else:
                     sum_map_value += 0
-            
+
             if cell == origin_cell:
-                self.cells.insert(idx+1, new_cell)
+                self.cells.insert(idx + 1, new_cell)
                 self.label_value_map[label_idx] += 1
-    
+
     def cal_width(self) -> None:
         self.value_width = max([cell.width for cell in self.cells])
         self.label_width = max([cell.width for cell in self.label_cells])
         self.width = self.value_width + self.label_width
-    
+
     def cal_height(self) -> None:
         self.height = sum([cell.height for cell in self.cells])
-        
+
         for idx, label_cell in enumerate(self.label_cells):
             label_height: float = 0
             for idx_map in range(self.label_value_map[idx]):
@@ -90,17 +124,17 @@ class TextColumn_labelAndValue(TextColumnBase):
 
 class TextDrawer:
     """
-    A class to manage and draw text within a grid layout on an image. The class supports two modes of 
-    handling long text (truncation or wrapping). It also manages the structure and organization of text data 
+    A class to manage and draw text within a grid layout on an image. The class supports two modes of
+    handling long text (truncation or wrapping). It also manages the structure and organization of text data
     for the grid.
-    
+
     Params:
         Style:
             shade_offset (Tuple): A tuple representing the offset for the shadow, typically in (x, y) format.
             text_color (Tuple): A tuple representing the color of the text in RGB format.
             shade_color (Tuple): A tuple representing the color of the shadow in RGB format.
             font_list (List[FreeTypeFont]): Font list(font size inside).
-        
+
         Layout:
             horizontal_spacing (float): Horizontal spacing between columns
             vertical_spacing (float): Vertical spacing between rows
@@ -108,14 +142,20 @@ class TextDrawer:
             title_margin_top (float): Adjust its distance from the top edge.
             content_margin_left (float): Adjust its distance from the left edge.
             content_margin_top (float): Adjust its distance from the top edge.
-        
+
         Hardcode:
             scan_image_width (float): 3200, associated with `canvas_width` in `create_scan_image`, need change in later update.
             logo_width (float): 405, also associated with someone, make it variable in later update.
             post_list (List): Only used by the old method.
-    """ 
+    """
 
-    def __init__(self, video_info: VideoInfo, draw: ImageDrawType, config_manager: ConfigManager, use_new_method: bool) -> None:
+    def __init__(
+        self,
+        video_info: VideoInfo,
+        draw: ImageDrawType,
+        config_manager: ConfigManager,
+        use_new_method: bool,
+    ) -> None:
         """
         Initializes a TextDrawer object with the given title, content, and grid shape.
 
@@ -127,7 +167,7 @@ class TextDrawer:
         """
         config_manager.activate_config("info_layout")
         layout = config_manager.config
-        
+
         # associated with `canvas_width` in `create_scan_image`, need change in later update
         self.scan_image_width = 3200
         # also associated with someone, make it variable in later update
@@ -138,15 +178,15 @@ class TextDrawer:
         self.text_color = tuple(config_manager.text_color)
         self.shade_color = tuple(config_manager.shade_color)
         self.vertical_spacing = config_manager.vertical_spacing
-        self.horizontal_spacing = config_manager.horizontal_spacing    # Vertical spacing between rows
+        self.horizontal_spacing = config_manager.horizontal_spacing  # Vertical spacing between rows
         self.content_margin_left = config_manager.content_margin_left
         self.content_margin_top = config_manager.content_margin_top
         self.title_margin_left = config_manager.title_margin_left
         self.title_margin_top = config_manager.title_margin_top
-        
+
         # only used by old method
         self.pos_list = layout["pos_list"]
-        
+
         available_font_list: List[FreeTypeFont] = []
         available_font_list = self._get_fonts(layout)
         # output by `self.get_time_font()`
@@ -160,44 +200,76 @@ class TextDrawer:
         # 验证index
         self.font_list: List[FreeTypeFont] = self._parse_font_list(layout["font_list"], available_font_list)
         if len(self.font_list) != len(self.content) + 1:
-            raise IndexError(f"The length of font_list({len(self.font_list)}) does not match the number of coloum({len(self.content) + 1})")
-        
+            raise IndexError(
+                f"The length of font_list({len(self.font_list)}) does not match the number of coloum({len(self.content) + 1})"
+            )
+
         self.draw: ImageDrawType = draw
         self.use_new_method: bool = use_new_method
-        
+
         # The size of the limit for the entire text rendering area
         self.max_text_width: float = self.scan_image_width - self.logo_width - self.content_margin_left
-        self.max_text_height: float = 450 - self.content_margin_top - self.vertical_spacing 
+        self.max_text_height: float = 450 - self.content_margin_top - self.vertical_spacing
         # TODO: the inline number 450, associated with `y_offset` in `creat_scan_image`
-        
-        self.cell_title: TextCell_text = TextCell_text(self.draw, self.font_list[0], self.horizontal_spacing, self.vertical_spacing, 
-                                                       self.title, self.text_color, self.shade_color, self.shade_offset)
+
+        self.cell_title: TextCell_text = TextCell_text(
+            self.draw,
+            self.font_list[0],
+            self.horizontal_spacing,
+            self.vertical_spacing,
+            self.title,
+            self.text_color,
+            self.shade_color,
+            self.shade_offset,
+        )
         self.text_columns: List[TextColumn_labelAndValue] = []
         for col_idx, col in enumerate(self.content):
             if col_idx % 2 == 1:
                 continue
-            
-            new_column: TextColumnBase = TextColumn_labelAndValue(self.draw, self.font_list[col_idx+1], self.horizontal_spacing, self.vertical_spacing, self.max_text_height)
+
+            new_column: TextColumnBase = TextColumn_labelAndValue(
+                self.draw,
+                self.font_list[col_idx + 1],
+                self.horizontal_spacing,
+                self.vertical_spacing,
+                self.max_text_height,
+            )
             for row_idx, text in enumerate(col):
-                new_label_cell: TextCell_text = TextCell_labelText(self.draw, self.font_list[col_idx+1], self.horizontal_spacing, self.vertical_spacing, 
-                                                                  text, self.text_color, self.shade_color, self.shade_offset)
-                new_value_cell: TextCell_text = TextCell_text(self.draw, self.font_list[col_idx+1], self.horizontal_spacing, self.vertical_spacing, 
-                                                             self.content[col_idx+1][row_idx], self.text_color, self.shade_color, self.shade_offset)
-                
+                new_label_cell: TextCell_text = TextCell_labelText(
+                    self.draw,
+                    self.font_list[col_idx + 1],
+                    self.horizontal_spacing,
+                    self.vertical_spacing,
+                    text,
+                    self.text_color,
+                    self.shade_color,
+                    self.shade_offset,
+                )
+                new_value_cell: TextCell_text = TextCell_text(
+                    self.draw,
+                    self.font_list[col_idx + 1],
+                    self.horizontal_spacing,
+                    self.vertical_spacing,
+                    self.content[col_idx + 1][row_idx],
+                    self.text_color,
+                    self.shade_color,
+                    self.shade_offset,
+                )
+
                 new_column.add_cell([new_label_cell, new_value_cell])
-                
+
             self.text_columns.append(new_column)
-        
+
         self._allocate_column_widths()
-        
+
         # Store start positions for text drawing
         self.content_start: List[List[Tuple[int, int]]] = []
-        self._calculate_content_start() 
+        self._calculate_content_start()
 
     def _allocate_column_widths(self) -> None:
         """
         Allocate the width for each column in the grid based on the maximum width of each column's text.
-        
+
         The maximum width for each column is determined by the longest text in that column.
         The width is then stored in the member variable `column_widths`.
         """
@@ -206,29 +278,31 @@ class TextDrawer:
         while True:
             # for column in self.text_columns:
             #     print(repr(column))
-            
+
             for column in self.text_columns:
                 column.cal_size()
-            
+
             required_width = sum(column.value_width for column in self.text_columns)
             remaining_width = self.max_text_width - sum(column.label_width for column in self.text_columns)
-            
+
             if required_width < remaining_width:
                 number_of_column = sum(1 for column in self.text_columns)
                 for column in self.text_columns:
                     column.set_width(column.width + (remaining_width - required_width) / number_of_column)
-                
+
                 break
             else:
-                longest_cell: List[Tuple[TextColumn_labelAndValue, TextCell_text, float]] = [] # (column, value_cell, value_width)
+                longest_cell: List[Tuple[TextColumn_labelAndValue, TextCell_text, float]] = (
+                    []
+                )  # (column, value_cell, value_width)
                 for column in self.text_columns:
                     cell = column.get_widest_cell()
                     longest_cell.append((column, cell, cell.width))
-                
+
                 # Pick top 2 longest (not in the same column)
                 longest_cell.sort(key=lambda x: x[2], reverse=True)
                 longest_cell: List[Tuple[TextColumn_labelAndValue, TextCell_text, float]] = longest_cell[:2]
-                
+
                 sum_ellipsis_width = 0
                 for _, cell, _ in longest_cell:
                     sum_ellipsis_width += cell.ellipsis_width
@@ -236,7 +310,7 @@ class TextDrawer:
                 excess_width = required_width - remaining_width + sum_ellipsis_width
                 # Then shorten the 2 longest cell to the target length
                 shorten_target = (sum(width for _, _, width in longest_cell) - excess_width) / 2
-                
+
                 for column, cell, _ in longest_cell:
                     cell.cal_width_every_char()
                     if column.extra_lines <= 0:
@@ -246,29 +320,43 @@ class TextDrawer:
                         # attemp to warp
                         for idx_extra in range(column.extra_lines):
                             original_text = cell.content
-                            shorten_index = 1 + max((i for i, num in enumerate(cell.width_to_idx) if num < shorten_target), default=0)
-                            truncated_text = original_text[: shorten_index]
+                            shorten_index = 1 + max(
+                                (i for i, num in enumerate(cell.width_to_idx) if num < shorten_target),
+                                default=0,
+                            )
+                            truncated_text = original_text[:shorten_index]
                             remaining_text = original_text[shorten_index:]
-                            
+
                             cell.update_content(truncated_text)
-                            new_cell: TextCell_text = TextCell_text(self.draw, cell.font, cell.h_spacing, cell.v_spacing,
-                                                                    remaining_text, self.text_color, self.shade_color, self.shade_offset)
+                            new_cell: TextCell_text = TextCell_text(
+                                self.draw,
+                                cell.font,
+                                cell.h_spacing,
+                                cell.v_spacing,
+                                remaining_text,
+                                self.text_color,
+                                self.shade_color,
+                                self.shade_offset,
+                            )
                             column.insert_cell(cell, new_cell)
-                            
+
                             cell = new_cell
                             cell.cal_width_every_char()
-                            if (idx_extra == column.extra_lines - 1):
-                                shorten_index = 1 + max((i for i, num in enumerate(new_cell.width_to_idx) if num < shorten_target), default=0)
+                            if idx_extra == column.extra_lines - 1:
+                                shorten_index = 1 + max(
+                                    (i for i, num in enumerate(new_cell.width_to_idx) if num < shorten_target),
+                                    default=0,
+                                )
                                 if new_cell.width_to_idx[-1] < shorten_target:
                                     pass
                                 else:
                                     new_cell.truncate_content(shorten_target)
-                                    
+
                         # for idx_extra in range(column.extra_lines)
                     # if column.extra_lines <= 0 / else
                 # for column, cell, _ in longest_cell
             # if required_width < remaining_width / else
-        # while True, break 
+        # while True, break
 
     def _calculate_content_start(self) -> None:
         # Origin of content is (Ox, Oy) and it will change
@@ -277,16 +365,16 @@ class TextDrawer:
             Oy = self.content_margin_top
             self.content_start.append([])
             for label_cell in column.label_cells:
-                self.content_start[2*col_idx].append((int(Ox), int(Oy)))
+                self.content_start[2 * col_idx].append((int(Ox), int(Oy)))
                 Oy += label_cell.height
-                
+
             Ox += column.label_width
             Oy = self.content_margin_top
             self.content_start.append([])
             for cell in column.cells:
-                self.content_start[1+2*col_idx].append((int(Ox), int(Oy)))
+                self.content_start[1 + 2 * col_idx].append((int(Ox), int(Oy)))
                 Oy += cell.height
-            
+
             Ox = Ox - column.label_width + column.width
 
     # TODO: 分离读取、转换和验证步骤
@@ -317,13 +405,18 @@ class TextDrawer:
     def _get_fonts(layout) -> List[FreeTypeFont]:
         available_font_list: List[FreeTypeFont] = []
         for font in layout["fonts"]:
-            if isinstance(font, dict) and "path" in font and "size" in font \
-                    and os.path.exists(font["path"]) and isinstance(font["size"], int):
+            if (
+                isinstance(font, dict)
+                and "path" in font
+                and "size" in font
+                and os.path.exists(font["path"])
+                and isinstance(font["size"], int)
+            ):
                 available_font_list.append(ImageFont.truetype(font["path"], font["size"]))
             else:
                 raise ValueError(f"{font} is not support")
         return available_font_list
-    
+
     def get_time_font(self) -> FreeTypeFont:
         """
         This font is used outside, but parsed in this class.
@@ -335,23 +428,37 @@ class TextDrawer:
             self.cell_title.draw_content((self.title_margin_left, self.title_margin_top))
             for col_idx, column in enumerate(self.text_columns):
                 for row_idx, cell in enumerate(column.label_cells):
-                    cell.draw_content(self.content_start[2*col_idx][row_idx])
-                
+                    cell.draw_content(self.content_start[2 * col_idx][row_idx])
+
                 for row_idx, cell in enumerate(column.cells):
-                    cell.draw_content(self.content_start[1+2*col_idx][row_idx])
+                    cell.draw_content(self.content_start[1 + 2 * col_idx][row_idx])
         else:
             for i, j, k in zip(self.old_content, self.pos_list, self.font_list):
-                self._multiline_text_with_shade(self.draw, "\n".join(i), j, self.shade_offset, self.vertical_spacing, k, self.text_color, self.shade_color)
-        
+                self._multiline_text_with_shade(
+                    self.draw,
+                    "\n".join(i),
+                    j,
+                    self.shade_offset,
+                    self.vertical_spacing,
+                    k,
+                    self.text_color,
+                    self.shade_color,
+                )
+
     @staticmethod
     def _multiline_text_with_shade(
-        draw_obj: ImageDrawType, text: str,
-        pos: Tuple[int, int], offset: Tuple[int, int], spacing: int,
-        font: FreeTypeFont, text_color: Tuple[int, int, int], shade_color: Tuple[int, int, int]
+        draw_obj: ImageDrawType,
+        text: str,
+        pos: Tuple[int, int],
+        offset: Tuple[int, int],
+        spacing: int,
+        font: FreeTypeFont,
+        text_color: Tuple[int, int, int],
+        shade_color: Tuple[int, int, int],
     ) -> None:
         """
         Draw multiline text with a shaded background on the image.
-        The old method to draw multitext, without change.
+        The old method to draw multitext, used when `use_new_method` is False.
 
         Args:
             draw_obj (ImageDrawType): The ImageDraw object used to draw the text.
@@ -369,7 +476,7 @@ class TextDrawer:
 
         x, y = pos
         dx, dy = offset
-        draw_obj.multiline_text((x+dx, y+dy), text, fill=shade_color, font=font, spacing=spacing)
+        draw_obj.multiline_text((x + dx, y + dy), text, fill=shade_color, font=font, spacing=spacing)
         draw_obj.multiline_text((x, y), text, fill=text_color, font=font, spacing=spacing)
 
         return None
