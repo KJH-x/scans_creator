@@ -6,16 +6,22 @@ import os
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from PIL import Image, ImageDraw, ImageOps
 from PIL.Image import Image as ImageType
 from PIL.Image import Resampling
 
-from ConfigManager import ConfigManager
-from TextDrawer import TextDrawer
-from typings import AudioInfoDict, FileInfoDict, SubtitleInfoDict, VideoInfoDict
-from VideoInfo import VideoInfo
+from ..drawing.text_drawer import TextDrawer
+from ..typings.video_info import (
+    AudioInfoDict,
+    FileInfoDict,
+    SubtitleInfoDict,
+    VideoInfoDict,
+)
+from .config_manager import ConfigManager
+from .video_info import VideoInfo
 
 
 def ffprobe_get_info(filename: str) -> Dict[Any, Any] | None:
@@ -578,7 +584,10 @@ def main():
 
             w, h = scan.size
             scan = scan.resize((w // resize_scale, h // resize_scale), Resampling.LANCZOS)
-            scan.save(f"scans/{datetime.now().strftime('%H%M%S')}.scan.{video_info.file_name}.png")
+
+            scan.save(
+                Path(__file__).parents[2] / f"scans/{datetime.now().strftime('%H%M%S')}.scan.{video_info.file_name}.png"
+            )
 
         else:
             print("Failed to retrieve video information.")

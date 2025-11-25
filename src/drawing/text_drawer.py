@@ -5,10 +5,10 @@ from PIL import ImageFont
 from PIL.ImageDraw import ImageDraw as ImageDrawType
 from PIL.ImageFont import FreeTypeFont
 
-from ConfigManager import ConfigManager
-from GridBase import ImageCellBase, TextCellBase, TextColumnBase
-from models.info_layout import TextField
-from VideoInfo import VideoInfo
+from ..core.config_manager import ConfigManager
+from ..core.video_info import VideoInfo
+from ..models.info_layout import TextField
+from .grid_base import ImageCellBase, TextCellBase, TextColumnBase
 
 
 class TextCell_text(TextCellBase):

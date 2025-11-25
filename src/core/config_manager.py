@@ -4,9 +4,9 @@ from typing import Dict
 
 from pydantic import ValidationError
 
-from models.global_config import GlobalConfig
-from models.info_layout import InfoLayout
-from utils.common import calculate_sha256
+from ..models.global_config import GlobalConfig
+from ..models.info_layout import InfoLayout
+from ..utils.common import calculate_sha256
 
 
 class ConfigManager:
@@ -16,7 +16,7 @@ class ConfigManager:
 
     def __init__(self) -> None:
         self.defaults_SHA256 = "00efbdca97882615afe35dbde6bb9c75358338a12dec69a1600f0fb962135601"
-        self.CONFIG_ROOT = Path(__file__).parent / "config"
+        self.CONFIG_ROOT = Path(__file__).parents[2] / "config"
 
         self._check_configfile()
         self._load_config("zh-CN")

@@ -2,6 +2,9 @@
   "files.associations": {
     "*.json.bak": "json"
   },
+  "files.exclude": {
+    "**/__pycache__": true
+  },
   "json.schemas": [
     {
       "fileMatch": [

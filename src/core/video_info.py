@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Dict, List
 
-from typings import *
+from ..typings.video_info import *
 
 
 class VideoInfo:
