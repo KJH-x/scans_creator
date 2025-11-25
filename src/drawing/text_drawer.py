@@ -382,12 +382,13 @@ class TextDrawer:
     @staticmethod
     def _parse_text_list(text_list: List[List[str | TextField]], video_info: VideoInfo) -> List[List[str]]:
         parsed_list: List[List[str]] = []
+        video_info_dict = video_info.to_dict()
 
         for row in text_list:
             parsed_row: List[str] = []
             for item in row:
                 if isinstance(item, TextField):
-                    parsed_row.append(video_info[item.field][item.key])
+                    parsed_row.append(video_info_dict[item.field][item.key])
                 elif isinstance(item, str):
                     parsed_row.append(item)
                 else:

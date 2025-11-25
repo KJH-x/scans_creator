@@ -153,7 +153,7 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
 
     subtitle_info: SubtitleInfoDict = {"codec": "", "lang": "", "title": ""}
 
-    with open("pix_fmt.json", mode="r", encoding="utf-8") as fp:
+    with open(Path(__file__).parents[2] / "pix_fmt.json", mode="r", encoding="utf-8") as fp:
         fmt_info = json.load(fp)
 
     # For files with multiple video streams, each item in this list is a dictionary

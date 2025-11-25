@@ -103,7 +103,7 @@ class VideoInfo:
     def __str__(self) -> str:
         return "\n".join(self.__list__())
 
-    def __dict__(self) -> Dict[str, Dict[str, str]]:
+    def to_dict(self) -> Dict[str, Dict[str, str]]:
         return {
             "F": {
                 "name": self.file_name,
@@ -134,4 +134,4 @@ class VideoInfo:
 
     def __getitem__(self, key) -> Dict[str, str]:
         # Retrieve values as a dictionary and allow indexing
-        return self.__dict__().get(key, {"err": "No value"})
+        return self.to_dict().get(key, {"err": "No value"})
