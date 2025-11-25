@@ -1,0 +1,64 @@
+{
+  "$defs": {
+    "Font": {
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "size": {
+          "minimum": 1,
+          "title": "Size",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "path",
+        "size"
+      ],
+      "title": "Font",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "logo_file": {
+      "description": "Path to the logo image file",
+      "title": "Logo File",
+      "type": "string"
+    },
+    "fonts": {
+      "description": "List of font definitions",
+      "items": {
+        "$ref": "#/$defs/Font"
+      },
+      "minItems": 1,
+      "title": "Fonts",
+      "type": "array"
+    },
+    "resize_scale": {
+      "description": "Scaling factor for resizing",
+      "minimum": 1,
+      "title": "Resize Scale",
+      "type": "integer"
+    },
+    "avoid_leading": {
+      "default": false,
+      "description": "Whether to avoid leading content",
+      "title": "Avoid Leading",
+      "type": "boolean"
+    },
+    "avoid_ending": {
+      "default": false,
+      "description": "Whether to avoid ending content",
+      "title": "Avoid Ending",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "logo_file",
+    "fonts",
+    "resize_scale"
+  ],
+  "title": "GlobalConfig",
+  "type": "object"
+}

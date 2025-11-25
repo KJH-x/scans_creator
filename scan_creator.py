@@ -8,14 +8,13 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageOps
 from PIL.Image import Image as ImageType
 from PIL.Image import Resampling
-from PIL.ImageDraw import ImageDraw as ImageDrawType
-from PIL.ImageFont import FreeTypeFont
 
 from ConfigManager import ConfigManager
 from TextDrawer import TextDrawer
+from typings import AudioInfoDict, FileInfoDict, SubtitleInfoDict, VideoInfoDict
 from VideoInfo import VideoInfo
 
 
@@ -110,7 +109,7 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
     duration = int(float(format_info.get("duration", 0)))
     bitrate = int(format_info.get("bit_rate", 0))
 
-    file_info = {
+    file_info: FileInfoDict = {
         "name": file_name,
         "path": file_path,
         "size": file_size,
@@ -118,7 +117,7 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
         "bitrate": bitrate,
     }
 
-    video_info = {
+    video_info: VideoInfoDict = {
         "codec": "",
         "color": "",
         "frame_size": "",
@@ -137,7 +136,7 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
         "dar": "",
     }
 
-    audio_info = {
+    audio_info: AudioInfoDict = {
         "codec": "",
         "lang": "",
         "title": "",
@@ -146,14 +145,14 @@ def get_video_info(file_path: str) -> Optional[VideoInfo]:
         "channelLayout": "",
     }
 
-    subtitle_info = {"codec": "", "lang": "", "title": ""}
+    subtitle_info: SubtitleInfoDict = {"codec": "", "lang": "", "title": ""}
 
     with open("pix_fmt.json", mode="r", encoding="utf-8") as fp:
         fmt_info = json.load(fp)
 
     # For files with multiple video streams, each item in this list is a dictionary
     # containing video information (video_info) as described above.
-    video_info_ld: List[Dict] = []
+    video_info_ld: List[VideoInfoDict] = []
 
     audio_codec_l: List[str] = []
     audio_lang_l: List[str] = []
@@ -474,8 +473,8 @@ def create_scan_image(
 
         snapshot_time = str(timedelta(seconds=snapshottimes[idx]))
         text_bbox = draw.textbbox((0, 0), snapshot_time, font=time_font)
-        text_width = text_bbox[2] - text_bbox[0]
-        text_height = text_bbox[3] - text_bbox[1]
+        text_width = int(text_bbox[2] - text_bbox[0])
+        text_height = int(text_bbox[3] - text_bbox[1])
         timestamp_x = grid_x + (image_width - text_width) // 2
         timestamp_y = grid_y - (text_height // 2) + 10
 
@@ -530,13 +529,12 @@ def main():
     # chcp 65001
     try:
         config_manager: ConfigManager = ConfigManager()
-        config_manager.activate_config("basic")
 
-        logo_file: str = config_manager["logo_file"]
-        resize_scale: int = config_manager["resize_scale"]
-        avoid_leading: bool = config_manager["avoid_leading"]
-        avoid_ending: bool = config_manager["avoid_ending"]
-        grid_shape: tuple[int, int] = tuple(config_manager["grid_shape"])
+        logo_file: str = config_manager.config.logo_file
+        resize_scale: int = config_manager.config.resize_scale
+        avoid_leading: bool = config_manager.config.avoid_leading
+        avoid_ending: bool = config_manager.config.avoid_ending
+        grid_shape: tuple[int, int] = config_manager.layout.grid_shape
         use_new_method: bool = True
 
         file_path: str = input("File Path :")

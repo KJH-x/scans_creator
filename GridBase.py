@@ -1,11 +1,11 @@
-from typing import List, LiteralString, Tuple, Dict, Union, TypeVar, Generic, Optional
+import math
 from abc import ABC, abstractmethod
+from typing import Generic, List, Optional, Tuple, TypeVar, Union
 
-from PIL import ImageFont, Image
 from PIL.Image import Image as ImageType
+from PIL.Image import Resampling
 from PIL.ImageDraw import ImageDraw as ImageDrawType
 from PIL.ImageFont import FreeTypeFont
-from PIL.Image import Resampling
 
 """
 ├  │  └
@@ -144,7 +144,7 @@ class GridColumn(GridElement):
         self.extra_lines = self.extra_lines - len(new_cell) + 1
         self.cal_size()
 
-    def insert_cell(self, origin_cell: GridCell, new_cell: GridCell) -> int:
+    def insert_cell(self, origin_cell: GridCell, new_cell: GridCell) -> None:
         """
         Find the same object of origin_cell in self.cells, and insert after it.
         If not found, the method doesn't add a cell.
@@ -320,5 +320,5 @@ class TextColumnBase(GridColumn):
         self.font: FreeTypeFont = font
         self.ellipsis_width: float = draw.textbbox((0, 0), "...", font=font)[2]
         self.chinese_char_height: float = draw.textbbox((0, 0), "田", font=font)[3]
-        self.max_rows: int = self.max_height // (self.chinese_char_height + self.v_spacing)
+        self.max_rows: int = math.floor(self.max_height / (self.chinese_char_height + self.v_spacing))
         self.extra_lines: int = self.max_rows

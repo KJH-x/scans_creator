@@ -1,10 +1,11 @@
 logo/*.ai
 fonts/*
 scans/*.png
-config*.json
-config*/*
 model
 .abandoned
 *.dev.py
 __pycache__
-.vscode
+
+
+config/**/*.json
+!config/schemas/*

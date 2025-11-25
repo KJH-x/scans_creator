@@ -1,13 +1,14 @@
-from typing import List, Tuple, Dict
+import copy
+from typing import List, Tuple
+
 from PIL import ImageFont
 from PIL.ImageDraw import ImageDraw as ImageDrawType
 from PIL.ImageFont import FreeTypeFont
-import os
-import copy
 
-from VideoInfo import VideoInfo
 from ConfigManager import ConfigManager
-from GridBase import TextCellBase, TextColumnBase, ImageCellBase
+from GridBase import ImageCellBase, TextCellBase, TextColumnBase
+from models.info_layout import TextField
+from VideoInfo import VideoInfo
 
 
 class TextCell_text(TextCellBase):
@@ -91,7 +92,7 @@ class TextColumn_labelAndValue(TextColumnBase):
         self.label_value_map.append(len(new_cell) - 1)
         self.cal_size()
 
-    def insert_cell(self, origin_cell: TextCellBase, new_cell: TextCellBase) -> int:
+    def insert_cell(self, origin_cell: TextCellBase, new_cell: TextCellBase) -> None:
         label_idx = 0
         sum_map_value = self.label_value_map[0]
         for idx, cell in enumerate(self.cells):
@@ -165,8 +166,7 @@ class TextDrawer:
             config_manager (ConfigManager): Manage the settings about text rendering.
             use_new_method (bool): True for use new method to draw text, and False for old method.
         """
-        config_manager.activate_config("info_layout")
-        layout = config_manager.config
+        layout = config_manager.layout
 
         # associated with `canvas_width` in `create_scan_image`, need change in later update
         self.scan_image_width = 3200
@@ -174,31 +174,32 @@ class TextDrawer:
         self.logo_width = 405
 
         # used by new method, overwrite
-        self.shade_offset = tuple(config_manager.shade_offset)
-        self.text_color = tuple(config_manager.text_color)
-        self.shade_color = tuple(config_manager.shade_color)
-        self.vertical_spacing = config_manager.vertical_spacing
-        self.horizontal_spacing = config_manager.horizontal_spacing  # Vertical spacing between rows
-        self.content_margin_left = config_manager.content_margin_left
-        self.content_margin_top = config_manager.content_margin_top
-        self.title_margin_left = config_manager.title_margin_left
-        self.title_margin_top = config_manager.title_margin_top
+        self.shade_offset = config_manager.layout.shade_offset
+        self.text_color = tuple(config_manager.layout.text_color)
+        self.shade_color = tuple(config_manager.layout.shade_color)
+        self.vertical_spacing = config_manager.layout.vertical_spacing
+        self.horizontal_spacing = config_manager.layout.horizontal_spacing  # Vertical spacing between rows
+        self.content_margin_left = config_manager.layout.content_margin_left
+        self.content_margin_top = config_manager.layout.content_margin_top
+        self.title_margin_left = config_manager.layout.title_margin_left
+        self.title_margin_top = config_manager.layout.title_margin_top
 
         # only used by old method
-        self.pos_list = layout["pos_list"]
+        self.pos_list = config_manager.layout.pos_list
+        available_font_list: List[FreeTypeFont] = [
+            ImageFont.truetype(font.path, font.size) for font in config_manager.config.fonts
+        ]
 
-        available_font_list: List[FreeTypeFont] = []
-        available_font_list = self._get_fonts(layout)
         # output by `self.get_time_font()`
-        self.time_font = available_font_list[layout["time_font"]]
+        self.time_font = available_font_list[config_manager.layout.time_font]
 
         # Parsing the `text_list` and setting it back to the config
-        self.old_content: List[List[str]] = self._parse_text_list(layout["text_list"], video_info)
+        self.old_content: List[List[str]] = self._parse_text_list(config_manager.layout.text_list, video_info)
         self.title: str = self.old_content[0][0]
         self.content: List[List[str]] = copy.deepcopy(self.old_content[1:])
 
         # 验证index
-        self.font_list: List[FreeTypeFont] = self._parse_font_list(layout["font_list"], available_font_list)
+        self.font_list: List[FreeTypeFont] = self._parse_font_list(config_manager.layout.font_list, available_font_list)
         if len(self.font_list) != len(self.content) + 1:
             raise IndexError(
                 f"The length of font_list({len(self.font_list)}) does not match the number of coloum({len(self.content) + 1})"
@@ -379,43 +380,28 @@ class TextDrawer:
 
     # TODO: 分离读取、转换和验证步骤
     @staticmethod
-    def _parse_text_list(text_list: List[List[str | Dict[str, str]]], video_info: VideoInfo) -> List[List[str]]:
+    def _parse_text_list(text_list: List[List[str | TextField]], video_info: VideoInfo) -> List[List[str]]:
         parsed_list: List[List[str]] = []
+
         for row in text_list:
             parsed_row: List[str] = []
             for item in row:
-                if isinstance(item, dict) and "field" in item and "key" in item:
-                    parsed_row.append(video_info[item["field"]][item["key"]])
+                if isinstance(item, TextField):
+                    parsed_row.append(video_info[item.field][item.key])
                 elif isinstance(item, str):
                     parsed_row.append(item)
                 else:
-                    raise ValueError(f"Not support text_list item:{item}")
+                    raise ValueError(f"Unsupported item in text_list: {item!r}")
             parsed_list.append(parsed_row)
         return parsed_list
 
     @staticmethod
-    def _parse_font_list(font_idx_list: List[str], font_list: List[FreeTypeFont]) -> List[FreeTypeFont]:
+    def _parse_font_list(font_idx_list: List[int], font_list: List[FreeTypeFont]) -> List[FreeTypeFont]:
         parsed_list: List[FreeTypeFont] = []
         for idx in font_idx_list:
             if isinstance(idx, int):
                 parsed_list.append(font_list[idx])
         return parsed_list
-
-    @staticmethod
-    def _get_fonts(layout) -> List[FreeTypeFont]:
-        available_font_list: List[FreeTypeFont] = []
-        for font in layout["fonts"]:
-            if (
-                isinstance(font, dict)
-                and "path" in font
-                and "size" in font
-                and os.path.exists(font["path"])
-                and isinstance(font["size"], int)
-            ):
-                available_font_list.append(ImageFont.truetype(font["path"], font["size"]))
-            else:
-                raise ValueError(f"{font} is not support")
-        return available_font_list
 
     def get_time_font(self) -> FreeTypeFont:
         """

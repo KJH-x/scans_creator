@@ -1,14 +1,16 @@
 from datetime import timedelta
 from typing import Dict, List
 
+from typings import *
+
 
 class VideoInfo:
     def __init__(
         self,
-        file_info: Dict[str, str | int],
-        video_streams: List[Dict[str, str | float | int]],
-        audio_info: Dict[str, str],
-        subtitle_info: Dict[str, str],
+        file_info: FileInfoDict,
+        video_streams: List[VideoInfoDict],
+        audio_info: AudioInfoDict,
+        subtitle_info: SubtitleInfoDict,
     ) -> None:
         # File information
         self.file_name: str = _ if isinstance(_ := file_info.get("name"), str) else ""
@@ -18,7 +20,7 @@ class VideoInfo:
         self.bitrate: int = _ if isinstance(_ := file_info.get("bitrate"), int) else 0
 
         # multiply video streams
-        self.video_streams: List[Dict[str, str | float | int]] = video_streams
+        self.video_streams: List[VideoInfoDict] = video_streams
         self.set_active_video_stream(0)
 
         # Audio information
