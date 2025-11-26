@@ -1,13 +1,13 @@
 # pyright: reportCallIssue=false
 # pyright: reportInvalidTypeForm=false
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Literal, Tuple
 
 from pydantic import BaseModel, Field, conint, model_validator
 
 
 class TextField(BaseModel):
-    field: str
+    field: Literal["F", "V", "A", "S"]
     key: str
 
 

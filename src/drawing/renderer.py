@@ -142,7 +142,6 @@ def render_scan_image(
     return scan_image
 
 
-# TODO: 分离读取、转换和验证步骤
 def _parse_text_list(text_list: List[List[str | TextField]], video_info: VideoInfo) -> List[List[str]]:
     parsed_list: List[List[str]] = []
     video_info_dict = video_info.to_dict()
@@ -154,7 +153,5 @@ def _parse_text_list(text_list: List[List[str | TextField]], video_info: VideoIn
                 parsed_row.append(video_info_dict[item.field][item.key])
             elif isinstance(item, str):
                 parsed_row.append(item)
-            else:
-                raise ValueError(f"Unsupported item in text_list: {item!r}")
         parsed_list.append(parsed_row)
     return parsed_list

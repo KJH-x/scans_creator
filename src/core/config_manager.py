@@ -79,6 +79,6 @@ class _ConfigManager:
 
 config_manager = _ConfigManager()
 log.debug(
-    f"ConfigManager initialized with name {__name__} (id: {id(config_manager)}). m"
+    f"ConfigManager initialized with name {__name__} (id: {id(config_manager)}). "
     f"(If you see this message multiple times, the singleton may fail.)"
 )

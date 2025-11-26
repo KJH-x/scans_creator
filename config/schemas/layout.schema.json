@@ -3,6 +3,12 @@
     "TextField": {
       "properties": {
         "field": {
+          "enum": [
+            "F",
+            "V",
+            "A",
+            "S"
+          ],
           "title": "Field",
           "type": "string"
         },
