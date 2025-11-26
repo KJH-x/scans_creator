@@ -121,7 +121,9 @@ def cli_main():
     # Save
     out_dir = Path(__file__).parents[0] / "scans"
     out_dir.mkdir(exist_ok=True)
-    out_file = out_dir / f"{datetime.now().strftime('%H%M%S')}.scan.{video_info.file_name}.png"
+    out_file = out_dir / config_manager.config.output_filename_format.format(
+        file_name=video_info.file_name, timestamp=datetime.now()
+    )
     scan.save(out_file)
     log.info(f"Scan saved to: {out_file}")
 

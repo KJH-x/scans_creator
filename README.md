@@ -94,6 +94,10 @@ This file contains the following configuration items:
 - `resize_scale`: Scaling factor for resizing the final scan image (e.g., `2` means resize to half size).
 - `avoid_leading`: If `true`, avoids taking snapshots from the very beginning of the video.
 - `avoid_ending`: If `true`, avoids taking snapshots from the very end of the video.
+- `output_filename_format`: Template for the output file name. Requirements:
+  1. Must end with `.png`.
+  2. Can include an optional `{file_name}` placeholder to insert the video file name.
+  3. Can include an optional `{timestamp:FORMAT}` placeholder, where `FORMAT` is a valid `datetime.strftime` format string (e.g., `%H%M%S`) to include a timestamp in the file name.
 
 ### `layout/*.json`
 

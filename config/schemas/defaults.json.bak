@@ -15,7 +15,8 @@
                 "path": "fonts/serif....ttf",
                 "size": 40
             }
-        ]
+        ],
+        "output_filename_format": "{timestamp:%H%M%S}.scan.{file_name}.png"
     },
     "zh-CN.json": {
         "_dest": "config/layout",

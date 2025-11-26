@@ -1,5 +1,7 @@
 # pyright: reportCallIssue=false
 # pyright: reportInvalidTypeForm=false
+import re
+from datetime import datetime
 from pathlib import Path
 from typing import List
 
@@ -31,17 +33,39 @@ class Font(BaseModel):
         return v
 
 
+PLACEHOLDER_PATTERN = re.compile(r"\{([^:{}]+)(?::([^{}]+))?\}")
+ALLOWED_PLACEHOLDERS = {"timestamp", "file_name"}
+
+
 class GlobalConfig(BaseModel):
     logo_file: str = Field(..., description="Path to the logo image file")
     fonts: List[Font] = Field(..., min_items=1, description="List of font definitions")
     resize_scale: int = Field(..., ge=1, description="Scaling factor for resizing")
     avoid_leading: bool = Field(False, description="Whether to avoid leading content")
     avoid_ending: bool = Field(False, description="Whether to avoid ending content")
+    output_filename_format: str = Field(
+        "{timestamp:%H%M%S}.scan.{file_name}.png",
+        description="Output file name format, must end with .png",
+        pattern=r".*\.png$",
+    )
 
     @field_validator("logo_file")
     @classmethod
     def validate_logo_file(cls, v: str) -> str:
         return ensure_file_exists(v)
+
+    @field_validator("output_filename_format")
+    @classmethod
+    def validate_output_format(cls, v: str) -> str:
+        for field, fmt in PLACEHOLDER_PATTERN.findall(v):
+            if field not in ALLOWED_PLACEHOLDERS:
+                raise ValueError(f"Unknown placeholder '{{{field}}}' in: {v}")
+            if field == "timestamp" and fmt:
+                try:
+                    datetime.now().strftime(fmt)
+                except Exception as e:
+                    raise ValueError(f"Invalid strftime format in '{{timestamp:{fmt}}}' → {e}")
+        return v
 
 
 if __name__ == "__main__":

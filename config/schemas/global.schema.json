@@ -52,6 +52,13 @@
       "description": "Whether to avoid ending content",
       "title": "Avoid Ending",
       "type": "boolean"
+    },
+    "output_filename_format": {
+      "default": "{timestamp:%H%M%S}.scan.{file_name}.png",
+      "description": "Output file name format, must end with .png",
+      "pattern": ".*\\.png$",
+      "title": "Output Filename Format",
+      "type": "string"
     }
   },
   "required": [
