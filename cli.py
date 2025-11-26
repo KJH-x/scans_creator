@@ -7,10 +7,10 @@ from PIL.Image import Resampling
 from src.core.config_manager import config_manager
 from src.core.scan_creator import (
     calculate_snapshot_times,
-    create_scan_image,
     get_video_info,
     take_snapshots,
 )
+from src.drawing.renderer import render_scan_image
 from src.utils.console import cinput, log
 
 
@@ -111,7 +111,7 @@ def cli_main():
         snapshot_count=grid_shape[0] * grid_shape[1],
     )
     snapshots = take_snapshots(video_info, snapshot_times)
-    scan = create_scan_image(snapshots, grid_shape, snapshot_times, video_info)
+    scan = render_scan_image(snapshots, grid_shape, snapshot_times, video_info)
 
     # Resize
     w, h = scan.size

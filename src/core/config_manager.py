@@ -16,7 +16,7 @@ class _ConfigManager:
     """
 
     def __init__(self) -> None:
-        self.defaults_SHA256 = "d9a8ac33cac0fc6307a43170e899923ac062b0ebf84dffe77e1f3b75a2b90513"
+        self.defaults_SHA256 = "d9657a846d45e20dcaf8590984caadd50f8b615722062a28f12b9e133c4155ae"
         self.CONFIG_ROOT = Path(__file__).parents[2] / "config"
 
         self._check_configfile()
@@ -27,7 +27,8 @@ class _ConfigManager:
         """
         back_config_path = self.CONFIG_ROOT / "schemas/defaults.json.bak"
         if calculate_sha256(back_config_path) != self.defaults_SHA256:
-            raise ValueError(f"Checksum mismatch for {back_config_path}. The file may have been modified.")
+            log.error(f"Checksum mismatch for {back_config_path}. The file may have been modified.")
+            exit(1)
 
         with open(back_config_path, "r", encoding="utf-8") as file:
             defaults: Dict[str, Dict] = json.load(file)

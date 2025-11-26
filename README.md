@@ -107,8 +107,6 @@ This file is responsible for setting the layout style of the metadata (including
 
 - `time_font`: The font used to time the snapshot.
 
-- Some spacing and margin parameters ([more details](https://github.com/KJH-x/scans_creator/wiki/TextDrawer)).
-
 - `shade_offset`: The amount of shadow offset for the text.
 
 - `text_color`: The color of the text.

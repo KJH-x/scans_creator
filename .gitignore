@@ -6,6 +6,7 @@ model
 *.dev.py
 __pycache__
 
+.vscode/launch.json
 
 config/**/*.json
 !config/schemas/*

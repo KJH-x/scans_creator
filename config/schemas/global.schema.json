@@ -59,6 +59,13 @@
       "pattern": ".*\\.png$",
       "title": "Output Filename Format",
       "type": "string"
+    },
+    "max_text_multiline": {
+      "default": 3,
+      "description": "Maximum number of lines for text elements",
+      "minimum": 1,
+      "title": "Max Text Multiline",
+      "type": "integer"
     }
   },
   "required": [

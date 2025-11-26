@@ -5,15 +5,13 @@ import math
 import os
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-from PIL import Image, ImageDraw, ImageOps
+from PIL import Image, ImageOps
 from PIL.Image import Image as ImageType
 from PIL.Image import Resampling
 
-from ..drawing.text_drawer import TextDrawer
 from ..typings.video_info import (
     AudioInfoDict,
     FileInfoDict,
@@ -21,7 +19,6 @@ from ..typings.video_info import (
     VideoInfoDict,
 )
 from ..utils.console import log
-from .config_manager import config_manager
 from .video_info import VideoInfo
 
 
@@ -403,86 +400,3 @@ def _image_histogram(image: ImageType) -> ImageType: ...
 
 
 def _image_complexity(image: ImageType): ...
-
-
-def create_scan_image(
-    images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo
-) -> ImageType:
-    """
-    Create a composite scan image by arranging snapshots in a grid format with metadata and a logo overlay.
-
-    Args:
-        images (List[ImageType]): List of snapshot images to arrange in the scan image.
-        grid (Tuple[int, int]): Number of columns and rows for arranging images in the scan image.
-        snapshottimes (List[int]): List of snapshot times (in seconds) for each image to display as timestamps.
-        video_info (VideoInfo): Metadata about the video, including file, video, audio, and subtitle information.
-
-    Raises:
-        ValueError: If the number of `images` does not match the required number based on `grid`.
-
-    Returns:
-        ImageType: A PIL Image object of the completed scan image, with:
-            - A metadata section for video, audio, and subtitle details.
-            - Snapshot images arranged in a grid with timestamps.
-            - A logo in the top-right corner.
-
-    Additional Information:
-        - The canvas is created to fit all images in the specified grid layout with padding.
-        - Timestamps are displayed on each snapshot with a shaded background.
-        - Video information (size, duration, codec, etc.) is displayed at the top.
-    """
-
-    col, row = grid
-    total_images = col * row
-
-    # font_1 = ImageFont.truetype(fontfile_1, 45)
-    # font_2 = ImageFont.truetype(fontfile_2, 40)
-
-    if len(images) != total_images:
-        raise ValueError(f"Image count ({len(images)}) does not match the grid count ({total_images}).")
-
-    # The width is directly associated with drawing information,
-    # should not be variable before the info grid become flexible.
-
-    canvas_width = 3200
-
-    scan_width, scan_height = images[0].size
-    image_width = canvas_width // col
-    image_height = math.floor(scan_height / scan_width * image_width)
-    canvas_height = image_height * row + 450
-
-    scan_image = Image.new("RGB", (canvas_width, canvas_height), "white")
-    draw = ImageDraw.Draw(scan_image)
-
-    text_drawer = TextDrawer(video_info=video_info, draw=draw)
-    text_drawer.draw_text()
-
-    time_font = text_drawer.get_time_font()
-    y_offset = 450
-    for idx, image in enumerate(images):
-
-        grid_x = (idx % col) * image_width
-        grid_y = (idx // col) * image_height + y_offset
-
-        image_resized = image.resize((image_width, image_height), Resampling.LANCZOS)
-        scan_image.paste(image_resized, (grid_x, grid_y))
-
-        snapshot_time = str(timedelta(seconds=snapshottimes[idx]))
-        text_bbox = draw.textbbox((0, 0), snapshot_time, font=time_font)
-        text_width = int(text_bbox[2] - text_bbox[0])
-        text_height = int(text_bbox[3] - text_bbox[1])
-        timestamp_x = grid_x + (image_width - text_width) // 2
-        timestamp_y = grid_y - (text_height // 2) + 10
-
-        background = Image.new("RGBA", (text_width, text_height), (0, 0, 0, int(255 * 0.6)))
-        scan_image.paste(background, (timestamp_x, timestamp_y + 14), background)
-        draw.text((timestamp_x, timestamp_y), snapshot_time, fill=(255, 255, 255, int(255 * 0.6)), font=time_font)
-
-    # Draw logo in the top-right corner
-    logo = Image.open(config_manager.config.logo_file).resize((405, 405), Resampling.LANCZOS)
-
-    logo_x = scan_image.width - logo.width - 22
-    logo_y = 22
-    scan_image.paste(logo, (logo_x, logo_y), logo.convert("RGBA"))
-
-    return scan_image

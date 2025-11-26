@@ -48,6 +48,7 @@ class GlobalConfig(BaseModel):
         description="Output file name format, must end with .png",
         pattern=r".*\.png$",
     )
+    max_text_multiline: int = Field(3, ge=1, description="Maximum number of lines for text elements")
 
     @field_validator("logo_file")
     @classmethod

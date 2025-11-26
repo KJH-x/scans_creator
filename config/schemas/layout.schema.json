@@ -51,42 +51,6 @@
       "title": "Time Font",
       "type": "integer"
     },
-    "horizontal_spacing": {
-      "description": "Horizontal spacing in pixels",
-      "minimum": 0,
-      "title": "Horizontal Spacing",
-      "type": "integer"
-    },
-    "vertical_spacing": {
-      "description": "Vertical spacing in pixels",
-      "minimum": 0,
-      "title": "Vertical Spacing",
-      "type": "integer"
-    },
-    "content_margin_left": {
-      "description": "Left margin for content",
-      "minimum": 0,
-      "title": "Content Margin Left",
-      "type": "integer"
-    },
-    "content_margin_top": {
-      "description": "Top margin for content",
-      "minimum": 0,
-      "title": "Content Margin Top",
-      "type": "integer"
-    },
-    "title_margin_left": {
-      "description": "Left margin for title",
-      "minimum": 0,
-      "title": "Title Margin Left",
-      "type": "integer"
-    },
-    "title_margin_top": {
-      "description": "Top margin for title",
-      "minimum": 0,
-      "title": "Title Margin Top",
-      "type": "integer"
-    },
     "shade_offset": {
       "description": "Shadow offset values",
       "maxItems": 2,
@@ -150,12 +114,6 @@
     "grid_shape",
     "font_list",
     "time_font",
-    "horizontal_spacing",
-    "vertical_spacing",
-    "content_margin_left",
-    "content_margin_top",
-    "title_margin_left",
-    "title_margin_top",
     "shade_offset",
     "text_color",
     "shade_color",

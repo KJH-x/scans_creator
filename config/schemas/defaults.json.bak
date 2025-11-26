@@ -36,12 +36,6 @@
             1
         ],
         "time_font": 1,
-        "horizontal_spacing": 20,
-        "vertical_spacing": 10,
-        "content_margin_left": 30,
-        "content_margin_top": 100,
-        "title_margin_left": 30,
-        "title_margin_top": 10,
         "shade_offset": [
             2,
             2
@@ -177,12 +171,6 @@
             1
         ],
         "time_font": 1,
-        "horizontal_spacing": 20,
-        "vertical_spacing": 10,
-        "content_margin_left": 30,
-        "content_margin_top": 100,
-        "title_margin_left": 30,
-        "title_margin_top": 10,
         "shade_offset": [
             2,
             2
