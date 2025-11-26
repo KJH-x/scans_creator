@@ -155,7 +155,6 @@ class TextDrawer:
         video_info: VideoInfo,
         draw: ImageDrawType,
         config_manager: ConfigManager,
-        use_new_method: bool,
     ) -> None:
         """
         Initializes a TextDrawer object with the given title, content, and grid shape.
@@ -164,7 +163,6 @@ class TextDrawer:
             video_info (VideoInfo): Metadata about the video, including file, video, audio, and subtitle information.
             draw (ImageDrawType): The ImageDraw object used to draw the text.
             config_manager (ConfigManager): Manage the settings about text rendering.
-            use_new_method (bool): True for use new method to draw text, and False for old method.
         """
         layout = config_manager.layout
 
@@ -184,8 +182,6 @@ class TextDrawer:
         self.title_margin_left = config_manager.layout.title_margin_left
         self.title_margin_top = config_manager.layout.title_margin_top
 
-        # only used by old method
-        self.pos_list = config_manager.layout.pos_list
         available_font_list: List[FreeTypeFont] = [
             ImageFont.truetype(font.path, font.size) for font in config_manager.config.fonts
         ]
@@ -206,7 +202,6 @@ class TextDrawer:
             )
 
         self.draw: ImageDrawType = draw
-        self.use_new_method: bool = use_new_method
 
         # The size of the limit for the entire text rendering area
         self.max_text_width: float = self.scan_image_width - self.logo_width - self.content_margin_left
@@ -411,59 +406,10 @@ class TextDrawer:
         return self.time_font
 
     def draw_text(self) -> None:
-        if self.use_new_method:
-            self.cell_title.draw_content((self.title_margin_left, self.title_margin_top))
-            for col_idx, column in enumerate(self.text_columns):
-                for row_idx, cell in enumerate(column.label_cells):
-                    cell.draw_content(self.content_start[2 * col_idx][row_idx])
+        self.cell_title.draw_content((self.title_margin_left, self.title_margin_top))
+        for col_idx, column in enumerate(self.text_columns):
+            for row_idx, cell in enumerate(column.label_cells):
+                cell.draw_content(self.content_start[2 * col_idx][row_idx])
 
-                for row_idx, cell in enumerate(column.cells):
-                    cell.draw_content(self.content_start[1 + 2 * col_idx][row_idx])
-        else:
-            for i, j, k in zip(self.old_content, self.pos_list, self.font_list):
-                self._multiline_text_with_shade(
-                    self.draw,
-                    "\n".join(i),
-                    j,
-                    self.shade_offset,
-                    self.vertical_spacing,
-                    k,
-                    self.text_color,
-                    self.shade_color,
-                )
-
-    @staticmethod
-    def _multiline_text_with_shade(
-        draw_obj: ImageDrawType,
-        text: str,
-        pos: Tuple[int, int],
-        offset: Tuple[int, int],
-        spacing: int,
-        font: FreeTypeFont,
-        text_color: Tuple[int, int, int],
-        shade_color: Tuple[int, int, int],
-    ) -> None:
-        """
-        Draw multiline text with a shaded background on the image.
-        The old method to draw multitext, used when `use_new_method` is False.
-
-        Args:
-            draw_obj (ImageDrawType): The ImageDraw object used to draw the text.
-            text (str): The text to be drawn.
-            pos (Tuple[int, int]): The starting position (x, y) for the text.
-            offset (Tuple[int, int]): The offset for drawing the shaded background behind the text.
-            spacing (int): The spacing between lines of text.
-            font (FreeTypeFont): The font to be used for drawing the text.
-            text_color (Tuple[int, int, int]): The color of the text.
-            shade_color (Tuple[int, int, int]): The color of the shaded background.
-
-        Returns:
-            None: This function does not return any value; it directly modifies the `draw_obj`.
-        """
-
-        x, y = pos
-        dx, dy = offset
-        draw_obj.multiline_text((x + dx, y + dy), text, fill=shade_color, font=font, spacing=spacing)
-        draw_obj.multiline_text((x, y), text, fill=text_color, font=font, spacing=spacing)
-
-        return None
+            for row_idx, cell in enumerate(column.cells):
+                cell.draw_content(self.content_start[1 + 2 * col_idx][row_idx])

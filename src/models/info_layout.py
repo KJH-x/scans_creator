@@ -29,12 +29,11 @@ class InfoLayout(BaseModel):
         ..., min_items=3, max_items=4, description="RGB values for shadow color"
     )
     text_list: List[List[TextField | str]] = Field(..., min_items=1, description="Structured text entries for display")
-    pos_list: List[Tuple[int, int]] = Field(..., min_items=1, description="Position coordinates as [x, y]")
 
 
 if __name__ == "__main__":
     # for development
     import json
 
-    with open(Path(__file__).parent.parent / "config/schemas/layout.schema.json", "w", encoding="utf-8") as f:
+    with open(Path(__file__).parents[2] / "config/schemas/layout.schema.json", "w", encoding="utf-8") as f:
         json.dump(InfoLayout.model_json_schema(), f, indent=2, ensure_ascii=False)

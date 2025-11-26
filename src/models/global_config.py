@@ -48,5 +48,5 @@ if __name__ == "__main__":
     # for development
     import json
 
-    with open(Path(__file__).parent.parent / "config/schemas/global.schema.json", "w", encoding="utf-8") as f:
+    with open(Path(__file__).parents[2] / "config/schemas/global.schema.json", "w", encoding="utf-8") as f:
         json.dump(GlobalConfig.model_json_schema(), f, indent=2, ensure_ascii=False)

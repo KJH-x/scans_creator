@@ -411,7 +411,6 @@ def create_scan_image(
     video_info: VideoInfo,
     logofile: str,
     config_manager: ConfigManager,
-    use_new_method: bool,
 ) -> ImageType:
     """
     Create a composite scan image by arranging snapshots in a grid format with metadata and a logo overlay.
@@ -462,9 +461,7 @@ def create_scan_image(
     scan_image = Image.new("RGB", (canvas_width, canvas_height), "white")
     draw = ImageDraw.Draw(scan_image)
 
-    text_drawer = TextDrawer(
-        video_info=video_info, draw=draw, config_manager=config_manager, use_new_method=use_new_method
-    )
+    text_drawer = TextDrawer(video_info=video_info, draw=draw, config_manager=config_manager)
     text_drawer.draw_text()
 
     time_font = text_drawer.get_time_font()
@@ -541,7 +538,6 @@ def main():
         avoid_leading: bool = config_manager.config.avoid_leading
         avoid_ending: bool = config_manager.config.avoid_ending
         grid_shape: tuple[int, int] = config_manager.layout.grid_shape
-        use_new_method: bool = True
 
         file_path: str = input("File Path :")
         if not os.path.exists(file_path):
@@ -578,9 +574,7 @@ def main():
             # 默认情况下，返回原始截图，缩放工作由`reate_scan_image`进行
             snapshots = take_snapshots(video_info, snapshot_times)
 
-            scan = create_scan_image(
-                snapshots, grid_shape, snapshot_times, video_info, logo_file, config_manager, use_new_method
-            )
+            scan = create_scan_image(snapshots, grid_shape, snapshot_times, video_info, logo_file, config_manager)
 
             w, h = scan.size
             scan = scan.resize((w // resize_scale, h // resize_scale), Resampling.LANCZOS)

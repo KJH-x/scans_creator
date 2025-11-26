@@ -15,11 +15,12 @@ class ConfigManager:
     """
 
     def __init__(self) -> None:
-        self.defaults_SHA256 = "00efbdca97882615afe35dbde6bb9c75358338a12dec69a1600f0fb962135601"
+        self.defaults_SHA256 = "51d95f6580267b608add99c3945fe7da29dbb3004ba2320427fc09f62c1ca82e"
         self.CONFIG_ROOT = Path(__file__).parents[2] / "config"
 
         self._check_configfile()
         self._load_config("zh-CN")
+        self._load_config("en.json")
 
     def _check_configfile(self) -> None:
         """

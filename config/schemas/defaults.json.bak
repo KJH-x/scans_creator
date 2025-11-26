@@ -156,43 +156,146 @@
                     "key": "title"
                 }
             ]
+        ]
+    },
+    "en.json": {
+        "_dest": "config/layout",
+        "grid_shape": [
+            4,
+            4
         ],
-        "pos_list": [
+        "font_list": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+        ],
+        "time_font": 1,
+        "horizontal_spacing": 20,
+        "vertical_spacing": 10,
+        "content_margin_left": 30,
+        "content_margin_top": 100,
+        "title_margin_left": 30,
+        "title_margin_top": 10,
+        "shade_offset": [
+            2,
+            2
+        ],
+        "text_color": [
+            0,
+            0,
+            0
+        ],
+        "shade_color": [
+            49,
+            49,
+            49
+        ],
+        "text_list": [
             [
-                30,
-                100
+                {
+                    "field": "F",
+                    "key": "name"
+                }
             ],
             [
-                30,
-                100
+                " ",
+                "Size: ",
+                "Duration: ",
+                "Total Bitrate: "
             ],
             [
-                230,
-                100
+                "[File Info]",
+                {
+                    "field": "F",
+                    "key": "size"
+                },
+                {
+                    "field": "F",
+                    "key": "duration"
+                },
+                {
+                    "field": "F",
+                    "key": "bitrate"
+                }
             ],
             [
-                630,
-                100
+                " ",
+                "Codec: ",
+                "Color: ",
+                "Resolution: ",
+                "Frame Rate: "
             ],
             [
-                830,
-                100
+                "[Video Info]",
+                {
+                    "field": "V",
+                    "key": "codec"
+                },
+                {
+                    "field": "V",
+                    "key": "color"
+                },
+                {
+                    "field": "V",
+                    "key": "frameSize"
+                },
+                {
+                    "field": "V",
+                    "key": "frameRate"
+                }
             ],
             [
-                1330,
-                100
+                " ",
+                "Codec: ",
+                "Audio Language: ",
+                "Audio Title: ",
+                "Channels: "
             ],
             [
-                1530,
-                100
+                "[Audio Info]",
+                {
+                    "field": "A",
+                    "key": "codec"
+                },
+                {
+                    "field": "A",
+                    "key": "lang"
+                },
+                {
+                    "field": "A",
+                    "key": "title"
+                },
+                {
+                    "field": "A",
+                    "key": "channel"
+                }
             ],
             [
-                2030,
-                100
+                " ",
+                "Codec: ",
+                "Subtitle Language: ",
+                "Subtitle Title: "
             ],
             [
-                2230,
-                100
+                "[Subtitle Info]",
+                {
+                    "field": "S",
+                    "key": "codec"
+                },
+                {
+                    "field": "S",
+                    "key": "lang"
+                },
+                {
+                    "field": "S",
+                    "key": "title"
+                }
             ]
         ]
     }

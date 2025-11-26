@@ -144,25 +144,6 @@
       "minItems": 1,
       "title": "Text List",
       "type": "array"
-    },
-    "pos_list": {
-      "description": "Position coordinates as [x, y]",
-      "items": {
-        "maxItems": 2,
-        "minItems": 2,
-        "prefixItems": [
-          {
-            "type": "integer"
-          },
-          {
-            "type": "integer"
-          }
-        ],
-        "type": "array"
-      },
-      "minItems": 1,
-      "title": "Pos List",
-      "type": "array"
     }
   },
   "required": [
@@ -178,8 +159,7 @@
     "shade_offset",
     "text_color",
     "shade_color",
-    "text_list",
-    "pos_list"
+    "text_list"
   ],
   "title": "InfoLayout",
   "type": "object"

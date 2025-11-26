@@ -24,5 +24,5 @@ def calculate_sha256(json_file_path: str | Path):
 
 if __name__ == "__main__":
     # for development
-    json_path = Path(__file__).parent.parent / "config/schemas/defaults.json.bak"
+    json_path = Path(__file__).parents[2] / "config/schemas/defaults.json.bak"
     print(f'self.defaults_SHA256 = "{calculate_sha256(json_path)}"')

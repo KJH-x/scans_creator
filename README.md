@@ -70,7 +70,7 @@ The output will be a composite image arranged in a grid layout, displaying snaps
 
 ## Configuration Files
 
-### Default Configuration 
+### Default Configuration
 
 Backups of the default configuration files are saved at `schemas/defaults.json.bak`(Preview [here](https://github.com/KJH-x/scans_creator/blob/main/schemas/defaults.json.bak)). The SHA256 checksum of the file is hard-coded in the code to ensure the correctness of the file, and the program cannot run if the checksum does not match.
 
@@ -105,10 +105,6 @@ This file is responsible for setting the layout style of the metadata (including
 - `shade_color`: The color of the shade.
 
 - `text_list`:  The metadata to be displayed. (TODO: Details).
-
-- `pos_list`: The text position of the initial version.
-
-  > Now this parameter is no longer used because of the lack of flexibility unless you turn off the `use_new_method` in [scan_creator.py](https://github.com/KJH-x/scans_creator/blob/94e4145b9387cc5a10f6e1edc09217787949e172/scan_creator.py#L519)
 
 ## Limitations & Known Issues
 
