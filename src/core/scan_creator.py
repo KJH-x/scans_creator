@@ -20,7 +20,7 @@ from ..typings.video_info import (
     SubtitleInfoDict,
     VideoInfoDict,
 )
-from .config_manager import ConfigManager
+from .config_manager import config_manager
 from .video_info import VideoInfo
 
 
@@ -405,12 +405,7 @@ def _image_complexity(image: ImageType): ...
 
 
 def create_scan_image(
-    images: List[ImageType],
-    grid: Tuple[int, int],
-    snapshottimes: List[int],
-    video_info: VideoInfo,
-    logofile: str,
-    config_manager: ConfigManager,
+    images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo
 ) -> ImageType:
     """
     Create a composite scan image by arranging snapshots in a grid format with metadata and a logo overlay.
@@ -420,9 +415,6 @@ def create_scan_image(
         grid (Tuple[int, int]): Number of columns and rows for arranging images in the scan image.
         snapshottimes (List[int]): List of snapshot times (in seconds) for each image to display as timestamps.
         video_info (VideoInfo): Metadata about the video, including file, video, audio, and subtitle information.
-        logofile (str): Path to the logo image file to place in the top-right corner.
-        config_manager (ConfigManager): Manage the settings about text rendering.
-        use_new_method (bool): True for use new method in class `TextDrawer` to draw text, and False for old method.
 
     Raises:
         ValueError: If the number of `images` does not match the required number based on `grid`.
@@ -461,7 +453,7 @@ def create_scan_image(
     scan_image = Image.new("RGB", (canvas_width, canvas_height), "white")
     draw = ImageDraw.Draw(scan_image)
 
-    text_drawer = TextDrawer(video_info=video_info, draw=draw, config_manager=config_manager)
+    text_drawer = TextDrawer(video_info=video_info, draw=draw)
     text_drawer.draw_text()
 
     time_font = text_drawer.get_time_font()
@@ -485,115 +477,11 @@ def create_scan_image(
         scan_image.paste(background, (timestamp_x, timestamp_y + 14), background)
         draw.text((timestamp_x, timestamp_y), snapshot_time, fill=(255, 255, 255, int(255 * 0.6)), font=time_font)
 
-    logo = Image.open(logofile).resize((405, 405), Resampling.LANCZOS)
+    # Draw logo in the top-right corner
+    logo = Image.open(config_manager.config.logo_file).resize((405, 405), Resampling.LANCZOS)
 
     logo_x = scan_image.width - logo.width - 22
     logo_y = 22
-
     scan_image.paste(logo, (logo_x, logo_y), logo.convert("RGBA"))
 
     return scan_image
-
-
-def main():
-    """
-    Main script execution for generating a video scan image with snapshots and metadata overlay.
-
-    This function guides the user through the following process:
-        1. Prompts the user for the video file path and checks the existence of required files (video, fonts, and logo).
-        2. Retrieves detailed video information, such as duration and resolution, and calculates the appropriate snapshot times.
-        3. Captures snapshots from the video at evenly spaced intervals, resizing each snapshot to 800x450 colorels.
-        4. Creates a scan image consisting of a 4x4 grid of snapshots with metadata and a logo overlay.
-        5. Optionally resizes the final scan image to a smaller resolution (scaled by a configurable factor) before saving.
-
-    Inputs:
-        - file_path (str): Path to the video file provided by the user.
-        - font_file (str): Path to a serif font file for metadata text.
-        - font_file_2 (str): Path to a sans-serif font file for secondary text.
-        - logo_file (str): Path to the logo image file to overlay on the scan.
-        - resize_scale (int): Scaling factor for resizing the final scan image (e.g., 2 to reduce by half).
-        - avoid_leading (bool): Flag to avoid including the very beginning of the video for snapshots.
-        - avoid_ending (bool): Flag to avoid including the very end of the video for snapshots.
-        - grid_shape (tuple): Grid size for the snapshot arrangement, typically a 4x4 grid.
-
-    Outputs:
-        - Saves the final scan image to a "scans" directory with a timestamped filename.
-        - The image is saved as a PNG file, containing the arranged snapshots and metadata.
-
-    Raises:
-        - FileNotFoundError: If any required file (video, fonts, or logo) does not exist.
-        - ValueError: If there are issues retrieving video information, taking snapshots, or creating the scan image.
-        - IOError: If there are errors when saving the final scan image.
-
-    Example:
-        The user provides a path to a video, and the script outputs a scan image file named with the current time and video filename.
-    """
-
-    # chcp 65001
-    try:
-        config_manager: ConfigManager = ConfigManager()
-
-        logo_file: str = config_manager.config.logo_file
-        resize_scale: int = config_manager.config.resize_scale
-        avoid_leading: bool = config_manager.config.avoid_leading
-        avoid_ending: bool = config_manager.config.avoid_ending
-        grid_shape: tuple[int, int] = config_manager.layout.grid_shape
-
-        file_path: str = input("File Path :")
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"input file: {file_path} no found")
-
-    except (FileNotFoundError, ValueError) as e:
-        # 此处的 Exception 均为预定触发
-        print(e)
-        exit(1)
-
-    try:
-        video_info = get_video_info(file_path)
-        print(video_info)
-
-        if video_info:
-
-            # 多视频流处理
-            if (video_stream_count := len(video_info.video_streams)) > 1:
-                print(f"\nThere are {video_stream_count} video streams available.")
-                while True:
-                    try:
-                        selected_stream_index = int(input(f"Enter a number between 0 and {video_stream_count - 1}: "))
-                        video_info.set_active_video_stream(selected_stream_index)
-                        print(f"Video stream {selected_stream_index} activated.")
-                        break
-                    except (ValueError, IndexError):
-                        print(f"Invalid input. Please enter a valid integer between 0 and {video_stream_count - 1}.")
-                        continue
-
-            snapshot_times = calculate_snapshot_times(
-                video_info, avoid_leading, avoid_ending, snapshot_count=grid_shape[0] * grid_shape[1]
-            )
-
-            # 默认情况下，返回原始截图，缩放工作由`reate_scan_image`进行
-            snapshots = take_snapshots(video_info, snapshot_times)
-
-            scan = create_scan_image(snapshots, grid_shape, snapshot_times, video_info, logo_file, config_manager)
-
-            w, h = scan.size
-            scan = scan.resize((w // resize_scale, h // resize_scale), Resampling.LANCZOS)
-
-            scan.save(
-                Path(__file__).parents[2] / f"scans/{datetime.now().strftime('%H%M%S')}.scan.{video_info.file_name}.png"
-            )
-
-        else:
-            print("Failed to retrieve video information.")
-
-    except IndexError as e:
-        print(e)
-        exit(1)
-
-    except (FileNotFoundError, ValueError, IndexError) as e:
-        print(e)
-        exit(1)
-
-
-if __name__ == "__main__":
-    main()

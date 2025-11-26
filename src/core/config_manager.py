@@ -9,7 +9,7 @@ from ..models.info_layout import InfoLayout
 from ..utils.common import calculate_sha256
 
 
-class ConfigManager:
+class _ConfigManager:
     """
     Class to manage configuration operations.
     """
@@ -19,8 +19,6 @@ class ConfigManager:
         self.CONFIG_ROOT = Path(__file__).parents[2] / "config"
 
         self._check_configfile()
-        self._load_config("zh-CN")
-        self._load_config("en.json")
 
     def _check_configfile(self) -> None:
         """
@@ -45,7 +43,7 @@ class ConfigManager:
                     json.dump(cfg, f, indent=2, ensure_ascii=False)
                 print(f"Created default configuration file: {target_path}. Please review and modify its content.")
 
-    def _load_config(self, layout_name: str) -> None:
+    def load_config(self, layout_name: str) -> None:
         """
         Loads the configuration data from the config file and validates by Pydantic.
 
@@ -73,3 +71,12 @@ class ConfigManager:
 
         except ValidationError as e:
             raise ValueError(f"Config validation failed:\n{e}")
+
+        print(f"Configuration loaded successfully from layout: {layout_name}")
+
+
+config_manager = _ConfigManager()
+print(
+    f"ConfigManager initialized with name {__name__} (id: {id(config_manager)}). \n"
+    f"(If you see this message multiple times, the singleton may fail.)"
+)

@@ -5,7 +5,7 @@ from PIL import ImageFont
 from PIL.ImageDraw import ImageDraw as ImageDrawType
 from PIL.ImageFont import FreeTypeFont
 
-from ..core.config_manager import ConfigManager
+from ..core.config_manager import config_manager
 from ..core.video_info import VideoInfo
 from ..models.info_layout import TextField
 from .grid_base import ImageCellBase, TextCellBase, TextColumnBase
@@ -150,21 +150,14 @@ class TextDrawer:
             post_list (List): Only used by the old method.
     """
 
-    def __init__(
-        self,
-        video_info: VideoInfo,
-        draw: ImageDrawType,
-        config_manager: ConfigManager,
-    ) -> None:
+    def __init__(self, video_info: VideoInfo, draw: ImageDrawType) -> None:
         """
         Initializes a TextDrawer object with the given title, content, and grid shape.
 
         Args:
             video_info (VideoInfo): Metadata about the video, including file, video, audio, and subtitle information.
             draw (ImageDrawType): The ImageDraw object used to draw the text.
-            config_manager (ConfigManager): Manage the settings about text rendering.
         """
-        layout = config_manager.layout
 
         # associated with `canvas_width` in `create_scan_image`, need change in later update
         self.scan_image_width = 3200

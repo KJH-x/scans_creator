@@ -11,12 +11,14 @@ This project is a **video snapshot and metadata scanner** that captures snapshot
 
 ## Requirements
 
-- **Python 3.10+**
+- **Python 3.12+**
 
-> No python 3.8 supports. You can manully remove incompatible codes (type annotations) to run in python 3.8 (tested), but this repo will not offer directly.
+> The project has been fully developed and tested under Python 3.12. Lower versions are not guaranteed to work.  
+> You may attempt to run it under Python 3.8 by manually removing incompatible type annotations, but this is **not officially supported**.
 
 - **FFmpeg** (for extracting frames from the video, type 'ffmpeg -version` in terminal to check)
 - **Pillow** (PIL library for image manipulation)
+- **Pydantic v2** (Used for configuration validation)
 
 ## Setup
 
@@ -30,6 +32,7 @@ This project is a **video snapshot and metadata scanner** that captures snapshot
 
    ```bash
    pip install pillow
+   pip install 'pydantic ~=2.0'
    ```
 
 2. **Download FFmpeg**:
@@ -38,29 +41,37 @@ This project is a **video snapshot and metadata scanner** that captures snapshot
 3. **Fonts and Logo**:
    Place your chosen fonts in the `fonts/` directories.
 
+当然，这里是生成好的 Markdown 代码版本，可直接放入 README：
+
 ## Usage
 
-1. Run the script:
+You can run the script either interactively or by providing CLI arguments.
 
-   ```bash
-   python main.py
-   ```
+```bash
+python main.py --file "/path/to/video.mp4" --layout en.json --stream 0
+```
 
-2. The script will automatically load configuration settings from the `config/` directory. If the file does not exist, it will be created with default values.
+- `--file` (optional): Path to the video file. If omitted, the script will ask interactively.
+- `--layout` (optional): Layout preset to use (`zh-CN` by default). Determines font selection, grid size, and text arrangement.
+- `--stream` (optional): Index of the video stream to use if multiple streams exist. If omitted and multiple streams exist, user will be prompted.
 
-3. Enter the **file path** to the video when prompted.
+### What the script does
 
-4. The script will:
-   - Verify necessary files (fonts and logo) based on the paths provided in the `config/` directory.
-   - Extract video information, including file size, duration, and bitrate.
-   - Capture snapshots at evenly spaced intervals based on the grid size defined in the configuration.
-   - Generate a composite image of snapshots with metadata and save it to the `scans/` directory.
+1. Verifies required files (video, fonts, and logo) based on the configuration.
+2. Extracts video information (duration, resolution, file size, bitrate).
+3. Calculates snapshot times based on grid size and optional leading/ending avoidance.
+4. Captures snapshots at the calculated times.
+5. Generates a composite scan image containing snapshots and metadata.
+6. Optionally rescales the final image according to the configuration.
+7. Saves the scan image as PNG in the `scans/` directory.
 
-5. The final scan image is saved as a PNG file in the format:
+### Output format
 
-   ```bash
-   scans/<timestamp>.scan.<video_filename>.png
-   ```
+```bash
+scans/<timestamp>.scan.<video_filename>.png
+```
+
+- Contains a grid of snapshots with overlaid metadata according to the selected layout.
 
 ## Example Output
 
@@ -74,23 +85,19 @@ The output will be a composite image arranged in a grid layout, displaying snaps
 
 Backups of the default configuration files are saved at `schemas/defaults.json.bak`(Preview [here](https://github.com/KJH-x/scans_creator/blob/main/schemas/defaults.json.bak)). The SHA256 checksum of the file is hard-coded in the code to ensure the correctness of the file, and the program cannot run if the checksum does not match.
 
-### `basic.json`
+### `global.json`
 
 This file contains the following configuration items:
 
 - `logo_file`: Path to the logo image file to overlay on the scan.
+- `fonts`: The path to several font files, you can specify the sequence number in the `font_list`.
 - `resize_scale`: Scaling factor for resizing the final scan image (e.g., `2` means resize to half size).
 - `avoid_leading`: If `true`, avoids taking snapshots from the very beginning of the video.
 - `avoid_ending`: If `true`, avoids taking snapshots from the very end of the video.
-- `grid_size`: A tuple defining the grid size for snapshot arrangement (e.g., `[4, 4]` for a 4x4 grid).
 
-You can update these values to suit your project needs. For example, if you'd prefer a smaller grid (or  bigger snapshots), change `"grid_size": [4, 4]` to `"grid_size": [3, 3]` for a 3x3 grid (9 snapshots).
-
-### `info_layout.json`
+### `layout/*.json`
 
 This file is responsible for setting the layout style of the metadata (including font, font size, font color, layout, shadows, and information to be displayed).
-
-- `fonts`: The path to several font files, you can specify the sequence number in the `font_list`.
 
 - `font_list`: The font used for each paragraph of text.
 
@@ -105,6 +112,10 @@ This file is responsible for setting the layout style of the metadata (including
 - `shade_color`: The color of the shade.
 
 - `text_list`:  The metadata to be displayed. (TODO: Details).
+
+- `grid_size`: A tuple defining the grid size for snapshot arrangement (e.g., `[4, 4]` for a 4x4 grid).
+
+You can update these values to suit your project needs. For example, if you'd prefer a smaller grid (or  bigger snapshots), change `"grid_size": [4, 4]` to `"grid_size": [3, 3]` for a 3x3 grid (9 snapshots).
 
 ## Limitations & Known Issues
 
