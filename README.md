@@ -90,18 +90,28 @@ Backups of the default configuration files are saved at `schemas/defaults.json.b
 This file contains the following configuration items:
 
 - `logo_file`: Path to the logo image file to overlay on the scan.
+
 - `fonts`: The path to several font files, you can specify the sequence number in the `font_list`.
+
 - `resize_scale`: Scaling factor for resizing the final scan image (e.g., `2` means resize to half size).
+
 - `avoid_leading`: If `true`, avoids taking snapshots from the very beginning of the video.
+
 - `avoid_ending`: If `true`, avoids taking snapshots from the very end of the video.
+
 - `output_filename_format`: Template for the output file name. Requirements:
+
   1. Must end with `.png`.
   2. Can include an optional `{file_name}` placeholder to insert the video file name.
   3. Can include an optional `{timestamp:FORMAT}` placeholder, where `FORMAT` is a valid `datetime.strftime` format string (e.g., `%H%M%S`) to include a timestamp in the file name.
 
+- `max_text_multiline`: Determine the maximum number of line breaks for a piece of text (use ellipsis if the limit is still exceeded)
+
 ### `layout/*.json`
 
 This file is responsible for setting the layout style of the metadata (including font, font size, font color, layout, shadows, and information to be displayed).
+
+- `canvas_width`: The width of the whole canvas.
 
 - `font_list`: The font used for each paragraph of text.
 
@@ -123,6 +133,18 @@ You can update these values to suit your project needs. For example, if you'd pr
 
 - **Early Development**: This is an early-stage project, and bugs may result in crashes or incomplete image generation.
 - **Error Handling**: Error handling is limited, especially for issues related to FFmpeg processing or missing metadata fields.
+
+## Development
+
+Some modules include embedded scripts for development purposes, with the following usage and functionality:
+
+1. `python -m src.models.info_layout` / `python -m src.models.global_config`
+
+   Generates a schema.json file based on the Pydantic models. Combined with VSCode settings, this enables basic validation and field hints when editing configuration files.
+
+2. `python -m src.utils.common`
+
+   Computes the checksum of the backup file `defaults.json.bak`. This checksum is hardcoded in the `config_manager` module.
 
 ## License
 

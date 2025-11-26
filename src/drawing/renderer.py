@@ -36,7 +36,7 @@ def render_scan_image(
             - Snapshot images arranged in a grid with timestamps.
             - A logo in the top-right corner.
     """
-    canvas_width = 3200
+    canvas_width = config_manager.layout.canvas_width
 
     col, row = grid
     total_images = col * row

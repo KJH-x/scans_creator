@@ -12,6 +12,7 @@ class TextField(BaseModel):
 
 
 class InfoLayout(BaseModel):
+    canvas_width: int = Field(3200, ge=1200, description="Width of the output canvas in pixels")
     grid_shape: Tuple[conint(ge=1), conint(ge=1)] = Field(..., description="Grid size as [rows, columns], each >=1")
     font_list: List[int] = Field(..., min_items=1, description="Indexes of fonts to use")
     time_font: int = Field(..., description="Index of font for time display")

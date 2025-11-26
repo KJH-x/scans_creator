@@ -16,7 +16,7 @@ class _ConfigManager:
     """
 
     def __init__(self) -> None:
-        self.defaults_SHA256 = "d9657a846d45e20dcaf8590984caadd50f8b615722062a28f12b9e133c4155ae"
+        self.defaults_SHA256 = "f1d50d9d7c4621ff6d8cee5a68a8cb61d7e32ef6dd4a46a05941df0da669210a"
         self.CONFIG_ROOT = Path(__file__).parents[2] / "config"
 
         self._check_configfile()

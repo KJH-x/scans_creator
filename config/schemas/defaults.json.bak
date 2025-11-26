@@ -16,10 +16,12 @@
                 "size": 40
             }
         ],
-        "output_filename_format": "{timestamp:%H%M%S}.scan.{file_name}.png"
+        "output_filename_format": "{timestamp:%H%M%S}.scan.{file_name}.png",
+        "max_text_multiline": 3
     },
     "zh-CN.json": {
         "_dest": "config/layout",
+        "canvas_width": 3200,
         "grid_shape": [
             4,
             4
@@ -155,6 +157,7 @@
     },
     "en.json": {
         "_dest": "config/layout",
+        "canvas_width": 3200,
         "grid_shape": [
             4,
             4

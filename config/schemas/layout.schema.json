@@ -20,6 +20,13 @@
     }
   },
   "properties": {
+    "canvas_width": {
+      "default": 3200,
+      "description": "Width of the output canvas in pixels",
+      "minimum": 1200,
+      "title": "Canvas Width",
+      "type": "integer"
+    },
     "grid_shape": {
       "description": "Grid size as [rows, columns], each >=1",
       "maxItems": 2,
