@@ -7,6 +7,7 @@ from pydantic import ValidationError
 from ..models.global_config import GlobalConfig
 from ..models.info_layout import InfoLayout
 from ..utils.common import calculate_sha256
+from ..utils.console import log
 
 
 class _ConfigManager:
@@ -41,7 +42,7 @@ class _ConfigManager:
                 target_path.parent.mkdir(parents=True, exist_ok=True)
                 with open(target_path, "w", encoding="utf-8") as f:
                     json.dump(cfg, f, indent=2, ensure_ascii=False)
-                print(f"Created default configuration file: {target_path}. Please review and modify its content.")
+                log.warn(f"Created default configuration file: {target_path}. Please review and modify its content.")
 
     def load_config(self, layout_name: str) -> None:
         """
@@ -72,11 +73,11 @@ class _ConfigManager:
         except ValidationError as e:
             raise ValueError(f"Config validation failed:\n{e}")
 
-        print(f"Configuration loaded successfully from layout: {layout_name}")
+        log.info(f"Configuration loaded successfully from layout: {layout_name}")
 
 
 config_manager = _ConfigManager()
-print(
-    f"ConfigManager initialized with name {__name__} (id: {id(config_manager)}). \n"
+log.debug(
+    f"ConfigManager initialized with name {__name__} (id: {id(config_manager)}). m"
     f"(If you see this message multiple times, the singleton may fail.)"
 )

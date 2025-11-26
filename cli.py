@@ -11,6 +11,7 @@ from src.core.scan_creator import (
     get_video_info,
     take_snapshots,
 )
+from src.utils.console import cinput, log
 
 
 def cli_main():
@@ -63,7 +64,7 @@ def cli_main():
     # Video file
     file_path = args.file
     if file_path is None:
-        file_path = input("File Path: ")
+        file_path = cinput("File Path: ", color="cyan")
     if not Path(file_path).exists():
         raise FileNotFoundError(f"Input file not found: {file_path}")
 
@@ -81,22 +82,22 @@ def cli_main():
             if 0 <= args.stream <= max_index:
                 selected_stream_index = args.stream
             else:
-                print(f"Invalid stream index {args.stream} in args. Must be between 0 and {max_index}.")
+                log.error(f"Invalid stream index {args.stream} in args. Must be between 0 and {max_index}.")
         else:
-            print(f"\nThere are {len(video_info.video_streams)} video streams available.")
+            log.info(f"\nThere are {len(video_info.video_streams)} video streams available.")
 
         while selected_stream_index is None:
             try:
-                idx = int(input(f"Enter a number between 0 and {max_index}: "))
+                idx = int(cinput(f"Enter a number between 0 and {max_index}: ", color="cyan"))
                 if 0 <= idx <= max_index:
                     selected_stream_index = idx
                 else:
-                    print("Index out of range, please try again.")
+                    log.error("Index out of range, please try again.")
             except ValueError:
-                print("Invalid input, please enter an integer.")
+                log.error("Invalid input, please enter an integer.")
 
         video_info.set_active_video_stream(selected_stream_index)
-        print(f"Video stream {selected_stream_index} activated.")
+        log.info(f"Video stream {selected_stream_index} activated.")
     else:
         # Only one stream, auto-select
         video_info.set_active_video_stream(0)
@@ -122,7 +123,7 @@ def cli_main():
     out_dir.mkdir(exist_ok=True)
     out_file = out_dir / f"{datetime.now().strftime('%H%M%S')}.scan.{video_info.file_name}.png"
     scan.save(out_file)
-    print(f"Scan saved to: {out_file}")
+    log.info(f"Scan saved to: {out_file}")
 
 
 if __name__ == "__main__":
@@ -130,5 +131,5 @@ if __name__ == "__main__":
     try:
         cli_main()
     except (FileNotFoundError, ValueError, IndexError) as e:
-        print(e)
+        log.error(e)
         exit(1)

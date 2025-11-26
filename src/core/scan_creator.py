@@ -20,6 +20,7 @@ from ..typings.video_info import (
     SubtitleInfoDict,
     VideoInfoDict,
 )
+from ..utils.console import log
 from .config_manager import config_manager
 from .video_info import VideoInfo
 
@@ -49,7 +50,7 @@ def ffprobe_get_info(filename: str) -> Dict[Any, Any] | None:
         info = dict(json.loads(stdout.decode("utf-8")))
         return info
     except json.JSONDecodeError:
-        print("Failed to decode JSON from stdout")
+        log.error("Failed to decode JSON from stdout")
         return None
 
 
