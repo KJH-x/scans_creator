@@ -121,6 +121,7 @@ def render_scan_image(
     container_main.add(container_metadata)
 
     # * Calculate layout and canvas size
+    root.measure()  # Update all child element sizes manually before layout
     root.layout(max_width=canvas_width)
     root.measure()  # Update all child element sizes manually before calculating flex-grow
     root.width = canvas_width  # Set the target size for the root element (IMPORTANT)

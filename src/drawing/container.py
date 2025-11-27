@@ -28,11 +28,14 @@ class FlexContainer(Element):
         self.children.append(element)
 
     def layout(self, max_width: int | None = None):
-        """Never care about height limitation"""
+        """
+        - NEVER care about height limitation
+        - root.measure() need be manually called outside BEFORE and AFTER method
+        """
         if max_width is None:
             max_width = sys.maxsize
 
-        children_widths: List[int] = [c.measure().width + c.margin.left + c.margin.right for c in self.children]
+        children_widths: List[int] = [c.width + c.margin.left + c.margin.right for c in self.children]
         if self.direction == "row":
             total_width = sum(children_widths) + self.spacing * (len(children_widths) - 1)
         else:
@@ -100,11 +103,11 @@ class FlexContainer(Element):
         widths = [c.measure().width + c.margin.x for c in self.children]
         heights = [c.measure().height + c.margin.y for c in self.children]
         if self.direction == "row":
-            self.width = sum(widths)
-            self.height = max(heights)
+            self.width = (sum(widths) if widths else 0) + self.spacing * (len(widths) - 1)
+            self.height = max(heights) if heights else 0
         else:
-            self.width = max(widths)
-            self.height = sum(heights)
+            self.width = max(widths) if widths else 0
+            self.height = (sum(heights) if heights else 0) + self.spacing * (len(heights) - 1)
         return ElementSize(self.width, self.height)
 
     def render(self, canvas: ImageType):
