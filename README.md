@@ -129,6 +129,10 @@ This file is responsible for setting the layout style of the metadata (including
 
 You can update these values to suit your project needs. For example, if you'd prefer a smaller grid (or  bigger snapshots), change `"grid_size": [4, 4]` to `"grid_size": [3, 3]` for a 3x3 grid (9 snapshots).
 
+- `spacing_*`: See [schema.json](config/schemas/layout.schema.json)(TODO: Graph)
+
+- `timestamp_offset_y`: Vertical offset for snapshot timestamp display in pixels.
+
 ## Limitations & Known Issues
 
 - **Early Development**: This is an early-stage project, and bugs may result in crashes or incomplete image generation.

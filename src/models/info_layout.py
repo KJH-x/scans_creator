@@ -24,6 +24,17 @@ class InfoLayout(BaseModel):
         ..., min_items=3, max_items=4, description="RGB values for shadow color"
     )
     text_list: List[List[TextField | str]] = Field(..., min_items=1, description="Structured text entries for display")
+    spacing_title_to_content: int = Field(
+        22, ge=0, description="Vertical spacing between title and content sections in pixels"
+    )
+    spacing_label_to_value: int = Field(
+        6, ge=0, description="Horizontal spacing between label and value in metadata entries in pixels"
+    )
+    spacing_in_one_metadata_column: int = Field(
+        10, ge=0, description="Vertical spacing between entries in one metadata column in pixels"
+    )
+    spacing_metadata_columns: int = Field(25, ge=0, description="Horizontal spacing between metadata columns in pixels")
+    timestamp_offset_y: int = Field(10, description="Vertical offset for snapshot timestamp display in pixels")
 
     @model_validator(mode="after")
     def check_text_list_vs_fonts(cls, values):

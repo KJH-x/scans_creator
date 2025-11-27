@@ -58,6 +58,7 @@ def render_scan_image(
     title: str = full_contents[0][0]
     contents: List[List[str]] = copy.deepcopy(full_contents[1:])
 
+    # root node
     root = FlexContainer(
         direction="row",
         align="start",
@@ -65,24 +66,34 @@ def render_scan_image(
         margin=ElementMargin(22, 22, 100, 22),
     )
 
-    container_main = FlexContainer(direction="column", spacing=22, flex_grow=1)
+    # title and metadata
+    container_main = FlexContainer(
+        direction="column", spacing=config_manager.layout.spacing_title_to_content, flex_grow=1
+    )
     root.add(container_main)
+
+    # logo
     root.add(ImageElement(Image.open(config_manager.config.logo_file).resize((405, 405), Resampling.LANCZOS)))
 
+    # title: file name
     container_main.add(
         TextElement(
             title,
             available_font_list[config_manager.layout.font_list[0]],
-            line_spacing=4,
             color=text_color,
             shadow_color=shade_color,
             shadow_offset=shade_offset,
         )
     )
 
-    container_metadata = FlexContainer(direction="row", align="justify", spacing=25)
+    # Row( Column( Row( Label, Value)))
+    container_metadata = FlexContainer(
+        direction="row", align="justify", spacing=config_manager.layout.spacing_metadata_columns
+    )
     for i in range(len(contents) // 2):
-        container_column = FlexContainer(direction="column", spacing=10)
+        container_column = FlexContainer(
+            direction="column", spacing=config_manager.layout.spacing_in_one_metadata_column
+        )
         for label, content in zip(contents[2 * i], contents[2 * i + 1]):
             label_element = TextElement(
                 label,
@@ -99,7 +110,13 @@ def render_scan_image(
                 shadow_color=shade_color,
                 shadow_offset=shade_offset,
             )
-            container_column.add(FlexContainer([label_element, content_element], direction="row", spacing=6))
+            container_column.add(
+                FlexContainer(
+                    [label_element, content_element],
+                    direction="row",
+                    spacing=config_manager.layout.spacing_label_to_value,
+                )
+            )
         container_metadata.add(container_column)
     container_main.add(container_metadata)
 
@@ -114,14 +131,14 @@ def render_scan_image(
     image_height = math.floor(scan_height / scan_width * image_width)
     canvas_height = image_height * row + root.height + root.margin.y
 
-    # * Render
+    # * Render: metadata
     scan_image = Image.new("RGB", (canvas_width, canvas_height), "white")
     root.render(scan_image)
     draw = ImageDraw.Draw(scan_image)
 
+    # * Render: snapshots
     y_offset = root.height + root.margin.y
     for idx, image in enumerate(images):
-
         grid_x = (idx % col) * image_width
         grid_y = (idx // col) * image_height + y_offset
 
@@ -129,14 +146,19 @@ def render_scan_image(
         scan_image.paste(image_resized, (grid_x, grid_y))
 
         snapshot_time = str(timedelta(seconds=snapshottimes[idx]))
-        text_bbox = draw.textbbox((0, 0), snapshot_time, font=time_font)
-        text_width = int(text_bbox[2] - text_bbox[0])
-        text_height = int(text_bbox[3] - text_bbox[1])
+        l, t, r, b = time_font.getbbox(snapshot_time)
+        text_width = int(r - l)
+        ascent, descent = time_font.getmetrics()
+        text_height = ascent + descent
         timestamp_x = grid_x + (image_width - text_width) // 2
-        timestamp_y = grid_y - (text_height // 2) + 10
+        timestamp_y = grid_y - (text_height // 2) + config_manager.layout.timestamp_offset_y
 
-        background = Image.new("RGBA", (text_width, text_height), (0, 0, 0, int(255 * 0.6)))
-        scan_image.paste(background, (timestamp_x, timestamp_y + 14), background)
+        background = Image.new(
+            "RGBA",
+            (text_width, text_height),
+            (0, 0, 0, int(255 * 0.6)),
+        )
+        scan_image.paste(background, (timestamp_x, timestamp_y), background)
         draw.text((timestamp_x, timestamp_y), snapshot_time, fill=(255, 255, 255, int(255 * 0.6)), font=time_font)
 
     return scan_image

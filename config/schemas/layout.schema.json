@@ -121,6 +121,40 @@
       "minItems": 1,
       "title": "Text List",
       "type": "array"
+    },
+    "spacing_title_to_content": {
+      "default": 22,
+      "description": "Vertical spacing between title and content sections in pixels",
+      "minimum": 0,
+      "title": "Spacing Title To Content",
+      "type": "integer"
+    },
+    "spacing_label_to_value": {
+      "default": 6,
+      "description": "Horizontal spacing between label and value in metadata entries in pixels",
+      "minimum": 0,
+      "title": "Spacing Label To Value",
+      "type": "integer"
+    },
+    "spacing_in_one_metadata_column": {
+      "default": 10,
+      "description": "Vertical spacing between entries in one metadata column in pixels",
+      "minimum": 0,
+      "title": "Spacing In One Metadata Column",
+      "type": "integer"
+    },
+    "spacing_metadata_columns": {
+      "default": 25,
+      "description": "Horizontal spacing between metadata columns in pixels",
+      "minimum": 0,
+      "title": "Spacing Metadata Columns",
+      "type": "integer"
+    },
+    "timestamp_offset_y": {
+      "default": 10,
+      "description": "Vertical offset for snapshot timestamp display in pixels",
+      "title": "Timestamp Offset Y",
+      "type": "integer"
     }
   },
   "required": [
