@@ -1,6 +1,7 @@
 import argparse
 from datetime import datetime
 from pathlib import Path
+from typing import Tuple
 
 from PIL.Image import Resampling
 
@@ -92,7 +93,7 @@ def cli_main():
                 if 0 <= idx <= max_index:
                     selected_stream_index = idx
                 else:
-                    log.error("Index out of range, please try again.")
+                    log.error(f"Index out of range. Please enter a value between 0 and {max_index}.")
             except ValueError:
                 log.error("Invalid input, please enter an integer.")
 
@@ -103,7 +104,7 @@ def cli_main():
         video_info.set_active_video_stream(0)
 
     # Snapshot and scan creation
-    grid_shape = tuple(config_manager.layout.grid_shape)
+    grid_shape: Tuple[int, int] = tuple(config_manager.layout.grid_shape)
     snapshot_times = calculate_snapshot_times(
         video_info,
         config_manager.config.avoid_leading,

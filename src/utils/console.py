@@ -28,16 +28,16 @@ def cinput(prompt: str, color: Color = "reset") -> str:
 
 
 class Logger:
-    def debug(self, *args, **kwargs):
+    def debug(self, *args, **kwargs) -> None:
         cprint(*args, color="blue", prefix="[DEBUG]", **kwargs)
 
-    def info(self, *args, **kwargs):
+    def info(self, *args, **kwargs) -> None:
         cprint(*args, color="green", prefix="[INFO]", **kwargs)
 
-    def warn(self, *args, **kwargs):
+    def warn(self, *args, **kwargs) -> None:
         cprint(*args, color="yellow", prefix="[WARN]", **kwargs)
 
-    def error(self, *args, **kwargs):
+    def error(self, *args, **kwargs) -> None:
         cprint(*args, color="red", prefix="[ERROR]", **kwargs)
 
 

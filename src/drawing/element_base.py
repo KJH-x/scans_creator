@@ -39,8 +39,8 @@ class Element(ABC):
         max_width: int | None = None,
         min_height: int | None = None,
         max_height: int | None = None,
-        no_flex_shrink=False,
-        flex_grow=0.0,
+        no_flex_shrink: bool = False,
+        flex_grow: float = 0.0,
     ):
         self.preferred_width = preferred_width
         self.preferred_height = preferred_height
@@ -90,10 +90,10 @@ class TextElement(Element):
         super().__init__(width, height, margin, no_flex_shrink=no_flex_shrink)
 
     def measure(self) -> ElementSize:
-        widths = []
+        widths: List[int] = []
         for line in self.show_text:
-            l, t, r, b = self.font.getbbox(line)
-            widths.append(r - l)
+            l, _t, r, _b = self.font.getbbox(line)
+            widths.append(int(r - l))
         width = max(widths) if widths else 0
 
         ascent, descent = self.font.getmetrics()
@@ -129,7 +129,7 @@ class TextElement(Element):
         draw.text((x, y), text, font=self.font, fill=self.color)
 
     def test_width(self, text: str) -> int:
-        l, t, r, b = self.font.getbbox(text)
+        l, _t, r, _b = self.font.getbbox(text)
         return int(r - l)
 
     def truncate_or_wrap(self, max_width: int):

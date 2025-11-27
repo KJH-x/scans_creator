@@ -16,6 +16,10 @@ class _ConfigManager:
     """
 
     def __init__(self) -> None:
+        # SHA256 checksum of config/schemas/defaults.json.bak.
+        # This is used to ensure the integrity of the default configuration file.
+        # If you update defaults.json.bak, regenerate this checksum using:
+        #   python -m src.utils.common
         self.defaults_SHA256 = "3fc953d1c6112f76ff82e4ef1f49a93e1e1763ac93118cdf2c68967bf291e700"
         self.CONFIG_ROOT = Path(__file__).parents[2] / "config"
 

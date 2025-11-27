@@ -17,7 +17,7 @@ def ensure_file_exists(v: str) -> str:
 
 class Font(BaseModel):
     path: str
-    size: conint(ge=1)
+    size: int = Field(..., ge=1)
 
     @field_validator("path")
     @classmethod

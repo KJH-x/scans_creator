@@ -37,15 +37,15 @@ class InfoLayout(BaseModel):
     timestamp_offset_y: int = Field(10, description="Vertical offset for snapshot timestamp display in pixels")
 
     @model_validator(mode="after")
-    def check_text_list_vs_fonts(cls, values):
-        font_list = values.font_list
-        text_list = values.text_list
+    def check_text_list_vs_fonts(self):
+        font_list = self.font_list
+        text_list = self.text_list
         if font_list is not None and text_list is not None:
             if len(font_list) != len(text_list):
                 raise ValueError(
                     f"The length of font_list ({len(font_list)}) does not match the number of text_list rows ({len(text_list)})"
                 )
-        return values
+        return self
 
 
 if __name__ == "__main__":

@@ -16,19 +16,19 @@ from .element_base import ElementMargin, ImageElement, TextElement
 
 
 def render_scan_image(
-    images: List[ImageType], grid: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo
+    images: List[ImageType], grid_shape: Tuple[int, int], snapshottimes: List[int], video_info: VideoInfo
 ) -> ImageType:
     """
     Create a composite scan image by arranging snapshots in a grid format with metadata and a logo overlay.
 
     Args:
         images (List[ImageType]): List of snapshot images to arrange in the scan image.
-        grid (Tuple[int, int]): Number of columns and rows for arranging images in the scan image.
+        grid_shape (Tuple[int, int]): Number of columns and rows for arranging images in the scan image.
         snapshottimes (List[int]): List of snapshot times (in seconds) for each image to display as timestamps.
         video_info (VideoInfo): Metadata about the video, including file, video, audio, and subtitle information.
 
     Raises:
-        ValueError: If the number of `images` does not match the required number based on `grid`.
+        ValueError: If the number of `images` does not match the required number based on `grid_shape`.
 
     Returns:
         ImageType: A PIL Image object of the completed scan image, with:
@@ -38,15 +38,15 @@ def render_scan_image(
     """
     canvas_width = config_manager.layout.canvas_width
 
-    col, row = grid
+    col, row = grid_shape
     total_images = col * row
     if len(images) != total_images:
         raise ValueError(f"Image count ({len(images)}) does not match the grid count ({total_images}).")
 
     # * Define header layout
     shade_offset = config_manager.layout.shade_offset
-    text_color = tuple(config_manager.layout.text_color)
-    shade_color = tuple(config_manager.layout.shade_color)
+    text_color: Tuple[int, int, int] = tuple(config_manager.layout.text_color)
+    shade_color: Tuple[int, int, int] = tuple(config_manager.layout.shade_color)
 
     available_font_list: List[FreeTypeFont] = [
         ImageFont.truetype(font.path, font.size) for font in config_manager.config.fonts
@@ -146,7 +146,7 @@ def render_scan_image(
         scan_image.paste(image_resized, (grid_x, grid_y))
 
         snapshot_time = str(timedelta(seconds=snapshottimes[idx]))
-        l, t, r, b = time_font.getbbox(snapshot_time)
+        l, _t, r, _b = time_font.getbbox(snapshot_time)
         text_width = int(r - l)
         ascent, descent = time_font.getmetrics()
         text_height = ascent + descent
