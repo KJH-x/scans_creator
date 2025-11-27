@@ -6,7 +6,7 @@ from pydantic import ValidationError
 
 from ..models.global_config import GlobalConfig
 from ..models.info_layout import InfoLayout
-from ..utils.common import calculate_sha256
+from ..utils.common import calculate_json_sha256
 from ..utils.console import log
 
 
@@ -16,7 +16,7 @@ class _ConfigManager:
     """
 
     def __init__(self) -> None:
-        self.defaults_SHA256 = "f1d50d9d7c4621ff6d8cee5a68a8cb61d7e32ef6dd4a46a05941df0da669210a"
+        self.defaults_SHA256 = "3fc953d1c6112f76ff82e4ef1f49a93e1e1763ac93118cdf2c68967bf291e700"
         self.CONFIG_ROOT = Path(__file__).parents[2] / "config"
 
         self._check_configfile()
@@ -26,7 +26,7 @@ class _ConfigManager:
         Check if the configuration file exists, and create missing files.
         """
         back_config_path = self.CONFIG_ROOT / "schemas/defaults.json.bak"
-        if calculate_sha256(back_config_path) != self.defaults_SHA256:
+        if calculate_json_sha256(back_config_path) != self.defaults_SHA256:
             log.error(f"Checksum mismatch for {back_config_path}. The file may have been modified.")
             exit(1)
 

@@ -1,28 +1,24 @@
 import hashlib
+import json
 from pathlib import Path
 
 
-def calculate_sha256(json_file_path: str | Path):
+def calculate_json_sha256(json_file_path: Path) -> str:
     """
-    Read the JSON file, remove whitespace,
-    then calculate the SHA256 hash of the cleaned JSON string.
-
-    Args:
-        json_file_path (str): Path to the JSON file to be processed.
-
-    Returns:
-        str: SHA256 hash of the processed JSON string.
+    Read the JSON file, normalize it by removing formatting whitespace
+    but keeping internal string spaces, then compute SHA256.
     """
-    with open(json_file_path, "r", encoding="utf-8") as file:
-        file_content = file.read()
+    try:
+        with open(json_file_path, "r", encoding="utf-8") as file:
+            obj = json.load(file)
 
-    # remove all whitespace characters (spaces, newlines, etc.)
-    cleaned_content = "".join(file_content.split())
-    sha256_hash = hashlib.sha256(cleaned_content.encode("utf-8")).hexdigest()
-    return sha256_hash
+        normalized = json.dumps(obj, ensure_ascii=False, separators=(",", ":"))
+        return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+    except Exception as e:
+        raise RuntimeError(f"Failed to calculate JSON SHA256: {e}") from e
 
 
 if __name__ == "__main__":
     # for development
     json_path = Path(__file__).parents[2] / "config/schemas/defaults.json.bak"
-    print(f'self.defaults_SHA256 = "{calculate_sha256(json_path)}"')
+    print(f'self.defaults_SHA256 = "{calculate_json_sha256(json_path)}"')

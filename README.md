@@ -41,8 +41,6 @@ This project is a **video snapshot and metadata scanner** that captures snapshot
 3. **Fonts and Logo**:
    Place your chosen fonts in the `fonts/` directories.
 
-当然，这里是生成好的 Markdown 代码版本，可直接放入 README：
-
 ## Usage
 
 You can run the script either interactively or by providing CLI arguments.
