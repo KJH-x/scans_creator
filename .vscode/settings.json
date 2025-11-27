@@ -1,0 +1,23 @@
+{
+  "files.associations": {
+    "*.json.bak": "json"
+  },
+  "files.exclude": {
+    "**/__pycache__": true
+  },
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "config/global.json"
+      ],
+      "url": "./config/schemas/global.schema.json"
+    },
+    {
+      "fileMatch": [
+        "config/layout/*.json"
+      ],
+      "url": "./config/schemas/layout.schema.json"
+    }
+  ],
+  "python.analysis.typeCheckingMode": "standard"
+}

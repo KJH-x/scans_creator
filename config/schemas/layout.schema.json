@@ -1,0 +1,171 @@
+{
+  "$defs": {
+    "TextField": {
+      "properties": {
+        "field": {
+          "enum": [
+            "F",
+            "V",
+            "A",
+            "S"
+          ],
+          "title": "Field",
+          "type": "string"
+        },
+        "key": {
+          "title": "Key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "key"
+      ],
+      "title": "TextField",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "canvas_width": {
+      "default": 3200,
+      "description": "Width of the output canvas in pixels",
+      "minimum": 1200,
+      "title": "Canvas Width",
+      "type": "integer"
+    },
+    "grid_shape": {
+      "description": "Grid size as [rows, columns], each >=1",
+      "maxItems": 2,
+      "minItems": 2,
+      "prefixItems": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "minimum": 1,
+          "type": "integer"
+        }
+      ],
+      "title": "Grid Shape",
+      "type": "array"
+    },
+    "font_list": {
+      "description": "Indexes of fonts to use",
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 1,
+      "title": "Font List",
+      "type": "array"
+    },
+    "time_font": {
+      "description": "Index of font for time display",
+      "title": "Time Font",
+      "type": "integer"
+    },
+    "shade_offset": {
+      "description": "Shadow offset values",
+      "maxItems": 2,
+      "minItems": 2,
+      "prefixItems": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "integer"
+        }
+      ],
+      "title": "Shade Offset",
+      "type": "array"
+    },
+    "text_color": {
+      "description": "RGB values for text color",
+      "items": {
+        "maximum": 255,
+        "minimum": 0,
+        "type": "integer"
+      },
+      "maxItems": 4,
+      "minItems": 3,
+      "title": "Text Color",
+      "type": "array"
+    },
+    "shade_color": {
+      "description": "RGB values for shadow color",
+      "items": {
+        "maximum": 255,
+        "minimum": 0,
+        "type": "integer"
+      },
+      "maxItems": 4,
+      "minItems": 3,
+      "title": "Shade Color",
+      "type": "array"
+    },
+    "text_list": {
+      "description": "Structured text entries for display",
+      "items": {
+        "items": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TextField"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "type": "array"
+      },
+      "minItems": 1,
+      "title": "Text List",
+      "type": "array"
+    },
+    "spacing_title_to_content": {
+      "default": 22,
+      "description": "Vertical spacing between title and content sections in pixels",
+      "minimum": 0,
+      "title": "Spacing Title To Content",
+      "type": "integer"
+    },
+    "spacing_label_to_value": {
+      "default": 6,
+      "description": "Horizontal spacing between label and value in metadata entries in pixels",
+      "minimum": 0,
+      "title": "Spacing Label To Value",
+      "type": "integer"
+    },
+    "spacing_in_one_metadata_column": {
+      "default": 10,
+      "description": "Vertical spacing between entries in one metadata column in pixels",
+      "minimum": 0,
+      "title": "Spacing In One Metadata Column",
+      "type": "integer"
+    },
+    "spacing_metadata_columns": {
+      "default": 25,
+      "description": "Horizontal spacing between metadata columns in pixels",
+      "minimum": 0,
+      "title": "Spacing Metadata Columns",
+      "type": "integer"
+    },
+    "timestamp_offset_y": {
+      "default": 10,
+      "description": "Vertical offset for snapshot timestamp display in pixels",
+      "title": "Timestamp Offset Y",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "grid_shape",
+    "font_list",
+    "time_font",
+    "shade_offset",
+    "text_color",
+    "shade_color",
+    "text_list"
+  ],
+  "title": "InfoLayout",
+  "type": "object"
+}

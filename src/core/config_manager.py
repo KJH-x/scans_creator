@@ -1,0 +1,88 @@
+import json
+from pathlib import Path
+from typing import Dict
+
+from pydantic import ValidationError
+
+from ..models.global_config import GlobalConfig
+from ..models.info_layout import InfoLayout
+from ..utils.common import calculate_json_sha256
+from ..utils.console import log
+
+
+class _ConfigManager:
+    """
+    Class to manage configuration operations.
+    """
+
+    def __init__(self) -> None:
+        # SHA256 checksum of config/schemas/defaults.json.bak.
+        # This is used to ensure the integrity of the default configuration file.
+        # If you update defaults.json.bak, regenerate this checksum using:
+        #   python -m src.utils.common
+        self.defaults_SHA256 = "3fc953d1c6112f76ff82e4ef1f49a93e1e1763ac93118cdf2c68967bf291e700"
+        self.CONFIG_ROOT = Path(__file__).parents[2] / "config"
+
+        self._check_configfile()
+
+    def _check_configfile(self) -> None:
+        """
+        Check if the configuration file exists, and create missing files.
+        """
+        back_config_path = self.CONFIG_ROOT / "schemas/defaults.json.bak"
+        if calculate_json_sha256(back_config_path) != self.defaults_SHA256:
+            log.error(f"Checksum mismatch for {back_config_path}. The file may have been modified.")
+            exit(1)
+
+        with open(back_config_path, "r", encoding="utf-8") as file:
+            defaults: Dict[str, Dict] = json.load(file)
+
+        # filter out developer-only keys
+        defaults = {k: v for k, v in defaults.items() if not k.startswith("_")}
+
+        for fname, cfg in defaults.items():
+            dest: str = cfg.pop("_dest", "config")
+            target_path = self.CONFIG_ROOT.parent / dest / fname
+            if not target_path.exists():
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(target_path, "w", encoding="utf-8") as f:
+                    json.dump(cfg, f, indent=2, ensure_ascii=False)
+                log.warn(f"Created default configuration file: {target_path}. Please review and modify its content.")
+
+    def load_config(self, layout_name: str) -> None:
+        """
+        Loads the configuration data from the config file and validates by Pydantic.
+
+        Raises:
+            FileNotFoundError: If the config file does not exist.
+            ValueError: If the config file is not valid.
+        """
+        try:
+            self.config = GlobalConfig.model_validate_json(
+                (self.CONFIG_ROOT / "global.json").read_text(encoding="utf-8")
+            )
+            self.layout = InfoLayout.model_validate_json(
+                (self.CONFIG_ROOT / "layout" / layout_name).with_suffix(".json").read_text(encoding="utf-8")
+            )
+
+            # cross-model validation
+            max_index = len(self.config.fonts) - 1
+            if any(idx > max_index or idx < 0 for idx in self.layout.font_list):
+                raise ValueError(f"Config validation failed:\nfont_list contains index out of bounds (max {max_index})")
+            if self.layout.time_font > max_index or self.layout.time_font < 0:
+                raise ValueError(f"Config validation failed:\ntime_font index out of bounds (max {max_index})")
+
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"Config file not found: {e}")
+
+        except ValidationError as e:
+            raise ValueError(f"Config validation failed:\n{e}")
+
+        log.info(f"Configuration loaded successfully from layout: {layout_name}")
+
+
+config_manager = _ConfigManager()
+log.debug(
+    f"ConfigManager initialized with name {__name__} (id: {id(config_manager)}). "
+    f"(If you see this message multiple times, the singleton may fail.)"
+)
