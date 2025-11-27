@@ -63,14 +63,6 @@ python main.py --file "/path/to/video.mp4" --layout en.json --stream 0
 6. Optionally rescales the final image according to the configuration.
 7. Saves the scan image as PNG in the `scans/` directory.
 
-### Output format
-
-```bash
-scans/<timestamp>.scan.<video_filename>.png
-```
-
-- Contains a grid of snapshots with overlaid metadata according to the selected layout.
-
 ## Example Output
 
 The output will be a composite image arranged in a grid layout, displaying snapshots and video metadata with a custom logo.
@@ -81,7 +73,7 @@ The output will be a composite image arranged in a grid layout, displaying snaps
 
 ### Default Configuration
 
-Backups of the default configuration files are saved at `schemas/defaults.json.bak`(Preview [here](https://github.com/KJH-x/scans_creator/blob/main/schemas/defaults.json.bak)). The SHA256 checksum of the file is hard-coded in the code to ensure the correctness of the file, and the program cannot run if the checksum does not match.
+Backups of the default configuration files are saved at `schemas/defaults.json.bak`(Preview [here](https://github.com/KJH-x/scans_creator/blob/main/config/schemas/defaults.json.bak)). The SHA256 checksum of the file is hard-coded in the code to ensure the correctness of the file, and the program cannot run if the checksum does not match.
 
 ### `global.json`
 
@@ -127,7 +119,7 @@ This file is responsible for setting the layout style of the metadata (including
 
 You can update these values to suit your project needs. For example, if you'd prefer a smaller grid (or  bigger snapshots), change `"grid_size": [4, 4]` to `"grid_size": [3, 3]` for a 3x3 grid (9 snapshots).
 
-- `spacing_*`: See [schema.json](config/schemas/layout.schema.json)(TODO: Graph)
+- `spacing_*`: See [schema.json](https://github.com/KJH-x/scans_creator/blob/main/config/schemas/layout.schema.json)(TODO: Graph)
 
 - `timestamp_offset_y`: Vertical offset for snapshot timestamp display in pixels.
 
