@@ -46,12 +46,15 @@ This project is a **video snapshot and metadata scanner** that captures snapshot
 You can run the script either interactively or by providing CLI arguments.
 
 ```bash
-python main.py --file "/path/to/video.mp4" --layout en.json --stream 0
+python cli.py --file "/path/to/video.mp4" --layout en.json --stream 0
+
+# suffix `.json` can be ignored
+python cli.py -f "/path/to/video.mp4" -l zh-CN -s 0
 ```
 
-- `--file` (optional): Path to the video file. If omitted, the script will ask interactively.
-- `--layout` (optional): Layout preset to use (`zh-CN` by default). Determines font selection, grid size, and text arrangement.
-- `--stream` (optional): Index of the video stream to use if multiple streams exist. If omitted and multiple streams exist, user will be prompted.
+- `--file / -f` (optional): Path to the video file. If omitted, the script will ask interactively.
+- `--layout / -l` (optional): Layout preset to use (`zh-CN` by default). Determines font selection, grid size, and text arrangement.
+- `--stream / -s` (optional): Index of the video stream to use if multiple streams exist. If omitted and multiple streams exist, user will be prompted.
 
 ### What the script does
 
@@ -119,9 +122,53 @@ This file is responsible for setting the layout style of the metadata (including
 
 You can update these values to suit your project needs. For example, if you'd prefer a smaller grid (or  bigger snapshots), change `"grid_size": [4, 4]` to `"grid_size": [3, 3]` for a 3x3 grid (9 snapshots).
 
-- `spacing_*`: See [schema.json](https://github.com/KJH-x/scans_creator/blob/main/config/schemas/layout.schema.json)(TODO: Graph)
+- `spacing_*`: See [schema.json](https://github.com/KJH-x/scans_creator/blob/main/config/schemas/layout.schema.json) and chart below
 
 - `timestamp_offset_y`: Vertical offset for snapshot timestamp display in pixels.
+
+```mermaid
+flowchart LR
+  subgraph root["Root"]
+    direction LR
+
+    subgraph mainContent["Main Content"]
+      direction TB
+
+      subgraph metadata["Metadata"]
+        direction LR
+        subgraph metaCol["Metadata Column"]
+          direction TB
+          subgraph metaCell["Metadata Cell"]
+            direction LR
+            label <--"spacing_label_to_value"--> value
+          end
+          metaCell 
+          <-- "spacing_in_one<br>_metadata_column" --> 
+          metaCell2["<span style='visibility:hidden'>0000</span>Metadata Cell 2<span style='visibility:hidden'>0000</span>"]
+          <-- "spacing_in_one<br>_metadata_column" --> 
+          metaCell3["<span style='visibility:hidden'>0000</span>Metadata Cell 3<span style='visibility:hidden'>0000</span>"]
+          
+          style metaCell2 white-space:nowrap
+          style metaCell3 white-space:nowrap
+        end
+
+        metaCol  
+        <-- "spacing_metadata_columns" --> 
+        metaCol2["<br><br><br><br><br><br><br><br><br><br><br><br><br><br>Metadata Column 2<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>"]  
+        <-- "spacing_metadata_columns" --> 
+        metaCol3["<br><br><br><br><br><br><br><br><br><br><br><br><br><br>Metadata Column 3<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>"]  
+        
+      end
+    
+      Title["Title Title *TITLE* Title Title"] 
+      <--"spacing_title_to_content"--> metadata
+
+      style Title white-space:nowrap
+    end
+
+    mainContent ~~~ Logo
+  end
+```
 
 ## Limitations & Known Issues
 
